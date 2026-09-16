@@ -88,7 +88,7 @@ function App() {
       <div style={{ maxWidth: '600px', textAlign: 'center' }}>
         <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '280px', height: 'auto', marginBottom: '40px' }} />
         
-        <h1 style={{ color: '#1B5E4E', marginBottom: '30px', fontSize: '28px' }}>Welcome to Dinner with Charles</h1>
+        <h1 style={{ color: '#1B5E4E', marginBottom: '30px', fontSize: '28px' }}>Welcome to Weekly Kitchen</h1>
         
         <p style={{ fontSize: '16px', color: '#666', marginBottom: '40px', lineHeight: '1.6' }}>
           Fresh, chef-prepared meals delivered weekly. Sign in to order your meals.
@@ -106,7 +106,7 @@ function App() {
             onClick={() => setScreen('signup')} 
             style={{ padding: '12px 24px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
           >
-            Sign Up
+            Request to Join
           </button>
         </div>
       </div>
