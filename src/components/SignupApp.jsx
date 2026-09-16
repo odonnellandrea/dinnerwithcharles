@@ -25,7 +25,6 @@ export default function SignupApp({ onBack }) {
     proteinPreferences: '',
     cuisines: '',
     flavorTolerance: '',
-    mealPreferences: '',
     kidsEating: '',
     kidsQuirks: '',
     reheatingPreference: '',
@@ -99,7 +98,6 @@ export default function SignupApp({ onBack }) {
             protein_preferences: formData.proteinPreferences,
             cuisines_enjoyed: formData.cuisines,
             flavor_tolerance: formData.flavorTolerance,
-            meal_preferences: formData.mealPreferences,
             kids_eating: formData.kidsEating,
             kids_quirks: formData.kidsQuirks,
             reheating_preference: formData.reheatingPreference,
@@ -126,7 +124,7 @@ export default function SignupApp({ onBack }) {
           <h1 style={{ color: '#1B5E4E', marginBottom: '16px' }}>Welcome!</h1>
           
           <p style={{ fontSize: '16px', color: '#666', marginBottom: '12px', lineHeight: '1.6' }}>
-            Thank you for signing up for Dinner with Charles. Your application is being reviewed by our team.
+            Thank you for requesting to join Weekly Kitchen. Your request is being reviewed by our team.
           </p>
           
           <p style={{ fontSize: '16px', color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
@@ -147,6 +145,14 @@ export default function SignupApp({ onBack }) {
         <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px', display: 'block' }} />
 
         <div style={{ background: 'white', padding: '40px', borderRadius: '12px', border: '1px solid #e0dbd1' }}>
+          {step === 1 && (
+            <div style={{ marginBottom: '24px', padding: '16px', background: '#faf8f3', borderRadius: '8px', border: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0', color: '#666', fontSize: '14px', lineHeight: '1.6' }}>
+                We'd love to have you join our community! After you submit your information, we'll review your request to ensure we're the right fit for your family's needs. You'll hear from us within a few days.
+              </p>
+            </div>
+          )}
+
           <h2 style={{ color: '#1B5E4E', marginBottom: '24px' }}>Step {step} of 5</h2>
 
           {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
@@ -173,6 +179,9 @@ export default function SignupApp({ onBack }) {
 
           {step === 3 && (
             <div>
+              <div style={{ marginBottom: '16px', padding: '12px', background: '#faf8f3', borderRadius: '6px', fontSize: '13px', color: '#666', lineHeight: '1.5' }}>
+                We take your family's dietary needs seriously and will do our very best to accommodate allergies and restrictions. As a small kitchen operation, we're unable to safely accommodate families with severe food allergies at this time.
+              </div>
               <textarea placeholder="Allergies" value={formData.allergies} onChange={(e) => updateField('allergies', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
               <textarea placeholder="Health restrictions" value={formData.healthRestrictions} onChange={(e) => updateField('healthRestrictions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
               <textarea placeholder="Preference restrictions (e.g., vegetarian, no shellfish)" value={formData.preferenceRestrictions} onChange={(e) => updateField('preferenceRestrictions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
@@ -184,16 +193,21 @@ export default function SignupApp({ onBack }) {
               <input type="text" placeholder="Protein preferences" value={formData.proteinPreferences} onChange={(e) => updateField('proteinPreferences', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Cuisines enjoyed" value={formData.cuisines} onChange={(e) => updateField('cuisines', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Flavor tolerance (spicy, mild, adventurous)" value={formData.flavorTolerance} onChange={(e) => updateField('flavorTolerance', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="text" placeholder="Meal preferences" value={formData.mealPreferences} onChange={(e) => updateField('mealPreferences', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Do kids eat with you? (yes/no)" value={formData.kidsEating} onChange={(e) => updateField('kidsEating', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <textarea placeholder="Any kids quirks or preferences" value={formData.kidsQuirks} onChange={(e) => updateField('kidsQuirks', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
             </div>
           )}
 
           {step === 5 && (
             <div>
-              <input type="text" placeholder="Do kids eat with you? (yes/no)" value={formData.kidsEating} onChange={(e) => updateField('kidsEating', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <textarea placeholder="Any kids quirks or preferences" value={formData.kidsQuirks} onChange={(e) => updateField('kidsQuirks', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
-              <input type="text" placeholder="Reheating preference" value={formData.reheatingPreference} onChange={(e) => updateField('reheatingPreference', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <textarea placeholder="Anything else we should know?" value={formData.anythingElse} onChange={(e) => updateField('anythingElse', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#1B5E4E', fontSize: '14px' }}>How do you prefer to reheat?</label>
+              <select value={formData.reheatingPreference} onChange={(e) => updateField('reheatingPreference', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
+                <option value="">Select an option</option>
+                <option value="Toaster oven/Oven">Toaster oven/Oven</option>
+                <option value="Microwave">Microwave</option>
+                <option value="Both">Both</option>
+              </select>
+              <textarea placeholder="Is there anything else we should know to better understand your family's needs and preferences?" value={formData.anythingElse} onChange={(e) => updateField('anythingElse', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
             </div>
           )}
 
@@ -207,7 +221,7 @@ export default function SignupApp({ onBack }) {
               </button>
             ) : (
               <button onClick={handleSubmit} disabled={loading} style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
-                {loading ? 'Creating account...' : 'Create Account'}
+                {loading ? 'Submitting...' : 'Request to Join'}
               </button>
             )}
           </div>
