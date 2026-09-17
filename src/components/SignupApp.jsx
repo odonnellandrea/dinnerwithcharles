@@ -40,8 +40,21 @@ export default function SignupApp({ onBack }) {
 
   const handleNext = () => {
     if (step === 1) {
-      if (!formData.name || !formData.email || !formData.password) {
-        setError('Please fill in all fields')
+      // Step 1 validation
+      if (!formData.name || !formData.name.trim()) {
+        setError('Please enter your name')
+        return
+      }
+      if (!formData.email || !formData.email.trim()) {
+        setError('Please enter your email')
+        return
+      }
+      if (!formData.password) {
+        setError('Please enter a password')
+        return
+      }
+      if (!formData.confirmPassword) {
+        setError('Please confirm your password')
         return
       }
       if (formData.password !== formData.confirmPassword) {
@@ -53,6 +66,31 @@ export default function SignupApp({ onBack }) {
         return
       }
     }
+    
+    if (step === 2) {
+      // Step 2 validation
+      if (!formData.household || !formData.household.trim()) {
+        setError('Please enter your household composition')
+        return
+      }
+      if (!formData.address || !formData.address.trim()) {
+        setError('Please enter your delivery address')
+        return
+      }
+      if (!formData.phone || !formData.phone.trim()) {
+        setError('Please enter your phone number')
+        return
+      }
+      if (!formData.timeSlots || !formData.timeSlots.trim()) {
+        setError('Please select at least one delivery time preference')
+        return
+      }
+      if (!formData.paymentMethod || !formData.paymentMethod.trim()) {
+        setError('Please enter your preferred payment method')
+        return
+      }
+    }
+    
     setError('')
     setStep(step + 1)
   }
