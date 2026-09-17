@@ -3,148 +3,196 @@ import { createClient } from '@supabase/supabase-js'
 import GuestApp from './components/GuestApp'
 import AdminApp from './components/AdminApp'
 import SignupApp from './components/SignupApp'
+import PendingApprovalApp from './components/PendingApprovalApp'
+import RejectedApp from './components/RejectedApp'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_KEY
 )
 
-export default function App() {
+function App() {
   const [user, setUser] = useState(null)
+  const [approvalStatus, setApprovalStatus] = useState(null)
+  const [screen, setScreen] = useState('landing')
   const [loading, setLoading] = useState(true)
-  const [screen, setScreen] = useState('signup-or-login')
-  const [loginEmail, setLoginEmail] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
-  const [loginError, setLoginError] = useState('')
-  const [loginLoading, setLoginLoading] = useState(false)
-  const [forgotEmail, setForgotEmail] = useState('')
-  const [forgotError, setForgotError] = useState('')
-  const [forgotSuccess, setForgotSuccess] = useState('')
-  const [forgotLoading, setForgotLoading] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null)
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user) {
+        setUser(session.user)
+        const { data } = await supabase
+          .from('users')
+          .select('approval_status')
+          .eq('id', session.user.id)
+          .single()
+        
+        setApprovalStatus(data?.approval_status || 'pending')
+      }
       setLoading(false)
-    })
+    }
+
+    checkAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null)
+      if (session?.user) {
+        setUser(session.user)
+        setScreen('app')
+      } else {
+        setUser(null)
+        setScreen('landing')
+        setApprovalStatus(null)
+      }
     })
 
     return () => subscription?.unsubscribe()
   }, [])
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setLoginLoading(true)
-    setLoginError('')
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password: loginPassword
-      })
-      if (error) throw error
-      setLoginEmail('')
-      setLoginPassword('')
-    } catch (err) {
-      setLoginError(err.message || 'Login failed')
-    } finally {
-      setLoginLoading(false)
-    }
-  }
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault()
-    setForgotLoading(true)
-    setForgotError('')
-    setForgotSuccess('')
-
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-        redirectTo: window.location.origin
-      })
-      if (error) throw error
-      setForgotSuccess('Password reset link sent to your email!')
-      setForgotEmail('')
-    } catch (err) {
-      setForgotError(err.message || 'Failed to send reset link')
-    } finally {
-      setForgotLoading(false)
-    }
-  }
-
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setUser(null)
-    setScreen('signup-or-login')
+    setApprovalStatus(null)
+    setScreen('landing')
   }
 
-  if (loading) return <div></div>
+  if (loading) {
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>
+  }
 
+  // Check if admin
+  if (user?.email === 'admin@dinnerwithcharles.com') {
+    return <AdminApp onLogout={handleLogout} />
+  }
+
+  // Logged in but not admin
   if (user) {
-    return <GuestApp onLogout={handleLogout} />
+    if (approvalStatus === 'approved') {
+      return <GuestApp onLogout={handleLogout} />
+    } else if (approvalStatus === 'rejected') {
+      return <RejectedApp user={user} onLogout={handleLogout} />
+    } else {
+      return <PendingApprovalApp user={user} onLogout={handleLogout} />
+    }
   }
 
+  // Not logged in
   if (screen === 'signup') {
-    return <SignupApp onSignupComplete={() => setScreen('signup-or-login')} />
+    return <SignupApp onBack={() => setScreen('landing')} />
   }
 
-  if (screen === 'forgot-password') {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#faf8f3', flexDirection: 'column', padding: '20px' }}>
-        <div style={{ maxWidth: '400px', width: '100%' }}>
-          <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', marginBottom: '20px', display: 'block', margin: '0 auto 20px' }} />
-          <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1B5E4E', fontSize: '24px', fontWeight: '600' }}>Reset Password</h2>
-          {forgotError && <div style={{ color: '#d32f2f', marginBottom: '20px', padding: '12px', background: '#ffebee', borderRadius: '6px' }}>{forgotError}</div>}
-          {forgotSuccess && <div style={{ color: '#2e7d32', marginBottom: '20px', padding: '12px', background: '#e8f5e9', borderRadius: '6px' }}>{forgotSuccess}</div>}
-          <form onSubmit={handleForgotPassword}>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>Email</label>
-              <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} required style={{ width: '100%', padding: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', fontSize: '14px' }} />
-            </div>
-            <button type="submit" disabled={forgotLoading} style={{ width: '100%', padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', opacity: forgotLoading ? 0.5 : 1 }}>{forgotLoading ? 'Sending...' : 'Send Reset Link'}</button>
-          </form>
-          <button onClick={() => setScreen('login')} style={{ width: '100%', marginTop: '12px', padding: '12px', background: 'white', color: '#1B5E4E', border: '2px solid #1B5E4E', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}>Back to Sign In</button>
+  // Landing page
+  return (
+    <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '40px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ maxWidth: '600px', textAlign: 'center' }}>
+        <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '280px', height: 'auto', marginBottom: '40px' }} />
+        
+        <h1 style={{ color: '#1B5E4E', marginBottom: '30px', fontSize: '28px' }}>Welcome to Weekly Kitchen</h1>
+        
+        <p style={{ fontSize: '16px', color: '#666', marginBottom: '40px', lineHeight: '1.6' }}>
+          Fresh, chef-prepared meals delivered weekly. Sign in to order your meals.
+        </p>
+        
+        <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
+          <button 
+            onClick={() => setScreen('login')} 
+            style={{ padding: '12px 24px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+          >
+            Sign In
+          </button>
+          
+          <button 
+            onClick={() => setScreen('signup')} 
+            style={{ padding: '12px 24px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+          >
+            Request to Join
+          </button>
         </div>
       </div>
-    )
-  }
 
-  if (screen === 'login') {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#faf8f3', flexDirection: 'column', padding: '20px' }}>
-        <div style={{ maxWidth: '400px', width: '100%' }}>
-          <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', marginBottom: '20px', display: 'block', margin: '0 auto 20px' }} />
-          <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1B5E4E', fontSize: '24px', fontWeight: '600' }}>Sign In</h2>
-          {loginError && <div style={{ color: '#d32f2f', marginBottom: '20px', padding: '12px', background: '#ffebee', borderRadius: '6px' }}>{loginError}</div>}
-          <form onSubmit={handleLogin}>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>Email</label>
-              <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required style={{ width: '100%', padding: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', fontSize: '14px' }} />
-            </div>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>Password</label>
-              <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required style={{ width: '100%', padding: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', fontSize: '14px' }} />
-            </div>
-            <button type="submit" disabled={loginLoading} style={{ width: '100%', padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '14px', opacity: loginLoading ? 0.5 : 1 }}>{loginLoading ? 'Signing In...' : 'Sign In'}</button>
-          </form>
-          <button onClick={() => setScreen('forgot-password')} style={{ width: '100%', marginTop: '8px', padding: '8px', background: 'transparent', color: '#1B5E4E', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}>Forgot Password?</button>
-          <button onClick={() => setScreen('signup-or-login')} style={{ width: '100%', marginTop: '12px', padding: '12px', background: 'white', color: '#1B5E4E', border: '2px solid #1B5E4E', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}>Back</button>
-        </div>
-      </div>
-    )
+      {screen === 'login' && (
+        <LoginForm onSuccess={() => setScreen('app')} onBack={() => setScreen('landing')} />
+      )}
+    </div>
+  )
+}
+
+function LoginForm({ onSuccess, onBack }) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    setError('')
+
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+
+    if (signInError) {
+      setError(signInError.message)
+    } else if (data.user) {
+      onSuccess()
+    }
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#faf8f3', flexDirection: 'column', paddingTop: '40px' }}>
-      <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '280px', marginBottom: '10px' }} />
-      <p style={{ fontSize: '18px', color: '#D4A373', fontWeight: '600', margin: '0 0 40px 0' }}>Weekly Kitchen Orders</p>
-      <div style={{ display: 'flex', gap: '12px' }}>
-        <button onClick={() => setScreen('login')} style={{ padding: '12px 24px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>Sign In</button>
-        <button onClick={() => setScreen('signup')} style={{ padding: '12px 24px', background: 'white', color: '#1B5E4E', border: '2px solid #1B5E4E', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>Create Account</button>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+      <div style={{ background: 'white', padding: '40px', borderRadius: '12px', maxWidth: '400px', width: '90%' }}>
+        <h2 style={{ color: '#1B5E4E', marginBottom: '24px' }}>Sign In</h2>
+        
+        <form onSubmit={handleLogin}>
+          <input 
+            type="email" 
+            placeholder="Email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            style={{ width: '100%', padding: '12px', marginBottom: '16px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }}
+            required
+          />
+          
+          <div style={{ position: 'relative', marginBottom: '16px' }}>
+            <input 
+              type={showPassword ? 'text' : 'password'} 
+              placeholder="Password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              style={{ width: '100%', padding: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }}
+              required
+            />
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)} 
+              style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}
+            >
+              {showPassword ? '👁️' : '👁️‍🗨️'}
+            </button>
+          </div>
+          
+          {error && <p style={{ color: 'red', fontSize: '14px', marginBottom: '16px' }}>{error}</p>}
+          
+          <button 
+            type="submit" 
+            style={{ width: '100%', padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}
+          >
+            Sign In
+          </button>
+          
+          <button 
+            type="button" 
+            onClick={onBack} 
+            style={{ width: '100%', padding: '12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+          >
+            Back
+          </button>
+        </form>
       </div>
     </div>
   )
 }
+
+export default App
