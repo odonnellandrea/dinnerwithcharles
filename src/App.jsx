@@ -36,9 +36,16 @@ function App() {
 
     checkAuth()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setUser(session.user)
+        // Fetch approval status when user logs in
+        const { data } = await supabase
+          .from('users')
+          .select('approval_status')
+          .eq('id', session.user.id)
+          .single()
+        setApprovalStatus(data?.approval_status || 'pending')
         setScreen('app')
       } else {
         setUser(null)
@@ -69,7 +76,7 @@ function App() {
   // Logged in but not admin
   if (user) {
     if (approvalStatus === 'approved') {
-      return <GuestApp onLogout={handleLogout} />
+      return <GuestApp user={user} onLogout={handleLogout} />
     } else if (approvalStatus === 'rejected') {
       return <RejectedApp user={user} onLogout={handleLogout} />
     } else {
@@ -88,10 +95,10 @@ function App() {
       <div style={{ maxWidth: '600px', textAlign: 'center' }}>
         <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '280px', height: 'auto', marginBottom: '40px' }} />
         
-        <h1 style={{ color: '#1B5E4E', marginBottom: '30px', fontSize: '28px' }}>Welcome to Weekly Kitchen</h1>
+        <h1 style={{ color: '#1B5E4E', marginBottom: '30px', fontSize: '28px' }}>Welcome to Dinner with Charles</h1>
         
         <p style={{ fontSize: '16px', color: '#666', marginBottom: '40px', lineHeight: '1.6' }}>
-          Fresh, chef-prepared meals delivered weekly. Sign in to order your meals.
+          Your own private chef, cooking for your family the way we cook for ours.
         </p>
         
         <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
