@@ -6,6 +6,10 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY
 )
 
+// Saved as-is in users.payment_method. Older profiles may hold free text
+// (e.g. "credit card"); nothing in the app parses this value, so those stay valid.
+const PAYMENT_METHODS = ['Venmo', 'Zelle', 'Cash']
+
 export default function SignupApp({ onBack }) {
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
@@ -86,7 +90,7 @@ export default function SignupApp({ onBack }) {
         return
       }
       if (!formData.paymentMethod || !formData.paymentMethod.trim()) {
-        setError('Please enter your preferred payment method')
+        setError('Please choose your preferred payment method')
         return
       }
     }
@@ -211,7 +215,12 @@ export default function SignupApp({ onBack }) {
               <input type="tel" placeholder="Phone number" value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Delivery time preferences" value={formData.timeSlots} onChange={(e) => updateField('timeSlots', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Special instructions" value={formData.instructions} onChange={(e) => updateField('instructions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="text" placeholder="Payment method (e.g., credit card, Venmo)" value={formData.paymentMethod} onChange={(e) => updateField('paymentMethod', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <select value={formData.paymentMethod} onChange={(e) => updateField('paymentMethod', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontSize: '16px', background: 'white', color: formData.paymentMethod ? 'inherit' : '#999' }}>
+                <option value="">Preferred payment method</option>
+                {PAYMENT_METHODS.map(method => (
+                  <option key={method} value={method}>{method}</option>
+                ))}
+              </select>
             </div>
           )}
 
