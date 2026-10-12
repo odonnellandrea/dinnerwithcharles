@@ -1,4 +1,5 @@
 import { priceOrder, BASE_PRICE } from '../../src/lib/pricing.js'
+import { formatWindows } from '../../src/lib/deliveryWindows.js'
 
 const GREEN = '#1B5E4E'
 const GOLD = '#D4A373'
@@ -109,7 +110,7 @@ export function orderConfirmationEmail({ rows, siteUrl }) {
       <tr>
         <td style="padding:0 28px 24px 28px;vertical-align:top;">
           ${eyebrow('Your windows')}
-          <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">${escapeHtml(first.delivery_time_slot).split(', ').join('<br>')}</p>
+          <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">${escapeHtml(formatWindows(first.delivery_time_slot))}</p>
         </td>
       </tr>
     </table>

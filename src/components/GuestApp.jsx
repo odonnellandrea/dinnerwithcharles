@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import ReheatInstructions from './ReheatInstructions'
 import NotificationSettings from './NotificationSettings'
 import GuestHeader from './GuestHeader'
+import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
 import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE } from '../lib/pricing'
 
 const supabase = createClient(
@@ -11,8 +12,6 @@ const supabase = createClient(
 )
 
 const INSTAGRAM_DM_URL = 'https://ig.me/m/dinnerwithcharles'
-
-const TIME_SLOTS = ['9:00 AM - 11:00 AM', '11:00 AM - 1:00 PM', '1:00 PM - 5:00 PM', '5:00 PM - 7:00 PM', '7:00 PM - 9:00 PM']
 
 // delivery_date is a plain YYYY-MM-DD; parse as local so it doesn't shift a day in US timezones
 const formatDeliveryDate = (dateStr) => {
@@ -262,7 +261,7 @@ export default function GuestApp({ user, onLogout }) {
             item_name: item.name,
             quantity: qty,
             delivery_date: deliveryDate,
-            delivery_time_slot: deliveryTimeSlot.join(', '),
+            delivery_time_slot: serializeWindows(deliveryTimeSlot),
             special_notes: specialNotes,
             total_order_price: 0,
             status: 'pending',
@@ -282,7 +281,7 @@ export default function GuestApp({ user, onLogout }) {
             item_name: item.name,
             quantity: qty,
             delivery_date: deliveryDate,
-            delivery_time_slot: deliveryTimeSlot.join(', '),
+            delivery_time_slot: serializeWindows(deliveryTimeSlot),
             special_notes: specialNotes,
             total_order_price: 0,
             status: 'pending',
@@ -302,7 +301,7 @@ export default function GuestApp({ user, onLogout }) {
             item_name: item.name,
             quantity: qty,
             delivery_date: deliveryDate,
-            delivery_time_slot: deliveryTimeSlot.join(', '),
+            delivery_time_slot: serializeWindows(deliveryTimeSlot),
             special_notes: specialNotes,
             total_order_price: (item.price / 100).toFixed(2),
             status: 'pending',
@@ -398,6 +397,9 @@ export default function GuestApp({ user, onLogout }) {
                     {item.quantity}x {item.item_name}
                   </p>
                 ))}
+                {formatWindows(order.delivery_time_slot) && (
+                  <p style={{ margin: '12px 0 0 0', color: '#666', fontSize: '14px' }}><strong>Delivery windows:</strong> {formatWindows(order.delivery_time_slot)}</p>
+                )}
                 {order.status === 'delivered' && (
                   <button
                     onClick={() => { setReheatDate(order.delivery_date); setScreen('reheat') }}
@@ -458,7 +460,7 @@ export default function GuestApp({ user, onLogout }) {
             )}
 
             <p style={{ color: '#666', margin: '16px 0 8px 0' }}>
-              <strong>Preferred Delivery Windows:</strong> {Array.isArray(deliveryTimeSlot) ? deliveryTimeSlot.join(', ') : deliveryTimeSlot}
+              <strong>Preferred Delivery Windows:</strong> {formatWindows(deliveryTimeSlot)}
             </p>
             {specialNotes && (
               <p style={{ color: '#666', margin: '8px 0' }}>
@@ -500,7 +502,7 @@ export default function GuestApp({ user, onLogout }) {
               {placedOrder.items.map((item, idx) => (
                 <p key={idx} style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>{item.quantity}x {item.item_name}</p>
               ))}
-              <p style={{ margin: '16px 0 0 0', color: '#666', fontSize: '14px' }}><strong>Delivery windows:</strong> {placedOrder.delivery_time_slot}</p>
+              <p style={{ margin: '16px 0 0 0', color: '#666', fontSize: '14px' }}><strong>Delivery windows:</strong> {formatWindows(placedOrder.delivery_time_slot)}</p>
               <p style={{ margin: '24px 0 0 0', color: '#999', fontSize: '13px', lineHeight: '1.6' }}>Orders are locked once placed. Need to make a change? Send us a message and we'll cancel it so you can reorder.</p>
             </div>
           </>

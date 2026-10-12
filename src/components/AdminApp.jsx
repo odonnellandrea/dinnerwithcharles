@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import ItemFormModal from './ItemFormModal'
+import { formatWindows } from '../lib/deliveryWindows'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 
@@ -462,7 +463,7 @@ export default function AdminApp({ onLogout }) {
 
   const exportToCSV = () => {
     const csv = [
-      ['Order ID', 'Customer', 'Email', 'Item Type', 'Item Name', 'Quantity', 'Delivery Date', 'Total Price', 'Status']
+      ['Order ID', 'Customer', 'Email', 'Item Type', 'Item Name', 'Quantity', 'Delivery Date', 'Delivery Windows', 'Total Price', 'Status']
     ]
     
     orders.forEach(order => {
@@ -474,6 +475,7 @@ export default function AdminApp({ onLogout }) {
         order.item_name,
         order.quantity,
         order.delivery_date,
+        `"${formatWindows(order.delivery_time_slot)}"`,
         order.total_order_price,
         order.status
       ])
@@ -964,6 +966,8 @@ export default function AdminApp({ onLogout }) {
                             order_id: order.order_id,
                             customer_name: order.customer_name,
                             email: order.email,
+                            delivery_date: order.delivery_date,
+                            delivery_time_slot: order.delivery_time_slot,
                             items: [],
                             status: order.status
                           }
@@ -974,7 +978,12 @@ export default function AdminApp({ onLogout }) {
                       return Object.values(groupedOrders).map((order, idx) => (
                         <tr key={idx} style={{ borderBottom: '1px solid #e0dbd1' }}>
                           <td style={{ padding: '12px', fontSize: '14px' }}>{order.order_id}</td>
-                          <td style={{ padding: '12px', fontSize: '14px' }}>{order.customer_name}</td>
+                          <td style={{ padding: '12px', fontSize: '14px' }}>
+                            {order.customer_name}
+                            {formatWindows(order.delivery_time_slot) && (
+                              <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>{order.delivery_date} · {formatWindows(order.delivery_time_slot)}</div>
+                            )}
+                          </td>
                           <td style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
                             {order.items.map((item, i) => (
                               <div key={i}>{item}</div>
