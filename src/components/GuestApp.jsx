@@ -10,6 +10,21 @@ const supabase = createClient(
 
 const TIME_SLOTS = ['9:00 AM - 11:00 AM', '11:00 AM - 1:00 PM', '1:00 PM - 5:00 PM', '5:00 PM - 7:00 PM', '7:00 PM - 9:00 PM']
 
+// delivery_date is a plain YYYY-MM-DD; parse as local so it doesn't shift a day in US timezones
+const formatDeliveryDate = (dateStr) => {
+  if (!dateStr) return ''
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+}
+
+const formatCloseDatetime = (iso) => {
+  if (!iso) return ''
+  const dt = new Date(iso)
+  const date = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+  const time = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  return `${date} at ${time}`
+}
+
 export default function GuestApp({ user, onLogout }) {
   const [screen, setScreen] = useState('menu')
   const [menuItems, setMenuItems] = useState([])
@@ -17,6 +32,7 @@ export default function GuestApp({ user, onLogout }) {
   const [selectedSalads, setSelectedSalads] = useState({})
   const [selectedAddOns, setSelectedAddOns] = useState({})
   const [deliveryDate, setDeliveryDate] = useState(null)
+  const [orderCloseDatetime, setOrderCloseDatetime] = useState(null)
   const [deliveryTimeSlot, setDeliveryTimeSlot] = useState([])
   const [specialNotes, setSpecialNotes] = useState('')
   const [survey, setSurvey] = useState(null)
@@ -44,7 +60,7 @@ export default function GuestApp({ user, onLogout }) {
     try {
       const { data: deliverySettings } = await supabase
         .from('delivery_settings')
-        .select('delivery_date')
+        .select('delivery_date, order_close_datetime')
         .eq('is_live', true)
         .single()
 
@@ -56,6 +72,7 @@ export default function GuestApp({ user, onLogout }) {
 
       const liveDate = deliverySettings.delivery_date
       setDeliveryDate(liveDate)
+      setOrderCloseDatetime(deliverySettings.order_close_datetime)
 
       const { data: weeklyMenu } = await supabase
         .from('weekly_menu')
@@ -430,6 +447,19 @@ export default function GuestApp({ user, onLogout }) {
 
         {!loading && !error && (
           <>
+            <div style={{ background: '#1B5E4E', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
+              <div>
+                <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Delivery</p>
+                <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatDeliveryDate(deliveryDate)}</p>
+              </div>
+              {orderCloseDatetime && (
+                <div>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Orders close</p>
+                  <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
+                </div>
+              )}
+            </div>
+
             <p style={{ color: '#666', marginBottom: '20px' }}>Pick 3 entrées + 2 salads. Add-ons are optional.</p>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
