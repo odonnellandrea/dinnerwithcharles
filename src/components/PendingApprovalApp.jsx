@@ -6,14 +6,14 @@ export default function PendingApprovalApp({ user, onLogout }) {
       <div style={{ maxWidth: '600px', textAlign: 'center', background: 'white', padding: '40px', borderRadius: '12px', border: '1px solid #e0dbd1' }}>
         <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px' }} />
         
-        <h1 style={{ color: '#1a441f', marginBottom: '16px' }}>Welcome!</h1>
+        <h1 style={{ color: '#1a441f', marginBottom: '16px' }}>Your Request Is Under Review</h1>
         
         <p style={{ fontSize: '16px', color: '#666', marginBottom: '12px', lineHeight: '1.6' }}>
-          Thank you for signing up for Dinner with Charles. Your application is being reviewed by our team.
+          Thank you for your request to join Dinner with Charles. We'll review it and be in touch once you're approved.
         </p>
         
         <p style={{ fontSize: '16px', color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
-          You'll receive an email once you're approved and can start ordering!
+          Come back and log in anytime to check your status. Once you're approved, you'll be able to start ordering.
         </p>
         
         <p style={{ fontSize: '14px', color: '#999', marginBottom: '20px' }}>

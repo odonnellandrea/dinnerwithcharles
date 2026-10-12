@@ -105,7 +105,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
-          {!embedded && <img src="/Green Horizontal Logo.png" alt="Weekly Kitchen" style={{ maxWidth: '200px', height: 'auto', marginBottom: '20px' }} />}
+          {!embedded && <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '20px' }} />}
           {onClose && (
             <button
               onClick={onClose}
