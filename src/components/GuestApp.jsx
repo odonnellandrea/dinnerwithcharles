@@ -352,7 +352,7 @@ export default function GuestApp({ user, onLogout }) {
   const menuClosed = noLiveMenu || (orderCloseDatetime && new Date() > new Date(orderCloseDatetime))
 
   const deliveryBanner = (
-    <div style={{ background: '#1B5E4E', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
+    <div style={{ background: '#1a441f', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
       <div>
         <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Delivery</p>
         <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatDeliveryDate(deliveryDate)}</p>
@@ -382,14 +382,14 @@ export default function GuestApp({ user, onLogout }) {
   if (screen === 'history') {
     return page(
         <>
-          <h2 style={{ color: '#1B5E4E', marginBottom: '20px' }}>Order History</h2>
+          <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Order History</h2>
           {orderHistory.length === 0 ? (
             <p style={{ color: '#666' }}>No orders yet</p>
           ) : (
             orderHistory.map(order => (
               <div key={order.order_id} style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1', opacity: order.status === 'cancelled' ? 0.6 : 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
-                  <h3 style={{ color: '#1B5E4E', margin: 0 }}>{formatDeliveryDate(order.delivery_date)}</h3>
+                  <h3 style={{ color: '#1a441f', margin: 0 }}>{formatDeliveryDate(order.delivery_date)}</h3>
                   <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: order.status === 'cancelled' ? '#c62828' : '#D4A373', fontWeight: '600' }}>{order.status}</span>
                 </div>
                 {order.items.map((item, idx) => (
@@ -403,7 +403,7 @@ export default function GuestApp({ user, onLogout }) {
                 {order.status === 'delivered' && (
                   <button
                     onClick={() => { setReheatDate(order.delivery_date); setScreen('reheat') }}
-                    style={{ marginTop: '12px', padding: '8px 16px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
+                    style={{ marginTop: '12px', padding: '8px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
                   >
                     View Reheat Guide
                   </button>
@@ -422,10 +422,10 @@ export default function GuestApp({ user, onLogout }) {
   if (screen === 'review') {
     return page(
         <>
-          <h1 style={{ color: '#1B5E4E', marginTop: '0' }}>Review Your Order</h1>
+          <h1 style={{ color: '#1a441f', marginTop: '0' }}>Review Your Order</h1>
 
           <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0dbd1', marginBottom: '20px' }}>
-            <h3 style={{ color: '#1B5E4E', marginTop: '0' }}>Entrées</h3>
+            <h3 style={{ color: '#1a441f', marginTop: '0' }}>Entrées</h3>
             {Object.entries(selectedEntrees).map(([itemId, qty]) => {
               const item = menuItems.entrees.find(e => e.id === itemId)
               return item ? (
@@ -435,7 +435,7 @@ export default function GuestApp({ user, onLogout }) {
               ) : null
             })}
 
-            <h3 style={{ color: '#1B5E4E', marginTop: '16px' }}>Salads</h3>
+            <h3 style={{ color: '#1a441f', marginTop: '16px' }}>Salads</h3>
             {Object.entries(selectedSalads).map(([itemId, qty]) => {
               const item = menuItems.salads.find(s => s.id === itemId)
               return item ? (
@@ -447,7 +447,7 @@ export default function GuestApp({ user, onLogout }) {
 
             {Object.keys(selectedAddOns).length > 0 && (
               <>
-                <h3 style={{ color: '#1B5E4E', marginTop: '16px' }}>Add-ons</h3>
+                <h3 style={{ color: '#1a441f', marginTop: '16px' }}>Add-ons</h3>
                 {Object.entries(selectedAddOns).map(([itemId, qty]) => {
                   const item = menuItems.addOns.find(a => a.id === itemId)
                   return item ? (
@@ -478,7 +478,7 @@ export default function GuestApp({ user, onLogout }) {
             </button>
             <button
               onClick={handleConfirmOrder}
-              style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+              style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
             >
               Confirm Order
             </button>
@@ -498,7 +498,7 @@ export default function GuestApp({ user, onLogout }) {
             {deliveryBanner}
             <div style={{ background: 'white', padding: '32px', border: '1px solid #e0dbd1', marginBottom: '20px' }}>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Order placed</p>
-              <h2 style={{ color: '#1B5E4E', margin: '0 0 16px 0' }}>You're all set for this week</h2>
+              <h2 style={{ color: '#1a441f', margin: '0 0 16px 0' }}>You're all set for this week</h2>
               {placedOrder.items.map((item, idx) => (
                 <p key={idx} style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>{item.quantity}x {item.item_name}</p>
               ))}
@@ -511,7 +511,7 @@ export default function GuestApp({ user, onLogout }) {
         {!loading && !error && !placedOrder && menuClosed && (
           <div style={{ background: 'white', padding: '56px 40px', border: '1px solid #e0dbd1', textAlign: 'center' }}>
             <p style={{ margin: '0 0 12px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Ordering closed</p>
-            <h2 style={{ color: '#1B5E4E', margin: '0 0 16px 0', fontSize: '26px' }}>This week's menu is closed</h2>
+            <h2 style={{ color: '#1a441f', margin: '0 0 16px 0', fontSize: '26px' }}>This week's menu is closed</h2>
             <p style={{ color: '#666', margin: '0 auto 32px', maxWidth: '460px', lineHeight: '1.7', fontSize: '15px' }}>
               {noLiveMenu
                 ? "The next menu isn't up yet. Check back soon."
@@ -522,7 +522,7 @@ export default function GuestApp({ user, onLogout }) {
               href={INSTAGRAM_DM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: 'inline-block', padding: '14px 28px', background: '#1B5E4E', color: '#faf8f3', textDecoration: 'none', fontSize: '14px', fontWeight: '600', letterSpacing: '0.04em' }}
+              style={{ display: 'inline-block', padding: '14px 28px', background: '#1a441f', color: '#faf8f3', textDecoration: 'none', fontSize: '14px', fontWeight: '600', letterSpacing: '0.04em' }}
             >
               Message @dinnerwithcharles on Instagram
             </a>
@@ -536,11 +536,11 @@ export default function GuestApp({ user, onLogout }) {
             <p style={{ color: '#666', marginBottom: '20px' }}>Pick 3 entrées + 2 salads. Add-ons are optional.</p>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h2 style={{ color: '#1B5E4E', marginTop: '0' }}>Entrées</h2>
+              <h2 style={{ color: '#1a441f', marginTop: '0' }}>Entrées</h2>
               {menuItems.entrees?.map(item => (
                 <div key={item.id} style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <p style={{ margin: '0', fontWeight: '600', color: '#1B5E4E' }}>{item.name}</p>
+                    <p style={{ margin: '0', fontWeight: '600', color: '#1a441f' }}>{item.name}</p>
                     <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#666' }}>{item.description}</p>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -555,7 +555,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedEntrees[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedEntrees[item.id]}</span>}
                     <button
                       onClick={() => handleAddToCart(item.id, 'entree')}
-                      style={{ padding: '4px 8px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                      style={{ padding: '4px 8px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                     >
                       +
                     </button>
@@ -565,11 +565,11 @@ export default function GuestApp({ user, onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h2 style={{ color: '#1B5E4E', marginTop: '0' }}>Salads</h2>
+              <h2 style={{ color: '#1a441f', marginTop: '0' }}>Salads</h2>
               {menuItems.salads?.map(item => (
                 <div key={item.id} style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <p style={{ margin: '0', fontWeight: '600', color: '#1B5E4E' }}>{item.name}</p>
+                    <p style={{ margin: '0', fontWeight: '600', color: '#1a441f' }}>{item.name}</p>
                     <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#666' }}>{item.description}</p>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -584,7 +584,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedSalads[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedSalads[item.id]}</span>}
                     <button
                       onClick={() => handleAddToCart(item.id, 'salad')}
-                      style={{ padding: '4px 8px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                      style={{ padding: '4px 8px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                     >
                       +
                     </button>
@@ -594,11 +594,11 @@ export default function GuestApp({ user, onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h2 style={{ color: '#1B5E4E', marginTop: '0' }}>Add-ons</h2>
+              <h2 style={{ color: '#1a441f', marginTop: '0' }}>Add-ons</h2>
               {menuItems.addOns?.map(item => (
                 <div key={item.id} style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <p style={{ margin: '0', fontWeight: '600', color: '#1B5E4E' }}>{item.name} — ${(item.price / 100).toFixed(2)}</p>
+                    <p style={{ margin: '0', fontWeight: '600', color: '#1a441f' }}>{item.name} — ${(item.price / 100).toFixed(2)}</p>
                     <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#666' }}>{item.description}</p>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -613,7 +613,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedAddOns[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedAddOns[item.id]}</span>}
                     <button
                       onClick={() => handleAddToCart(item.id, 'addon')}
-                      style={{ padding: '4px 8px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                      style={{ padding: '4px 8px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                     >
                       +
                     </button>
@@ -623,7 +623,7 @@ export default function GuestApp({ user, onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1B5E4E', marginTop: '0', marginBottom: '12px' }}>Select all delivery windows that work for your family *</h3>
+              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '12px' }}>Select all delivery windows that work for your family *</h3>
               {TIME_SLOTS.map(slot => (
                 <label key={slot} style={{ display: 'block', marginBottom: '10px', cursor: 'pointer' }}>
                   <input
@@ -644,7 +644,7 @@ export default function GuestApp({ user, onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1B5E4E', marginTop: '0', marginBottom: '12px' }}>Special Requests</h3>
+              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '12px' }}>Special Requests</h3>
               <textarea
                 value={specialNotes}
                 onChange={(e) => setSpecialNotes(e.target.value)}
@@ -654,7 +654,7 @@ export default function GuestApp({ user, onLogout }) {
             </div>
 
             <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1B5E4E', marginTop: '0', marginBottom: '16px' }}>Order Summary</h3>
+              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '16px' }}>Order Summary</h3>
               {(() => {
                 const totalEntrees = Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0)
                 const totalSalads = Object.values(selectedSalads).reduce((sum, q) => sum + q, 0)
@@ -683,7 +683,7 @@ export default function GuestApp({ user, onLogout }) {
 
             {survey?.question && (
               <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-                <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#1B5E4E' }}>Quick Feedback</p>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#1a441f' }}>Quick Feedback</p>
                 <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666' }}>{survey.question}</p>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input
@@ -702,14 +702,14 @@ export default function GuestApp({ user, onLogout }) {
                   </button>
                 </div>
                 {surveySubmitted && (
-                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#1B5E4E', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
+                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#1a441f', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
                 )}
               </div>
             )}
 
             <button
               onClick={handleCheckout}
-              style={{ width: '100%', padding: '16px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
+              style={{ width: '100%', padding: '16px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
             >
               Review & Checkout
             </button>

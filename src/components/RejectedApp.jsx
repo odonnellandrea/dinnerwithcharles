@@ -6,7 +6,7 @@ export default function RejectedApp({ user, onLogout }) {
       <div style={{ maxWidth: '600px', textAlign: 'center', background: 'white', padding: '40px', borderRadius: '12px', border: '1px solid #e0dbd1' }}>
         <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px' }} />
         
-        <h1 style={{ color: '#1B5E4E', marginBottom: '16px' }}>Application Not Approved</h1>
+        <h1 style={{ color: '#1a441f', marginBottom: '16px' }}>Application Not Approved</h1>
         
         <p style={{ fontSize: '16px', color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
           Unfortunately, we're unable to process your application at this time. Please contact us for more information.
@@ -18,7 +18,7 @@ export default function RejectedApp({ user, onLogout }) {
         
         <button 
           onClick={onLogout} 
-          style={{ padding: '12px 24px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+          style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
         >
           Logout
         </button>

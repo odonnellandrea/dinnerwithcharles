@@ -120,10 +120,10 @@ export default function NotificationsDashboard() {
 
   return (
     <div>
-      <h2 style={{ color: '#1B5E4E', marginBottom: '20px' }}>Menu Notifications</h2>
+      <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Menu Notifications</h2>
 
       <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1B5E4E' }}>
+        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>
           Select Delivery Date
         </label>
         <input
@@ -141,18 +141,18 @@ export default function NotificationsDashboard() {
         <p>Loading notification preferences...</p>
       ) : (
         <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-          <h3 style={{ color: '#1B5E4E', marginTop: '0' }}>Opt-In Summary</h3>
+          <h3 style={{ color: '#1a441f', marginTop: '0' }}>Opt-In Summary</h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
             <div style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px' }}>
-              <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#1B5E4E', fontSize: '16px' }}>
+              <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#1a441f', fontSize: '16px' }}>
                 {emailCount}
               </p>
               <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>Customers opted in to email</p>
             </div>
 
             <div style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px' }}>
-              <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#1B5E4E', fontSize: '16px' }}>
+              <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#1a441f', fontSize: '16px' }}>
                 {smsCount}
               </p>
               <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>Customers opted in to SMS</p>
@@ -167,7 +167,7 @@ export default function NotificationsDashboard() {
                 marginBottom: '16px',
                 fontSize: '13px',
                 background: message.startsWith('✓') ? '#faf8f3' : '#ffebee',
-                color: message.startsWith('✓') ? '#1B5E4E' : '#c62828',
+                color: message.startsWith('✓') ? '#1a441f' : '#c62828',
                 border: `1px solid ${message.startsWith('✓') ? '#e0dbd1' : '#ffcdd2'}`
               }}
             >
@@ -180,7 +180,7 @@ export default function NotificationsDashboard() {
             disabled={sending || emailCount === 0 && smsCount === 0}
             style={{
               padding: '12px 24px',
-              background: '#1B5E4E',
+              background: '#1a441f',
               color: '#faf8f3',
               border: 'none',
               borderRadius: '6px',
@@ -202,8 +202,8 @@ export default function NotificationsDashboard() {
       )}
 
       <div style={{ background: '#faf8f3', padding: '16px', borderRadius: '8px', border: '1px solid #D4A373' }}>
-        <h4 style={{ margin: '0 0 8px 0', color: '#1B5E4E', fontSize: '14px' }}>Implementation Note</h4>
-        <p style={{ margin: '0', fontSize: '13px', color: '#1B5E4E', lineHeight: '1.5' }}>
+        <h4 style={{ margin: '0 0 8px 0', color: '#1a441f', fontSize: '14px' }}>Implementation Note</h4>
+        <p style={{ margin: '0', fontSize: '13px', color: '#1a441f', lineHeight: '1.5' }}>
           Email notifications currently use <strong>SendGrid</strong> (100 emails/day free tier).
           SMS uses <strong>Twilio</strong>. You'll need to configure API keys in .env to actually send messages.
           For now, the system just tracks counts and shows readiness.

@@ -117,7 +117,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
         </div>
 
         {/* Title */}
-        <h1 style={{ color: '#1B5E4E', fontSize: '28px', marginTop: '0', marginBottom: '8px' }}>
+        <h1 style={{ color: '#1a441f', fontSize: '28px', marginTop: '0', marginBottom: '8px' }}>
           Reheat Guide
         </h1>
         <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
@@ -134,7 +134,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
               {instructions.map((dish, dishIdx) => (
                 <div key={dishIdx} style={{ borderBottom: dishIdx < instructions.length - 1 ? '2px solid #e0dbd1' : 'none' }}>
                   {/* Dish header */}
-                  <div style={{ padding: '16px', background: '#1B5E4E', color: '#faf8f3' }}>
+                  <div style={{ padding: '16px', background: '#1a441f', color: '#faf8f3' }}>
                     <h2 style={{ margin: '0', fontSize: '18px', fontWeight: '600' }}>
                       {dish.name}
                     </h2>
@@ -152,7 +152,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
                           background: compIdx % 2 === 0 ? '#faf8f3' : 'white'
                         }}
                       >
-                        <h4 style={{ color: '#1B5E4E', margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600' }}>
+                        <h4 style={{ color: '#1a441f', margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600' }}>
                           {comp.name}
                           {comp.quantity > 1 && (
                             <span style={{ color: '#D4A373', marginLeft: '8px', fontSize: '12px', fontWeight: '500' }}>
@@ -172,7 +172,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
 
             {/* Tips section */}
             <div style={{ background: '#faf8f3', padding: '16px', borderRadius: '8px', marginTop: '24px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1B5E4E', marginTop: '0' }}>Tips</h3>
+              <h3 style={{ color: '#1a441f', marginTop: '0' }}>Tips</h3>
               <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
                 <li>Reheat only what you'll eat — these instructions are for single portions</li>
                 <li>All times are approximate — adjust based on your oven or microwave</li>

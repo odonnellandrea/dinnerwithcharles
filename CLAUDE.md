@@ -11,7 +11,7 @@
 React + Vite, Supabase, Netlify (with serverless functions in `netlify/functions/`), Resend for email.
 
 ## Brand
-- Forest green `#1B5E4E`, gold `#D4A373`, cream `#faf8f3`, border `#e0dbd1`.
+- Forest green `#1a441f`, gold `#D4A373`, cream `#faf8f3`, border `#e0dbd1`.
 - Sharp corners (no border-radius).
 - System sans-serif font stack.
 - Premium, spacious feel.

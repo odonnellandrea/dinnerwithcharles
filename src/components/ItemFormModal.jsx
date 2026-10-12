@@ -107,12 +107,12 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         overflowY: 'auto',
         width: '90%'
       }}>
-        <h2 style={{ color: '#1B5E4E', marginTop: 0 }}>
+        <h2 style={{ color: '#1a441f', marginTop: 0 }}>
           {item ? 'Edit Item' : 'Add New Item'}
         </h2>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1B5E4E' }}>Type</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1a441f' }}>Type</label>
           <select
             value={itemType}
             onChange={(e) => setItemType(e.target.value)}
@@ -125,7 +125,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1B5E4E' }}>Name</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1a441f' }}>Name</label>
           <input
             type="text"
             value={name}
@@ -136,7 +136,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1B5E4E' }}>Description</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1a441f' }}>Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -146,7 +146,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1B5E4E' }}>Price (for add-ons)</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1a441f' }}>Price (for add-ons)</label>
           <input
             type="number"
             step="0.01"
@@ -158,7 +158,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: '#1B5E4E' }}>Categories (select all that apply)</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: '#1a441f' }}>Categories (select all that apply)</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
             {CATEGORIES.map(cat => (
               <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px', background: '#faf8f3', borderRadius: '6px' }}>
@@ -174,7 +174,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: '#1B5E4E' }}>Components</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: '#1a441f' }}>Components</label>
           {components.map((comp, idx) => (
             <div key={idx} style={{ marginBottom: '12px', padding: '12px', background: '#faf8f3', borderRadius: '6px' }}>
               <input
@@ -211,14 +211,14 @@ export default function ItemFormModal({ item, onClose, onSave }) {
           ))}
           <button
             onClick={handleAddComponent}
-            style={{ width: '100%', padding: '10px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+            style={{ width: '100%', padding: '10px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
           >
             + Add Component
           </button>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1B5E4E' }}>Chef Notes</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#1a441f' }}>Chef Notes</label>
           <textarea
             value={chefNotes}
             onChange={(e) => setChefNotes(e.target.value)}
@@ -237,7 +237,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
           </button>
           <button
             onClick={handleSave}
-            style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+            style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
             disabled={loading}
           >
             {loading ? 'Saving...' : 'Save Item'}

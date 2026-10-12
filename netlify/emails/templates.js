@@ -1,7 +1,7 @@
 import { priceOrder, BASE_PRICE } from '../../src/lib/pricing.js'
 import { formatWindows } from '../../src/lib/deliveryWindows.js'
 
-const GREEN = '#1B5E4E'
+const GREEN = '#1a441f'
 const GOLD = '#D4A373'
 const CREAM = '#faf8f3'
 const BORDER = '#e0dbd1'

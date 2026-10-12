@@ -60,7 +60,7 @@ export default function NotificationSettings({ user }) {
 
   return (
     <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#1B5E4E', marginTop: '0' }}>Notification Preferences</h3>
+      <h3 style={{ color: '#1a441f', marginTop: '0' }}>Notification Preferences</h3>
       <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
         Choose how you'd like to receive updates about your weekly menus and orders.
       </p>
@@ -73,7 +73,7 @@ export default function NotificationSettings({ user }) {
             checked={emailOptIn}
             onChange={(e) => setEmailOptIn(e.target.checked)}
           />
-          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1B5E4E' }}>Email Notifications</span>
+          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1a441f' }}>Email Notifications</span>
         </label>
         <p style={{ margin: '6px 0 0 28px', fontSize: '12px', color: '#999' }}>
           Receive emails when the weekly menu is available for ordering
@@ -88,7 +88,7 @@ export default function NotificationSettings({ user }) {
             checked={smsOptIn}
             onChange={(e) => setSmsOptIn(e.target.checked)}
           />
-          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1B5E4E' }}>Text Message Notifications</span>
+          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1a441f' }}>Text Message Notifications</span>
         </label>
         <p style={{ margin: '6px 0 10px 28px', fontSize: '12px', color: '#999' }}>
           Receive text messages when the weekly menu is available for ordering
@@ -96,7 +96,7 @@ export default function NotificationSettings({ user }) {
 
         {smsOptIn && (
           <div style={{ marginLeft: '28px', marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: '#1B5E4E' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>
               Phone Number *
             </label>
             <input
@@ -117,7 +117,7 @@ export default function NotificationSettings({ user }) {
           disabled={saving}
           style={{
             padding: '10px 20px',
-            background: '#1B5E4E',
+            background: '#1a441f',
             color: '#faf8f3',
             border: 'none',
             borderRadius: '6px',
@@ -130,7 +130,7 @@ export default function NotificationSettings({ user }) {
           {saving ? 'Saving...' : 'Save Preferences'}
         </button>
         {saved && (
-          <span style={{ color: '#1B5E4E', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>
+          <span style={{ color: '#1a441f', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>
         )}
       </div>
     </div>

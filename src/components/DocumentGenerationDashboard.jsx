@@ -150,11 +150,11 @@ export default function DocumentGenerationDashboard() {
 
   return (
     <div>
-      <h2 style={{ color: '#1B5E4E', marginBottom: '20px' }}>Document Generation</h2>
+      <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Document Generation</h2>
 
       {/* Date selector */}
       <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #e0dbd1' }}>
-        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1B5E4E' }}>
+        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>
           Select Delivery Date
         </label>
         <input
@@ -175,7 +175,7 @@ export default function DocumentGenerationDashboard() {
           disabled={isGeneratingAny || !deliveryDate}
           style={{
             padding: '12px 24px',
-            background: '#1B5E4E',
+            background: '#1a441f',
             color: '#faf8f3',
             border: 'none',
             borderRadius: '6px',
@@ -197,7 +197,7 @@ export default function DocumentGenerationDashboard() {
             marginBottom: '20px',
             fontSize: '13px',
             background: message.startsWith('✓') ? '#faf8f3' : '#ffebee',
-            color: message.startsWith('✓') ? '#1B5E4E' : '#c62828',
+            color: message.startsWith('✓') ? '#1a441f' : '#c62828',
             border: `1px solid ${message.startsWith('✓') ? '#e0dbd1' : '#ffcdd2'}`
           }}
         >
@@ -210,7 +210,7 @@ export default function DocumentGenerationDashboard() {
         {DOCUMENTS.map(doc => (
           <div key={doc.id} style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0dbd1', display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>{doc.icon}</div>
-            <h3 style={{ color: '#1B5E4E', margin: '0 0 6px 0', fontSize: '15px', fontWeight: '600' }}>
+            <h3 style={{ color: '#1a441f', margin: '0 0 6px 0', fontSize: '15px', fontWeight: '600' }}>
               {doc.title}
             </h3>
             <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#666', lineHeight: '1.4', flexGrow: 1 }}>
@@ -221,7 +221,7 @@ export default function DocumentGenerationDashboard() {
               disabled={generating[doc.id] || !deliveryDate}
               style={{
                 padding: '10px 16px',
-                background: '#1B5E4E',
+                background: '#1a441f',
                 color: '#faf8f3',
                 border: 'none',
                 borderRadius: '6px',
@@ -239,8 +239,8 @@ export default function DocumentGenerationDashboard() {
 
       {/* Implementation notes */}
       <div style={{ background: '#faf8f3', padding: '16px', borderRadius: '8px', marginTop: '24px', border: '1px solid #D4A373' }}>
-        <h4 style={{ margin: '0 0 12px 0', color: '#1B5E4E', fontSize: '14px', fontWeight: '600' }}>Implementation Notes</h4>
-        <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '12px', color: '#1B5E4E', lineHeight: '1.6' }}>
+        <h4 style={{ margin: '0 0 12px 0', color: '#1a441f', fontSize: '14px', fontWeight: '600' }}>Implementation Notes</h4>
+        <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '12px', color: '#1a441f', lineHeight: '1.6' }}>
           <li><strong>PDF Generation:</strong> Uses jsPDF/pdfkit in browser (no server needed, zero cost)</li>
           <li><strong>Storage:</strong> PDFs saved to Google Drive (free, unlimited) in weekly folders</li>
           <li><strong>Parent Ordering:</strong> Included in some docs, excluded from others, always sorted last</li>

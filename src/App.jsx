@@ -95,7 +95,7 @@ function App() {
       <div style={{ maxWidth: '600px', textAlign: 'center' }}>
         <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '280px', height: 'auto', marginBottom: '40px' }} />
         
-        <h1 style={{ color: '#1B5E4E', marginBottom: '30px', fontSize: '28px' }}>Welcome to Dinner with Charles</h1>
+        <h1 style={{ color: '#1a441f', marginBottom: '30px', fontSize: '28px' }}>Welcome to Dinner with Charles</h1>
         
         <p style={{ fontSize: '16px', color: '#666', marginBottom: '40px', lineHeight: '1.6' }}>
           Your own private chef, cooking for your family the way we cook for ours.
@@ -104,7 +104,7 @@ function App() {
         <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
           <button 
             onClick={() => setScreen('login')} 
-            style={{ padding: '12px 24px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+            style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
           >
             Sign In
           </button>
@@ -150,7 +150,7 @@ function LoginForm({ onSuccess, onBack }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
       <div style={{ background: 'white', padding: '40px', borderRadius: '12px', maxWidth: '400px', width: '90%' }}>
-        <h2 style={{ color: '#1B5E4E', marginBottom: '24px' }}>Sign In</h2>
+        <h2 style={{ color: '#1a441f', marginBottom: '24px' }}>Sign In</h2>
         
         <form onSubmit={handleLogin}>
           <input 
@@ -184,7 +184,7 @@ function LoginForm({ onSuccess, onBack }) {
           
           <button 
             type="submit" 
-            style={{ width: '100%', padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}
+            style={{ width: '100%', padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}
           >
             Sign In
           </button>

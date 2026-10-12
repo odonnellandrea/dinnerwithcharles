@@ -10,7 +10,7 @@ const linkStyle = {
   borderBottom: '1px solid #e0dbd1',
   cursor: 'pointer',
   fontSize: '15px',
-  color: '#1B5E4E',
+  color: '#1a441f',
   fontWeight: '500',
   fontFamily: 'inherit'
 }
@@ -41,7 +41,7 @@ export default function GuestHeader({ screen, onNavigate, onLogout }) {
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={menuOpen}
-        style={{ padding: '12px', background: '#1B5E4E', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
+        style={{ padding: '12px', background: '#1a441f', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
       >
         <span style={{ display: 'block', width: '22px', height: '2px', background: '#faf8f3' }} />
         <span style={{ display: 'block', width: '22px', height: '2px', background: '#faf8f3' }} />
@@ -51,7 +51,7 @@ export default function GuestHeader({ screen, onNavigate, onLogout }) {
       {menuOpen && (
         <>
           <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 99 }} />
-          <nav style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', minWidth: '240px', background: 'white', border: '1px solid #e0dbd1', boxShadow: '0 12px 32px rgba(27, 94, 78, 0.12)', zIndex: 100 }}>
+          <nav style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', minWidth: '240px', background: 'white', border: '1px solid #e0dbd1', boxShadow: '0 12px 32px rgba(26, 68, 31, 0.12)', zIndex: 100 }}>
             {items.map(item => (
               <button
                 key={item.key}

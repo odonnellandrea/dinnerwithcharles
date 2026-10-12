@@ -159,7 +159,7 @@ export default function SignupApp({ onBack }) {
         <div style={{ maxWidth: '600px', textAlign: 'center', background: 'white', padding: '40px', borderRadius: '12px', border: '1px solid #e0dbd1' }}>
           <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px' }} />
           
-          <h1 style={{ color: '#1B5E4E', marginBottom: '16px' }}>Welcome!</h1>
+          <h1 style={{ color: '#1a441f', marginBottom: '16px' }}>Welcome!</h1>
           
           <p style={{ fontSize: '16px', color: '#666', marginBottom: '12px', lineHeight: '1.6' }}>
             Thank you for requesting to join Weekly Kitchen. Your request is being reviewed by our team.
@@ -191,7 +191,7 @@ export default function SignupApp({ onBack }) {
             </div>
           )}
 
-          <h2 style={{ color: '#1B5E4E', marginBottom: '24px' }}>Step {step} of 5</h2>
+          <h2 style={{ color: '#1a441f', marginBottom: '24px' }}>Step {step} of 5</h2>
 
           {error && <p style={{ color: '#c62828', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
 
@@ -238,7 +238,7 @@ export default function SignupApp({ onBack }) {
 
           {step === 5 && (
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#1B5E4E', fontSize: '14px' }}>How do you prefer to reheat?</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#1a441f', fontSize: '14px' }}>How do you prefer to reheat?</label>
               <select value={formData.reheatingPreference} onChange={(e) => updateField('reheatingPreference', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
                 <option value="">Select an option</option>
                 <option value="Toaster oven/Oven">Toaster oven/Oven</option>
@@ -254,11 +254,11 @@ export default function SignupApp({ onBack }) {
               Back
             </button>
             {step < 5 ? (
-              <button onClick={handleNext} style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
+              <button onClick={handleNext} style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
                 Next
               </button>
             ) : (
-              <button onClick={handleSubmit} disabled={loading} style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
+              <button onClick={handleSubmit} disabled={loading} style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
                 {loading ? 'Submitting...' : 'Request to Join'}
               </button>
             )}
