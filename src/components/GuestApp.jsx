@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import ReheatInstructions from './ReheatInstructions'
 import NotificationSettings from './NotificationSettings'
 import GuestHeader from './GuestHeader'
+import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE } from '../lib/pricing'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -202,6 +203,21 @@ export default function GuestApp({ user, onLogout }) {
     setScreen('review')
   }
 
+  // Best effort: a failed email shouldn't stop the order from going through
+  const sendConfirmationEmail = async (orderId) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ type: 'order_confirmation', order_id: orderId })
+      })
+      if (!res.ok) console.error('Confirmation email failed:', await res.text())
+    } catch (err) {
+      console.error('Confirmation email failed:', err)
+    }
+  }
+
   const handleConfirmOrder = async () => {
     try {
       const { data: existing } = await supabase
@@ -292,6 +308,7 @@ export default function GuestApp({ user, onLogout }) {
       if (error) {
         alert('Error confirming order: ' + error.message)
       } else {
+        sendConfirmationEmail(orderId)
         alert('✓ Order confirmed!')
         setSelectedEntrees({})
         setSelectedSalads({})
@@ -632,18 +649,16 @@ export default function GuestApp({ user, onLogout }) {
                 const totalEntrees = Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0)
                 const totalSalads = Object.values(selectedSalads).reduce((sum, q) => sum + q, 0)
                 const addOnsCost = menuItems.addOns?.filter(item => selectedAddOns[item.id]).reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0) || 0
-                const entreeUpcharge = Math.max(0, totalEntrees - 3) * 40
-                const saladUpcharge = Math.max(0, totalSalads - 2) * 15
-                const grandTotal = 160 + entreeUpcharge + saladUpcharge + addOnsCost
+                const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost })
 
                 return (
                   <div>
-                    <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 salads): $160.00</p>
+                    <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 salads): ${BASE_PRICE.toFixed(2)}</p>
                     {entreeUpcharge > 0 && (
-                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Entrées ({totalEntrees - 3}): ${entreeUpcharge.toFixed(2)} @ $40 each</p>
+                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Entrées ({extraEntrees}): ${entreeUpcharge.toFixed(2)} @ ${EXTRA_ENTREE_PRICE} each</p>
                     )}
                     {saladUpcharge > 0 && (
-                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Salads ({totalSalads - 2}): ${saladUpcharge.toFixed(2)} @ $15 each</p>
+                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Salads ({extraSalads}): ${saladUpcharge.toFixed(2)} @ ${EXTRA_SALAD_PRICE} each</p>
                     )}
                     {addOnsCost > 0 && (
                       <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsCost.toFixed(2)}</p>
