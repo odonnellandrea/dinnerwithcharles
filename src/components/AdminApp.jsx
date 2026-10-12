@@ -510,7 +510,7 @@ export default function AdminApp({ onLogout }) {
                   width: '100%',
                   padding: '12px',
                   background: isExpanded ? '#1B5E4E' : '#D4A373',
-                  color: 'white',
+                  color: '#faf8f3',
                   border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
@@ -561,7 +561,7 @@ export default function AdminApp({ onLogout }) {
                           style={{
                             padding: '6px 12px',
                             background: selectedItems.some(s => s.item_id === item.id) ? '#D4A373' : '#1B5E4E',
-                            color: 'white',
+                            color: '#faf8f3',
                             border: 'none',
                             borderRadius: '4px',
                             cursor: 'pointer',
@@ -592,7 +592,7 @@ export default function AdminApp({ onLogout }) {
           <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto' }} />
           <button 
             onClick={onLogout} 
-            style={{ padding: '8px 16px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+            style={{ padding: '8px 16px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
           >
             Logout
           </button>
@@ -601,31 +601,31 @@ export default function AdminApp({ onLogout }) {
         <div style={{ display: 'flex', gap: '12px', marginBottom: '30px' }}>
           <button 
             onClick={() => setScreen('approvals')} 
-            style={{ padding: '12px 24px', background: screen === 'approvals' ? '#1B5E4E' : '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+            style={{ padding: '12px 24px', background: screen === 'approvals' ? '#1B5E4E' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
           >
             Approvals
           </button>
           <button 
             onClick={() => setScreen('menu')} 
-            style={{ padding: '12px 24px', background: screen === 'menu' ? '#1B5E4E' : '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+            style={{ padding: '12px 24px', background: screen === 'menu' ? '#1B5E4E' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
           >
             Menu
           </button>
           <button 
             onClick={() => setScreen('orders')} 
-            style={{ padding: '12px 24px', background: screen === 'orders' ? '#1B5E4E' : '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+            style={{ padding: '12px 24px', background: screen === 'orders' ? '#1B5E4E' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
           >
             Orders
           </button>
           <button 
             onClick={() => setScreen('notifications')} 
-            style={{ padding: '12px 24px', background: screen === 'notifications' ? '#1B5E4E' : '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+            style={{ padding: '12px 24px', background: screen === 'notifications' ? '#1B5E4E' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
           >
             Notifications
           </button>
           <button 
             onClick={() => setScreen('documents')} 
-            style={{ padding: '12px 24px', background: screen === 'documents' ? '#1B5E4E' : '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+            style={{ padding: '12px 24px', background: screen === 'documents' ? '#1B5E4E' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
           >
             Documents
           </button>
@@ -652,7 +652,7 @@ export default function AdminApp({ onLogout }) {
                         {customer.approval_status !== 'approved' && (
                           <button 
                             onClick={() => handleApprove(customer.id)} 
-                            style={{ padding: '8px 16px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+                            style={{ padding: '8px 16px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
                           >
                             Approve
                           </button>
@@ -660,7 +660,7 @@ export default function AdminApp({ onLogout }) {
                         {customer.approval_status !== 'rejected' && (
                           <button 
                             onClick={() => handleReject(customer.id)} 
-                            style={{ padding: '8px 16px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+                            style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
                           >
                             Reject
                           </button>
@@ -697,7 +697,7 @@ export default function AdminApp({ onLogout }) {
                 />
                 <button
                   onClick={saveOrderClose}
-                  style={{ padding: '8px 20px', background: '#1B5E4E', color: 'white', border: 'none', cursor: 'pointer', fontSize: '14px' }}
+                  style={{ padding: '8px 20px', background: '#1B5E4E', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
                 >
                   Save Close Time
                 </button>
@@ -745,7 +745,7 @@ export default function AdminApp({ onLogout }) {
                     alert('✓ Survey question saved!')
                   }
                 }}
-                style={{ width: '100%', padding: '10px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ width: '100%', padding: '10px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Save Survey Question
               </button>
@@ -784,7 +784,7 @@ export default function AdminApp({ onLogout }) {
                       style={{
                         padding: '6px 12px',
                         background: selectedItems.some(s => s.item_id === item.id) ? '#D4A373' : '#1B5E4E',
-                        color: 'white',
+                        color: '#faf8f3',
                         border: 'none',
                         borderRadius: '4px',
                         cursor: 'pointer',
@@ -838,7 +838,7 @@ export default function AdminApp({ onLogout }) {
                                   </p>
                                   <button
                                     onClick={() => handleRemoveItem(selectedItem.item_id)}
-                                    style={{ padding: '4px 8px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                                    style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
                                   >
                                     Remove
                                   </button>
@@ -892,7 +892,7 @@ export default function AdminApp({ onLogout }) {
                   }
                   exportMenusByDateRange(fromDate, toDate)
                 }}
-                style={{ width: '100%', padding: '10px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ width: '100%', padding: '10px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Export Selected Weeks
               </button>
@@ -917,13 +917,13 @@ export default function AdminApp({ onLogout }) {
                   await saveWeeklyMenu()
                   alert('✓ Menu saved for ' + new Date(deliveryDate).toLocaleDateString())
                 }}
-                style={{ padding: '12px 24px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ padding: '12px 24px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Save Menu
               </button>
               <button
                 onClick={() => setShowPreview(true)}
-                style={{ padding: '12px 24px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ padding: '12px 24px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Preview & Go Live
               </button>
@@ -937,7 +937,7 @@ export default function AdminApp({ onLogout }) {
               <h2 style={{ color: '#1B5E4E' }}>Orders</h2>
               <button 
                 onClick={exportToCSV} 
-                style={{ padding: '10px 20px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+                style={{ padding: '10px 20px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
               >
                 Export to CSV
               </button>
@@ -993,8 +993,8 @@ export default function AdminApp({ onLogout }) {
                             <span style={{ 
                               padding: '4px 8px', 
                               borderRadius: '4px', 
-                              background: order.status === 'delivered' ? '#c8e6c9' : order.status === 'cancelled' ? '#ffebee' : '#fff3cd',
-                              color: order.status === 'delivered' ? '#2e7d32' : order.status === 'cancelled' ? '#c62828' : '#856404',
+                              background: order.status === 'delivered' ? '#1B5E4E' : order.status === 'cancelled' ? '#ffebee' : '#D4A373',
+                              color: order.status === 'cancelled' ? '#c62828' : '#faf8f3',
                               fontWeight: '600'
                             }}>
                               {order.status === 'delivered' ? '✓ Delivered' : order.status === 'cancelled' ? 'Cancelled' : 'Pending'}
@@ -1010,7 +1010,7 @@ export default function AdminApp({ onLogout }) {
                                   fetchOrders()
                                   sendReheatEmail(order.order_id)
                                 }}
-                                style={{ padding: '6px 12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                                style={{ padding: '6px 12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                               >
                                 Mark Delivered
                               </button>
@@ -1021,7 +1021,7 @@ export default function AdminApp({ onLogout }) {
                                     fetchOrders()
                                   })
                                 }}
-                                style={{ padding: '6px 12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                                style={{ padding: '6px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                               >
                                 Mark as Undelivered
                               </button>
@@ -1077,13 +1077,13 @@ export default function AdminApp({ onLogout }) {
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   onClick={() => setShowPreview(false)}
-                  style={{ flex: 1, padding: '12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+                  style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
                 >
                   Close
                 </button>
                 <button
                   onClick={toggleMenuLive}
-                  style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+                  style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
                 >
                   Go Live
                 </button>

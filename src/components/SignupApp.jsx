@@ -193,7 +193,7 @@ export default function SignupApp({ onBack }) {
 
           <h2 style={{ color: '#1B5E4E', marginBottom: '24px' }}>Step {step} of 5</h2>
 
-          {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
+          {error && <p style={{ color: '#c62828', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
 
           {step === 1 && (
             <div>
@@ -250,15 +250,15 @@ export default function SignupApp({ onBack }) {
           )}
 
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button onClick={handleBack} style={{ flex: 1, padding: '12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
+            <button onClick={handleBack} style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
               Back
             </button>
             {step < 5 ? (
-              <button onClick={handleNext} style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
+              <button onClick={handleNext} style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
                 Next
               </button>
             ) : (
-              <button onClick={handleSubmit} disabled={loading} style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
+              <button onClick={handleSubmit} disabled={loading} style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
                 {loading ? 'Submitting...' : 'Request to Join'}
               </button>
             )}

@@ -118,7 +118,7 @@ export default function NotificationSettings({ user }) {
           style={{
             padding: '10px 20px',
             background: '#1B5E4E',
-            color: 'white',
+            color: '#faf8f3',
             border: 'none',
             borderRadius: '6px',
             cursor: saving ? 'not-allowed' : 'pointer',
@@ -130,7 +130,7 @@ export default function NotificationSettings({ user }) {
           {saving ? 'Saving...' : 'Save Preferences'}
         </button>
         {saved && (
-          <span style={{ color: '#2e7d32', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>
+          <span style={{ color: '#1B5E4E', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>
         )}
       </div>
     </div>

@@ -176,7 +176,7 @@ export default function DocumentGenerationDashboard() {
           style={{
             padding: '12px 24px',
             background: '#1B5E4E',
-            color: 'white',
+            color: '#faf8f3',
             border: 'none',
             borderRadius: '6px',
             cursor: isGeneratingAny || !deliveryDate ? 'not-allowed' : 'pointer',
@@ -196,9 +196,9 @@ export default function DocumentGenerationDashboard() {
             borderRadius: '6px',
             marginBottom: '20px',
             fontSize: '13px',
-            background: message.startsWith('✓') ? '#e8f5e9' : '#ffebee',
-            color: message.startsWith('✓') ? '#2e7d32' : '#c62828',
-            border: `1px solid ${message.startsWith('✓') ? '#c8e6c9' : '#ffcdd2'}`
+            background: message.startsWith('✓') ? '#faf8f3' : '#ffebee',
+            color: message.startsWith('✓') ? '#1B5E4E' : '#c62828',
+            border: `1px solid ${message.startsWith('✓') ? '#e0dbd1' : '#ffcdd2'}`
           }}
         >
           {message}
@@ -222,7 +222,7 @@ export default function DocumentGenerationDashboard() {
               style={{
                 padding: '10px 16px',
                 background: '#1B5E4E',
-                color: 'white',
+                color: '#faf8f3',
                 border: 'none',
                 borderRadius: '6px',
                 cursor: generating[doc.id] || !deliveryDate ? 'not-allowed' : 'pointer',
@@ -238,9 +238,9 @@ export default function DocumentGenerationDashboard() {
       </div>
 
       {/* Implementation notes */}
-      <div style={{ background: '#fff3cd', padding: '16px', borderRadius: '8px', marginTop: '24px', border: '1px solid #ffc107' }}>
-        <h4 style={{ margin: '0 0 12px 0', color: '#856404', fontSize: '14px', fontWeight: '600' }}>Implementation Notes</h4>
-        <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '12px', color: '#856404', lineHeight: '1.6' }}>
+      <div style={{ background: '#faf8f3', padding: '16px', borderRadius: '8px', marginTop: '24px', border: '1px solid #D4A373' }}>
+        <h4 style={{ margin: '0 0 12px 0', color: '#1B5E4E', fontSize: '14px', fontWeight: '600' }}>Implementation Notes</h4>
+        <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '12px', color: '#1B5E4E', lineHeight: '1.6' }}>
           <li><strong>PDF Generation:</strong> Uses jsPDF/pdfkit in browser (no server needed, zero cost)</li>
           <li><strong>Storage:</strong> PDFs saved to Google Drive (free, unlimited) in weekly folders</li>
           <li><strong>Parent Ordering:</strong> Included in some docs, excluded from others, always sorted last</li>

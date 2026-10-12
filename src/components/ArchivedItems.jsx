@@ -74,7 +74,7 @@ export default function ArchivedItems({ onBack }) {
       <div style={{ marginBottom: '20px' }}>
         <button
           onClick={onBack}
-          style={{ padding: '10px 20px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+          style={{ padding: '10px 20px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
         >
           ← Back
         </button>
@@ -170,7 +170,7 @@ export default function ArchivedItems({ onBack }) {
               </div>
               <button
                 onClick={() => handleRestore(item.id, item.type)}
-                style={{ padding: '8px 16px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', marginLeft: '12px' }}
+                style={{ padding: '8px 16px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', marginLeft: '12px' }}
               >
                 Restore
               </button>

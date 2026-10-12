@@ -166,9 +166,9 @@ export default function NotificationsDashboard() {
                 borderRadius: '6px',
                 marginBottom: '16px',
                 fontSize: '13px',
-                background: message.startsWith('✓') ? '#e8f5e9' : '#ffebee',
-                color: message.startsWith('✓') ? '#2e7d32' : '#c62828',
-                border: `1px solid ${message.startsWith('✓') ? '#c8e6c9' : '#ffcdd2'}`
+                background: message.startsWith('✓') ? '#faf8f3' : '#ffebee',
+                color: message.startsWith('✓') ? '#1B5E4E' : '#c62828',
+                border: `1px solid ${message.startsWith('✓') ? '#e0dbd1' : '#ffcdd2'}`
               }}
             >
               {message}
@@ -181,7 +181,7 @@ export default function NotificationsDashboard() {
             style={{
               padding: '12px 24px',
               background: '#1B5E4E',
-              color: 'white',
+              color: '#faf8f3',
               border: 'none',
               borderRadius: '6px',
               cursor: sending || (emailCount === 0 && smsCount === 0) ? 'not-allowed' : 'pointer',
@@ -201,9 +201,9 @@ export default function NotificationsDashboard() {
         </div>
       )}
 
-      <div style={{ background: '#fff3cd', padding: '16px', borderRadius: '8px', border: '1px solid #ffc107' }}>
-        <h4 style={{ margin: '0 0 8px 0', color: '#856404', fontSize: '14px' }}>Implementation Note</h4>
-        <p style={{ margin: '0', fontSize: '13px', color: '#856404', lineHeight: '1.5' }}>
+      <div style={{ background: '#faf8f3', padding: '16px', borderRadius: '8px', border: '1px solid #D4A373' }}>
+        <h4 style={{ margin: '0 0 8px 0', color: '#1B5E4E', fontSize: '14px' }}>Implementation Note</h4>
+        <p style={{ margin: '0', fontSize: '13px', color: '#1B5E4E', lineHeight: '1.5' }}>
           Email notifications currently use <strong>SendGrid</strong> (100 emails/day free tier).
           SMS uses <strong>Twilio</strong>. You'll need to configure API keys in .env to actually send messages.
           For now, the system just tracks counts and shows readiness.

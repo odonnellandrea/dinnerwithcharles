@@ -202,7 +202,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
                 />
                 <button
                   onClick={() => handleRemoveComponent(idx)}
-                  style={{ padding: '8px 12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                  style={{ padding: '8px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                 >
                   Remove
                 </button>
@@ -211,7 +211,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
           ))}
           <button
             onClick={handleAddComponent}
-            style={{ width: '100%', padding: '10px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+            style={{ width: '100%', padding: '10px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
           >
             + Add Component
           </button>
@@ -230,14 +230,14 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={onClose}
-            style={{ flex: 1, padding: '12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+            style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
             disabled={loading}
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+            style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
             disabled={loading}
           >
             {loading ? 'Saving...' : 'Save Item'}

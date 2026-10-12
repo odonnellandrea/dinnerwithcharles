@@ -22,7 +22,7 @@ export default function PendingApprovalApp({ user, onLogout }) {
         
         <button 
           onClick={onLogout} 
-          style={{ padding: '12px 24px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+          style={{ padding: '12px 24px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
         >
           Logout
         </button>

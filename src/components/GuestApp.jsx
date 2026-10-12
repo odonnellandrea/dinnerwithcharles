@@ -403,7 +403,7 @@ export default function GuestApp({ user, onLogout }) {
                 {order.status === 'delivered' && (
                   <button
                     onClick={() => { setReheatDate(order.delivery_date); setScreen('reheat') }}
-                    style={{ marginTop: '12px', padding: '8px 16px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
+                    style={{ marginTop: '12px', padding: '8px 16px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
                   >
                     View Reheat Guide
                   </button>
@@ -472,13 +472,13 @@ export default function GuestApp({ user, onLogout }) {
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={() => setScreen('menu')}
-              style={{ flex: 1, padding: '12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+              style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
             >
               Back
             </button>
             <button
               onClick={handleConfirmOrder}
-              style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+              style={{ flex: 1, padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
             >
               Confirm Order
             </button>
@@ -547,7 +547,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedEntrees[item.id] && (
                       <button
                         onClick={() => handleRemoveFromCart(item.id, 'entree')}
-                        style={{ padding: '4px 8px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                       >
                         −
                       </button>
@@ -555,7 +555,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedEntrees[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedEntrees[item.id]}</span>}
                     <button
                       onClick={() => handleAddToCart(item.id, 'entree')}
-                      style={{ padding: '4px 8px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                      style={{ padding: '4px 8px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                     >
                       +
                     </button>
@@ -576,7 +576,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedSalads[item.id] && (
                       <button
                         onClick={() => handleRemoveFromCart(item.id, 'salad')}
-                        style={{ padding: '4px 8px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                       >
                         −
                       </button>
@@ -584,7 +584,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedSalads[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedSalads[item.id]}</span>}
                     <button
                       onClick={() => handleAddToCart(item.id, 'salad')}
-                      style={{ padding: '4px 8px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                      style={{ padding: '4px 8px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                     >
                       +
                     </button>
@@ -605,7 +605,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedAddOns[item.id] && (
                       <button
                         onClick={() => handleRemoveFromCart(item.id, 'addon')}
-                        style={{ padding: '4px 8px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                       >
                         −
                       </button>
@@ -613,7 +613,7 @@ export default function GuestApp({ user, onLogout }) {
                     {selectedAddOns[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedAddOns[item.id]}</span>}
                     <button
                       onClick={() => handleAddToCart(item.id, 'addon')}
-                      style={{ padding: '4px 8px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                      style={{ padding: '4px 8px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                     >
                       +
                     </button>
@@ -653,7 +653,7 @@ export default function GuestApp({ user, onLogout }) {
               />
             </div>
 
-            <div style={{ background: '#f5f0e6', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1B5E4E', marginTop: '0', marginBottom: '16px' }}>Order Summary</h3>
               {(() => {
                 const totalEntrees = Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0)
@@ -696,20 +696,20 @@ export default function GuestApp({ user, onLogout }) {
                   <button
                     onClick={handleSurveySubmit}
                     disabled={!surveyResponse.trim()}
-                    style={{ padding: '8px 16px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+                    style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
                   >
                     Send
                   </button>
                 </div>
                 {surveySubmitted && (
-                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#2e7d32', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
+                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#1B5E4E', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
                 )}
               </div>
             )}
 
             <button
               onClick={handleCheckout}
-              style={{ width: '100%', padding: '16px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
+              style={{ width: '100%', padding: '16px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
             >
               Review & Checkout
             </button>

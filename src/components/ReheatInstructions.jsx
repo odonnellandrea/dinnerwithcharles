@@ -109,7 +109,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
           {onClose && (
             <button
               onClick={onClose}
-              style={{ padding: '8px 16px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+              style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
             >
               ← Back
             </button>
@@ -134,7 +134,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
               {instructions.map((dish, dishIdx) => (
                 <div key={dishIdx} style={{ borderBottom: dishIdx < instructions.length - 1 ? '2px solid #e0dbd1' : 'none' }}>
                   {/* Dish header */}
-                  <div style={{ padding: '16px', background: '#1B5E4E', color: 'white' }}>
+                  <div style={{ padding: '16px', background: '#1B5E4E', color: '#faf8f3' }}>
                     <h2 style={{ margin: '0', fontSize: '18px', fontWeight: '600' }}>
                       {dish.name}
                     </h2>
@@ -171,7 +171,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
             </div>
 
             {/* Tips section */}
-            <div style={{ background: '#f5f0e6', padding: '16px', borderRadius: '8px', marginTop: '24px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: '#faf8f3', padding: '16px', borderRadius: '8px', marginTop: '24px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1B5E4E', marginTop: '0' }}>Tips</h3>
               <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
                 <li>Reheat only what you'll eat — these instructions are for single portions</li>

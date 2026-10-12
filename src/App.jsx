@@ -104,14 +104,14 @@ function App() {
         <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
           <button 
             onClick={() => setScreen('login')} 
-            style={{ padding: '12px 24px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+            style={{ padding: '12px 24px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
           >
             Sign In
           </button>
           
           <button 
             onClick={() => setScreen('signup')} 
-            style={{ padding: '12px 24px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+            style={{ padding: '12px 24px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
           >
             Request to Join
           </button>
@@ -180,11 +180,11 @@ function LoginForm({ onSuccess, onBack }) {
             </button>
           </div>
           
-          {error && <p style={{ color: 'red', fontSize: '14px', marginBottom: '16px' }}>{error}</p>}
+          {error && <p style={{ color: '#c62828', fontSize: '14px', marginBottom: '16px' }}>{error}</p>}
           
           <button 
             type="submit" 
-            style={{ width: '100%', padding: '12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}
+            style={{ width: '100%', padding: '12px', background: '#1B5E4E', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}
           >
             Sign In
           </button>
@@ -192,7 +192,7 @@ function LoginForm({ onSuccess, onBack }) {
           <button 
             type="button" 
             onClick={onBack} 
-            style={{ width: '100%', padding: '12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
+            style={{ width: '100%', padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
           >
             Back
           </button>
