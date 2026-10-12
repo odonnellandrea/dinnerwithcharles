@@ -108,16 +108,18 @@ create policy orders_insert on public."Orders" for insert
         select 1 from public.users u
         where u.id = auth.uid() and u.approval_status = 'approved'
       )
+      -- delivery_settings.delivery_date is a DATE but Orders.delivery_date is TEXT,
+      -- so compare both as 'YYYY-MM-DD' text
       and exists (
         select 1 from public.delivery_settings ds
-        where ds.delivery_date = "Orders".delivery_date
+        where ds.delivery_date::text = "Orders".delivery_date::text
           and ds.is_live
           and (ds.order_close_datetime is null or now() < ds.order_close_datetime)
       )
       and not exists (
         select 1 from public."Orders" o
         where lower(o.email) = public.jwt_email()
-          and o.delivery_date = "Orders".delivery_date
+          and o.delivery_date::text = "Orders".delivery_date::text
           and o.status <> 'cancelled'
           and o.order_id <> "Orders".order_id
       )
