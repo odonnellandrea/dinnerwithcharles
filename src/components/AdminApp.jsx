@@ -406,6 +406,24 @@ export default function AdminApp({ onLogout }) {
     a.click()
   }
 
+  // The function only emails the first time an order is delivered, so re-marking is safe
+  const sendReheatEmail = async (orderId) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ type: 'reheat_link', order_id: orderId })
+      })
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({}))
+        alert('Marked delivered, but the reheat email failed: ' + (error || res.status))
+      }
+    } catch (err) {
+      alert('Marked delivered, but the reheat email failed: ' + err.message)
+    }
+  }
+
   const fetchOrders = async () => {
     setLoading(true)
     const { data } = await supabase
@@ -978,10 +996,10 @@ export default function AdminApp({ onLogout }) {
                               <span style={{ fontSize: '12px', color: '#999' }}>Customer can reorder</span>
                             ) : order.status !== 'delivered' ? (
                               <button
-                                onClick={() => {
-                                  supabase.from('Orders').update({ status: 'delivered' }).eq('order_id', order.order_id).then(() => {
-                                    fetchOrders()
-                                  })
+                                onClick={async () => {
+                                  await supabase.from('Orders').update({ status: 'delivered' }).eq('order_id', order.order_id)
+                                  fetchOrders()
+                                  sendReheatEmail(order.order_id)
                                 }}
                                 style={{ padding: '6px 12px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                               >

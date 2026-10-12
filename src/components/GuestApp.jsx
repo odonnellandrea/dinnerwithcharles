@@ -51,6 +51,14 @@ export default function GuestApp({ user, onLogout }) {
   useEffect(() => {
     fetchLiveMenu()
     fetchOrderHistory()
+
+    // Deep link from the delivered email: /?reheat=YYYY-MM-DD
+    const reheat = new URLSearchParams(window.location.search).get('reheat')
+    if (/^\d{4}-\d{2}-\d{2}$/.test(reheat || '')) {
+      setReheatDate(reheat)
+      setScreen('reheat')
+      window.history.replaceState(null, '', window.location.pathname)
+    }
   }, [])
 
   useEffect(() => {

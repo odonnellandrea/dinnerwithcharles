@@ -93,7 +93,9 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
   }
 
   const getDeliveryDateDisplay = () => {
-    const date = new Date(deliveryDate)
+    // Parse YYYY-MM-DD as a local date; new Date('2026-10-19') is UTC and shows the day before in the US
+    const [y, m, d] = String(deliveryDate).split('-').map(Number)
+    const date = new Date(y, m - 1, d)
     const options = { weekday: 'long', month: 'short', day: 'numeric' }
     return date.toLocaleDateString('en-US', options)
   }

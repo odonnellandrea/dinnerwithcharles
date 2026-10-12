@@ -141,3 +141,25 @@ export function orderConfirmationEmail({ rows, siteUrl }) {
     html: layout({ siteUrl, preheader: `Confirmed for ${deliveryDate}. Here's everything on its way.`, body })
   }
 }
+
+export function reheatGuideEmail({ rows, siteUrl }) {
+  const first = rows[0]
+  const name = (first.customer_name || '').split(' ')[0] || 'there'
+  const deliveryDate = formatDeliveryDate(first.delivery_date)
+  const link = `${siteUrl}/?reheat=${encodeURIComponent(first.delivery_date)}`
+
+  const body = `
+    ${eyebrow('Delivered')}
+    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">Dinner has arrived, ${escapeHtml(name)}.</h1>
+    <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Your ${escapeHtml(deliveryDate)} delivery is at your door. Everything is cooked and ready; it just needs a gentle reheat.</p>
+    <p style="margin:0;font-size:16px;line-height:1.7;">Your reheat guide has step-by-step instructions for each dish so it tastes the way Charles intended.</p>
+    <div style="margin:40px 0 0 0;">
+      ${button(link, 'Open your reheat guide')}
+    </div>
+    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Please refrigerate everything as soon as you can. You'll be asked to sign in to view the guide.</p>`
+
+  return {
+    subject: `Your reheat guide for ${deliveryDate}`,
+    html: layout({ siteUrl, preheader: 'Step-by-step reheat instructions for this week\'s dishes.', body })
+  }
+}

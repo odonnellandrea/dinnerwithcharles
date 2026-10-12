@@ -1,11 +1,12 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { orderConfirmationEmail } from '../emails/templates.js'
+import { orderConfirmationEmail, reheatGuideEmail } from '../emails/templates.js'
 
 // Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM (optional).
 // Supabase URL/key reuse the VITE_ vars the site is built with.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_KEY
+const ADMIN_EMAIL = 'admin@dinnerwithcharles.com'
 const EMAIL_FROM = process.env.EMAIL_FROM || 'Dinner with Charles <onboarding@resend.dev>'
 
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
@@ -45,12 +46,33 @@ export default async (req) => {
   if (type === 'order_confirmation') {
     if (customerEmail.toLowerCase() !== user.email.toLowerCase()) return json(403, { error: 'Not your order' })
     message = orderConfirmationEmail({ rows, siteUrl })
+  } else if (type === 'reheat_link') {
+    if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+    if (!('reheat_email_sent_at' in rows[0])) {
+      return json(500, { error: 'Orders.reheat_email_sent_at is missing; run supabase/migrations/20261012_reheat_email_sent_at.sql' })
+    }
+    // Only the first time an order is marked delivered
+    if (rows.some(r => r.status !== 'delivered')) return json(409, { error: 'Order is not marked delivered' })
+    // Claim the send atomically so a double-click can't email twice
+    const { data: claimed, error: claimError } = await supabase
+      .from('Orders')
+      .update({ reheat_email_sent_at: new Date().toISOString() })
+      .eq('order_id', orderId)
+      .is('reheat_email_sent_at', null)
+      .select('order_id')
+    if (claimError) return json(500, { error: claimError.message })
+    if (!claimed?.length) return json(200, { skipped: 'already sent' })
+    message = reheatGuideEmail({ rows, siteUrl })
   } else {
     return json(400, { error: `Unknown email type: ${type}` })
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { data, error } = await resend.emails.send({ from: EMAIL_FROM, to: customerEmail, subject: message.subject, html: message.html })
-  if (error) return json(502, { error: error.message })
+  if (error) {
+    // Release the claim so marking delivered again can retry
+    if (type === 'reheat_link') await supabase.from('Orders').update({ reheat_email_sent_at: null }).eq('order_id', orderId)
+    return json(502, { error: error.message })
+  }
   return json(200, { id: data?.id })
 }
