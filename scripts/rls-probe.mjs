@@ -13,5 +13,6 @@ for (const t of tables) {
 }
 for (const t of ['entrees', 'delivery_settings', 'users']) {
   const { data, error } = await supabase.from(t).update({ id: NO_ID }).eq('id', NO_ID).select('id')
-  console.log(`update ${t.padEnd(18)} ${error ? 'blocked (' + error.message + ')' : `allowed by RLS (${data.length} rows matched)`}`)
+  // Under RLS an update on rows you can't see changes nothing rather than erroring
+  console.log(`update ${t.padEnd(18)} ${error ? 'blocked (' + error.message + ')' : `${data.length} rows changed`}`)
 }
