@@ -19,6 +19,7 @@ export default function AdminApp({ onLogout }) {
   
   // Menu states
   const [deliveryDate, setDeliveryDate] = useState('')
+  const [orderCloseLocal, setOrderCloseLocal] = useState('') // value for <input type="datetime-local">
   const [selectedItems, setSelectedItems] = useState([]) // [{id, name, item_type}]
   const [masterEntrees, setMasterEntrees] = useState([])
   const [masterSalads, setMasterSalads] = useState([])
@@ -43,8 +44,42 @@ export default function AdminApp({ onLogout }) {
   const initializeMenu = async () => {
     setLoading(true)
     await fetchMasterItems()
-    setDeliveryDate(getNextDeliveryDate())
+    const nextDate = getNextDeliveryDate()
+    setDeliveryDate(nextDate)
+    await fetchOrderClose(nextDate)
     setLoading(false)
+  }
+
+  // datetime-local inputs want local "YYYY-MM-DDTHH:mm"; the DB stores a UTC timestamp
+  const toLocalInput = (iso) => {
+    if (!iso) return ''
+    const d = new Date(iso)
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  }
+
+  const fetchOrderClose = async (date) => {
+    const { data } = await supabase
+      .from('delivery_settings')
+      .select('order_close_datetime')
+      .eq('delivery_date', date)
+    setOrderCloseLocal(toLocalInput(data?.[0]?.order_close_datetime))
+  }
+
+  const saveOrderClose = async () => {
+    if (!orderCloseLocal) {
+      alert('Pick the date and time orders close')
+      return
+    }
+    const closeIso = new Date(orderCloseLocal).toISOString()
+    const { data } = await supabase
+      .from('delivery_settings')
+      .select('delivery_date')
+      .eq('delivery_date', deliveryDate)
+    const { error } = data?.length > 0
+      ? await supabase.from('delivery_settings').update({ order_close_datetime: closeIso }).eq('delivery_date', deliveryDate)
+      : await supabase.from('delivery_settings').insert({ delivery_date: deliveryDate, order_open_datetime: new Date().toISOString(), order_close_datetime: closeIso, is_live: false })
+    alert(error ? 'Error saving close time: ' + error.message : '✓ Orders close ' + new Date(closeIso).toLocaleString())
   }
 
   const getNextDeliveryDate = () => {
@@ -80,6 +115,7 @@ export default function AdminApp({ onLogout }) {
     const newDate = e.target.value
     setDeliveryDate(newDate)
     await fetchWeeklyMenu(newDate)
+    await fetchOrderClose(newDate)
   }
 
   const fetchWeeklyMenu = async (date) => {
@@ -122,6 +158,10 @@ export default function AdminApp({ onLogout }) {
   }
 
   const toggleMenuLive = async () => {
+    if (!orderCloseLocal) {
+      alert('Set when orders close before going live')
+      return
+    }
     await saveWeeklyMenu()
     
     const { data } = await supabase
@@ -140,7 +180,7 @@ export default function AdminApp({ onLogout }) {
         .insert({
           delivery_date: deliveryDate,
           order_open_datetime: new Date().toISOString(),
-          order_close_datetime: new Date(Date.now() + 7*24*60*60*1000).toISOString(),
+          order_close_datetime: new Date(orderCloseLocal).toISOString(),
           is_live: true
         })
     }
@@ -626,6 +666,23 @@ export default function AdminApp({ onLogout }) {
                 onChange={handleDeliveryDateChange}
                 style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px' }}
               />
+
+              <label style={{ display: 'block', margin: '20px 0 10px', fontWeight: '600', color: '#1B5E4E' }}>Orders Close</label>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <input
+                  type="datetime-local"
+                  value={orderCloseLocal}
+                  onChange={(e) => setOrderCloseLocal(e.target.value)}
+                  style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px', fontFamily: 'inherit' }}
+                />
+                <button
+                  onClick={saveOrderClose}
+                  style={{ padding: '8px 20px', background: '#1B5E4E', color: 'white', border: 'none', cursor: 'pointer', fontSize: '14px' }}
+                >
+                  Save Close Time
+                </button>
+              </div>
+              <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#999' }}>Customers can't order after this time, even while the menu is live.</p>
             </div>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
