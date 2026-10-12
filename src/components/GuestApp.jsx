@@ -41,7 +41,8 @@ export default function GuestApp({ user, onLogout }) {
   const [surveySubmitted, setSurveySubmitted] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [orderHistory, setOrderHistory] = useState({})
+  const [orderHistory, setOrderHistory] = useState([])
+  const [reheatDate, setReheatDate] = useState(null)
 
   useEffect(() => {
     fetchLiveMenu()
@@ -131,14 +132,14 @@ export default function GuestApp({ user, onLogout }) {
         .order('created_at', { ascending: false })
       
       if (data) {
-        const groupedByDate = {}
-        data.forEach(order => {
-          if (!groupedByDate[order.delivery_date]) {
-            groupedByDate[order.delivery_date] = []
+        const grouped = {}
+        data.forEach(row => {
+          if (!grouped[row.order_id]) {
+            grouped[row.order_id] = { order_id: row.order_id, delivery_date: row.delivery_date, delivery_time_slot: row.delivery_time_slot, status: row.status, items: [] }
           }
-          groupedByDate[order.delivery_date].push(order)
+          grouped[row.order_id].items.push(row)
         })
-        setOrderHistory(groupedByDate)
+        setOrderHistory(Object.values(grouped))
       }
     } catch (err) {
       console.error('Failed to load order history:', err)
@@ -200,6 +201,20 @@ export default function GuestApp({ user, onLogout }) {
 
   const handleConfirmOrder = async () => {
     try {
+      const { data: existing } = await supabase
+        .from('Orders')
+        .select('order_id')
+        .eq('email', user.email)
+        .eq('delivery_date', deliveryDate)
+        .neq('status', 'cancelled')
+        .limit(1)
+      if (existing?.length > 0) {
+        alert("You've already placed your order for this delivery date.")
+        await fetchOrderHistory()
+        setScreen('menu')
+        return
+      }
+
       const orderDate = new Date().toISOString()
       const orderId = `${user.email}-${Date.now()}`
       const orders = []
@@ -300,6 +315,23 @@ export default function GuestApp({ user, onLogout }) {
     }
   }
 
+  const placedOrder = orderHistory.find(o => o.delivery_date === deliveryDate && o.status !== 'cancelled')
+
+  const deliveryBanner = (
+    <div style={{ background: '#1B5E4E', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
+      <div>
+        <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Delivery</p>
+        <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatDeliveryDate(deliveryDate)}</p>
+      </div>
+      {orderCloseDatetime && (
+        <div>
+          <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Orders close</p>
+          <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
+        </div>
+      )}
+    </div>
+  )
+
   const page = (children, maxWidth = '900px') => (
     <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px' }}>
       <div style={{ maxWidth, margin: '0 auto' }}>
@@ -317,20 +349,23 @@ export default function GuestApp({ user, onLogout }) {
     return page(
         <>
           <h2 style={{ color: '#1B5E4E', marginBottom: '20px' }}>Order History</h2>
-          {Object.keys(orderHistory).length === 0 ? (
+          {orderHistory.length === 0 ? (
             <p style={{ color: '#666' }}>No orders yet</p>
           ) : (
-            Object.entries(orderHistory).map(([date, orders]) => (
-              <div key={date} style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-                <h3 style={{ color: '#1B5E4E', margin: '0 0 12px 0' }}>{date}</h3>
-                {orders.map((order, idx) => (
+            orderHistory.map(order => (
+              <div key={order.order_id} style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1', opacity: order.status === 'cancelled' ? 0.6 : 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
+                  <h3 style={{ color: '#1B5E4E', margin: 0 }}>{formatDeliveryDate(order.delivery_date)}</h3>
+                  <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: order.status === 'cancelled' ? '#c62828' : '#D4A373', fontWeight: '600' }}>{order.status}</span>
+                </div>
+                {order.items.map((item, idx) => (
                   <p key={idx} style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>
-                    {order.quantity}x {order.item_name}
+                    {item.quantity}x {item.item_name}
                   </p>
                 ))}
-                {orders[0]?.status === 'delivered' && (
+                {order.status === 'delivered' && (
                   <button
-                    onClick={() => setScreen('reheat')}
+                    onClick={() => { setReheatDate(order.delivery_date); setScreen('reheat') }}
                     style={{ marginTop: '12px', padding: '8px 16px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
                   >
                     View Reheat Guide
@@ -344,7 +379,7 @@ export default function GuestApp({ user, onLogout }) {
   }
 
   if (screen === 'reheat') {
-    return page(<ReheatInstructions user={user} deliveryDate={Object.keys(orderHistory)[0]} onClose={() => setScreen('history')} embedded />, '700px')
+    return page(<ReheatInstructions user={user} deliveryDate={reheatDate} onClose={() => setScreen('history')} embedded />, '700px')
   }
 
   if (screen === 'review') {
@@ -421,20 +456,24 @@ export default function GuestApp({ user, onLogout }) {
         {loading && <p>Loading menu...</p>}
         {error && <p style={{ color: '#c62828', padding: '12px', background: '#ffebee', borderRadius: '6px', marginBottom: '20px' }}>{error}</p>}
 
-        {!loading && !error && (
+        {!loading && !error && placedOrder && (
           <>
-            <div style={{ background: '#1B5E4E', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
-              <div>
-                <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Delivery</p>
-                <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatDeliveryDate(deliveryDate)}</p>
-              </div>
-              {orderCloseDatetime && (
-                <div>
-                  <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Orders close</p>
-                  <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
-                </div>
-              )}
+            {deliveryBanner}
+            <div style={{ background: 'white', padding: '32px', border: '1px solid #e0dbd1', marginBottom: '20px' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Order placed</p>
+              <h2 style={{ color: '#1B5E4E', margin: '0 0 16px 0' }}>You're all set for this week</h2>
+              {placedOrder.items.map((item, idx) => (
+                <p key={idx} style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>{item.quantity}x {item.item_name}</p>
+              ))}
+              <p style={{ margin: '16px 0 0 0', color: '#666', fontSize: '14px' }}><strong>Delivery windows:</strong> {placedOrder.delivery_time_slot}</p>
+              <p style={{ margin: '24px 0 0 0', color: '#999', fontSize: '13px', lineHeight: '1.6' }}>Orders are locked once placed. Need to make a change? Send us a message and we'll cancel it so you can reorder.</p>
             </div>
+          </>
+        )}
+
+        {!loading && !error && !placedOrder && (
+          <>
+            {deliveryBanner}
 
             <p style={{ color: '#666', marginBottom: '20px' }}>Pick 3 entrées + 2 salads. Add-ons are optional.</p>
 

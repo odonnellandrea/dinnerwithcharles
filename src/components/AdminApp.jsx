@@ -909,15 +909,17 @@ export default function AdminApp({ onLogout }) {
                             <span style={{ 
                               padding: '4px 8px', 
                               borderRadius: '4px', 
-                              background: order.status === 'delivered' ? '#c8e6c9' : '#fff3cd',
-                              color: order.status === 'delivered' ? '#2e7d32' : '#856404',
+                              background: order.status === 'delivered' ? '#c8e6c9' : order.status === 'cancelled' ? '#ffebee' : '#fff3cd',
+                              color: order.status === 'delivered' ? '#2e7d32' : order.status === 'cancelled' ? '#c62828' : '#856404',
                               fontWeight: '600'
                             }}>
-                              {order.status === 'delivered' ? '✓ Delivered' : 'Pending'}
+                              {order.status === 'delivered' ? '✓ Delivered' : order.status === 'cancelled' ? 'Cancelled' : 'Pending'}
                             </span>
                           </td>
                           <td style={{ padding: '12px', display: 'flex', gap: '8px' }}>
-                            {order.status !== 'delivered' ? (
+                            {order.status === 'cancelled' ? (
+                              <span style={{ fontSize: '12px', color: '#999' }}>Customer can reorder</span>
+                            ) : order.status !== 'delivered' ? (
                               <button
                                 onClick={() => {
                                   supabase.from('Orders').update({ status: 'delivered' }).eq('order_id', order.order_id).then(() => {
@@ -938,6 +940,19 @@ export default function AdminApp({ onLogout }) {
                                 style={{ padding: '6px 12px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
                               >
                                 Mark as Undelivered
+                              </button>
+                            )}
+                            {order.status === 'pending' && (
+                              <button
+                                onClick={() => {
+                                  if (!window.confirm(`Cancel ${order.customer_name}'s order? They'll be able to place a new one for this delivery date.`)) return
+                                  supabase.from('Orders').update({ status: 'cancelled' }).eq('order_id', order.order_id).then(() => {
+                                    fetchOrders()
+                                  })
+                                }}
+                                style={{ padding: '6px 12px', background: 'white', color: '#c62828', border: '1px solid #c62828', cursor: 'pointer', fontSize: '12px' }}
+                              >
+                                Cancel Order
                               </button>
                             )}
                           </td>
