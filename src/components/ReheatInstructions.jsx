@@ -6,7 +6,7 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY
 )
 
-export default function ReheatInstructions({ user, deliveryDate, onClose }) {
+export default function ReheatInstructions({ user, deliveryDate, onClose, embedded = false }) {
   const [instructions, setInstructions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -99,11 +99,11 @@ export default function ReheatInstructions({ user, deliveryDate, onClose }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px', paddingBottom: '40px' }}>
+    <div style={embedded ? { paddingBottom: '40px' } : { minHeight: '100vh', background: '#faf8f3', padding: '20px', paddingBottom: '40px' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
-          <img src="/Green Horizontal Logo.png" alt="Weekly Kitchen" style={{ maxWidth: '200px', height: 'auto', marginBottom: '20px' }} />
+          {!embedded && <img src="/Green Horizontal Logo.png" alt="Weekly Kitchen" style={{ maxWidth: '200px', height: 'auto', marginBottom: '20px' }} />}
           {onClose && (
             <button
               onClick={onClose}

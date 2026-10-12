@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import ReheatInstructions from './ReheatInstructions'
 import NotificationSettings from './NotificationSettings'
+import GuestHeader from './GuestHeader'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -299,29 +300,22 @@ export default function GuestApp({ user, onLogout }) {
     }
   }
 
+  const page = (children, maxWidth = '900px') => (
+    <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px' }}>
+      <div style={{ maxWidth, margin: '0 auto' }}>
+        <GuestHeader screen={screen} onNavigate={setScreen} onLogout={onLogout} />
+        {children}
+      </div>
+    </div>
+  )
+
   if (screen === 'settings') {
-    return <NotificationSettings user={user} onClose={() => setScreen('menu')} />
+    return page(<NotificationSettings user={user} onClose={() => setScreen('menu')} />)
   }
 
   if (screen === 'history') {
-    return (
-      <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-            <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto' }} />
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setScreen('menu')} style={{ padding: '10px 20px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
-                Order This Week
-              </button>
-              <button onClick={() => setScreen('settings')} style={{ padding: '10px 20px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
-                Settings
-              </button>
-              <button onClick={onLogout} style={{ padding: '10px 20px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
-                Logout
-              </button>
-            </div>
-          </div>
-
+    return page(
+        <>
           <h2 style={{ color: '#1B5E4E', marginBottom: '20px' }}>Order History</h2>
           {Object.keys(orderHistory).length === 0 ? (
             <p style={{ color: '#666' }}>No orders yet</p>
@@ -345,19 +339,17 @@ export default function GuestApp({ user, onLogout }) {
               </div>
             ))
           )}
-        </div>
-      </div>
+        </>
     )
   }
 
   if (screen === 'reheat') {
-    return <ReheatInstructions user={user} deliveryDate={Object.keys(orderHistory)[0]} onClose={() => setScreen('history')} />
+    return page(<ReheatInstructions user={user} deliveryDate={Object.keys(orderHistory)[0]} onClose={() => setScreen('history')} embedded />, '700px')
   }
 
   if (screen === 'review') {
-    return (
-      <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+    return page(
+        <>
           <h1 style={{ color: '#1B5E4E', marginTop: '0' }}>Review Your Order</h1>
 
           <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0dbd1', marginBottom: '20px' }}>
@@ -419,29 +411,13 @@ export default function GuestApp({ user, onLogout }) {
               Confirm Order
             </button>
           </div>
-        </div>
-      </div>
+        </>,
+      '700px'
     )
   }
 
-  return (
-    <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto' }} />
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button onClick={() => setScreen('history')} style={{ padding: '10px 20px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
-              Order History
-            </button>
-            <button onClick={() => setScreen('settings')} style={{ padding: '10px 20px', background: '#D4A373', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
-              Settings
-            </button>
-            <button onClick={onLogout} style={{ padding: '10px 20px', background: '#1B5E4E', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
-              Logout
-            </button>
-          </div>
-        </div>
-
+  return page(
+      <>
         {loading && <p>Loading menu...</p>}
         {error && <p style={{ color: '#c62828', padding: '12px', background: '#ffebee', borderRadius: '6px', marginBottom: '20px' }}>{error}</p>}
 
@@ -644,7 +620,6 @@ export default function GuestApp({ user, onLogout }) {
             </button>
           </>
         )}
-      </div>
-    </div>
+      </>
   )
 }
