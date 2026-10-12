@@ -20,6 +20,16 @@ const formatDeliveryDate = (dateStr) => {
   return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 }
 
+// Customer-facing wording. Orders are stored as 'pending' (the RLS insert policy
+// requires it), but to a customer a placed order is confirmed. Admin shows raw values.
+const CUSTOMER_STATUS_LABELS = {
+  pending: 'Confirmed',
+  confirmed: 'Confirmed',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled'
+}
+const customerStatusLabel = (status) => CUSTOMER_STATUS_LABELS[String(status || '').toLowerCase()] || 'Confirmed'
+
 const formatCloseDatetime = (iso) => {
   if (!iso) return ''
   const dt = new Date(iso)
@@ -390,7 +400,7 @@ export default function GuestApp({ user, onLogout }) {
               <div key={order.order_id} style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1', opacity: order.status === 'cancelled' ? 0.6 : 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
                   <h3 style={{ color: '#1a441f', margin: 0 }}>{formatDeliveryDate(order.delivery_date)}</h3>
-                  <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: order.status === 'cancelled' ? '#c62828' : '#D4A373', fontWeight: '600' }}>{order.status}</span>
+                  <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: order.status === 'cancelled' ? '#c62828' : '#D4A373', fontWeight: '600' }}>{customerStatusLabel(order.status)}</span>
                 </div>
                 {order.items.map((item, idx) => (
                   <p key={idx} style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>
