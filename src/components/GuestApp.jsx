@@ -9,6 +9,8 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY
 )
 
+const INSTAGRAM_DM_URL = 'https://ig.me/m/dinnerwithcharles'
+
 const TIME_SLOTS = ['9:00 AM - 11:00 AM', '11:00 AM - 1:00 PM', '1:00 PM - 5:00 PM', '5:00 PM - 7:00 PM', '7:00 PM - 9:00 PM']
 
 // delivery_date is a plain YYYY-MM-DD; parse as local so it doesn't shift a day in US timezones
@@ -34,6 +36,7 @@ export default function GuestApp({ user, onLogout }) {
   const [selectedAddOns, setSelectedAddOns] = useState({})
   const [deliveryDate, setDeliveryDate] = useState(null)
   const [orderCloseDatetime, setOrderCloseDatetime] = useState(null)
+  const [noLiveMenu, setNoLiveMenu] = useState(false)
   const [deliveryTimeSlot, setDeliveryTimeSlot] = useState([])
   const [specialNotes, setSpecialNotes] = useState('')
   const [survey, setSurvey] = useState(null)
@@ -67,7 +70,7 @@ export default function GuestApp({ user, onLogout }) {
         .single()
 
       if (!deliverySettings) {
-        setError('No menu currently available. Check back soon!')
+        setNoLiveMenu(true)
         setLoading(false)
         return
       }
@@ -208,6 +211,11 @@ export default function GuestApp({ user, onLogout }) {
         .eq('delivery_date', deliveryDate)
         .neq('status', 'cancelled')
         .limit(1)
+      if (orderCloseDatetime && new Date() > new Date(orderCloseDatetime)) {
+        alert('Sorry, ordering closed for this delivery date.')
+        setScreen('menu')
+        return
+      }
       if (existing?.length > 0) {
         alert("You've already placed your order for this delivery date.")
         await fetchOrderHistory()
@@ -316,6 +324,8 @@ export default function GuestApp({ user, onLogout }) {
   }
 
   const placedOrder = orderHistory.find(o => o.delivery_date === deliveryDate && o.status !== 'cancelled')
+
+  const menuClosed = noLiveMenu || (orderCloseDatetime && new Date() > new Date(orderCloseDatetime))
 
   const deliveryBanner = (
     <div style={{ background: '#1B5E4E', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
@@ -471,7 +481,28 @@ export default function GuestApp({ user, onLogout }) {
           </>
         )}
 
-        {!loading && !error && !placedOrder && (
+        {!loading && !error && !placedOrder && menuClosed && (
+          <div style={{ background: 'white', padding: '56px 40px', border: '1px solid #e0dbd1', textAlign: 'center' }}>
+            <p style={{ margin: '0 0 12px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Ordering closed</p>
+            <h2 style={{ color: '#1B5E4E', margin: '0 0 16px 0', fontSize: '26px' }}>This week's menu is closed</h2>
+            <p style={{ color: '#666', margin: '0 auto 32px', maxWidth: '460px', lineHeight: '1.7', fontSize: '15px' }}>
+              {noLiveMenu
+                ? "The next menu isn't up yet. Check back soon."
+                : `Orders for ${formatDeliveryDate(deliveryDate)} closed ${formatCloseDatetime(orderCloseDatetime)}.`}
+              {' '}Hoping to squeeze in an order for next week? Send us a message and we'll see what we can do.
+            </p>
+            <a
+              href={INSTAGRAM_DM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-block', padding: '14px 28px', background: '#1B5E4E', color: '#faf8f3', textDecoration: 'none', fontSize: '14px', fontWeight: '600', letterSpacing: '0.04em' }}
+            >
+              Message @dinnerwithcharles on Instagram
+            </a>
+          </div>
+        )}
+
+        {!loading && !error && !placedOrder && !menuClosed && (
           <>
             {deliveryBanner}
 
