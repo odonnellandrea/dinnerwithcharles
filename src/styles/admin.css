@@ -2,6 +2,7 @@
 
 .admin-page {
   min-height: 100vh;
+  min-height: 100dvh; /* tracks iOS Safari's collapsing toolbar */
   width: 100%;
   background: #faf8f3;
   padding: 20px;
