@@ -1,0 +1,152 @@
+/* Admin layout. Inline styles can't do media queries, so the responsive bits live here. */
+
+.admin-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #faf8f3;
+  padding: 20px;
+}
+
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+/* Tabs */
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.admin-tab {
+  padding: 12px 24px;
+  background: #D4A373;
+  color: #faf8f3;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.admin-tab.is-active {
+  background: #1a441f;
+}
+
+/* Approval cards: text left, buttons right; stacks when narrow */
+.admin-card-row {
+  background: white;
+  padding: 20px;
+  border: 1px solid #e0dbd1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-card-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.admin-card-actions button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  color: #faf8f3;
+}
+
+.admin-orders-table td {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .admin-page {
+    padding: 16px;
+  }
+
+  /* Equal-width tab grid so all five fit without sideways scrolling */
+  .admin-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .admin-tab {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+
+  .admin-card-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-card-actions button {
+    flex: 1;
+    padding: 12px;
+  }
+
+  /* Orders table becomes a stack of cards */
+  .admin-orders-table,
+  .admin-orders-table tbody,
+  .admin-orders-table tr,
+  .admin-orders-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-orders-table {
+    background: transparent !important;
+  }
+
+  .admin-orders-table thead {
+    display: none;
+  }
+
+  .admin-orders-table tr {
+    background: white;
+    border: 1px solid #e0dbd1 !important;
+    margin-bottom: 12px;
+    padding: 8px 16px;
+  }
+
+  .admin-orders-table td {
+    padding: 8px 0 !important;
+  }
+
+  .admin-orders-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #D4A373;
+    font-weight: 600;
+  }
+
+  .admin-orders-table td.admin-order-actions {
+    display: flex !important;
+    flex-wrap: wrap;
+  }
+
+  .admin-orders-table td.admin-order-actions button {
+    flex: 1;
+    padding: 10px 12px !important;
+  }
+}

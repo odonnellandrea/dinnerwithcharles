@@ -122,7 +122,7 @@ export default function NotificationsDashboard() {
     <div>
       <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Menu Notifications</h2>
 
-      <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+      <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
         <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>
           Select Delivery Date
         </label>
@@ -130,7 +130,7 @@ export default function NotificationsDashboard() {
           type="date"
           value={deliveryDate}
           onChange={(e) => setDeliveryDate(e.target.value)}
-          style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px', marginBottom: '12px', fontSize: '14px' }}
+          style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px', marginBottom: '12px', fontSize: '14px' }}
         />
         <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>
           <strong>{getDeliveryDateDisplay()}</strong>
@@ -140,18 +140,18 @@ export default function NotificationsDashboard() {
       {loading ? (
         <p>Loading notification preferences...</p>
       ) : (
-        <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+        <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
           <h3 style={{ color: '#1a441f', marginTop: '0' }}>Opt-In Summary</h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            <div style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px' }}>
+            <div style={{ padding: '12px', background: '#faf8f3' }}>
               <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#1a441f', fontSize: '16px' }}>
                 {emailCount}
               </p>
               <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>Customers opted in to email</p>
             </div>
 
-            <div style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px' }}>
+            <div style={{ padding: '12px', background: '#faf8f3' }}>
               <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#1a441f', fontSize: '16px' }}>
                 {smsCount}
               </p>
@@ -163,7 +163,6 @@ export default function NotificationsDashboard() {
             <div
               style={{
                 padding: '12px',
-                borderRadius: '6px',
                 marginBottom: '16px',
                 fontSize: '13px',
                 background: message.startsWith('✓') ? '#faf8f3' : '#ffebee',
@@ -183,7 +182,6 @@ export default function NotificationsDashboard() {
               background: '#1a441f',
               color: '#faf8f3',
               border: 'none',
-              borderRadius: '6px',
               cursor: sending || (emailCount === 0 && smsCount === 0) ? 'not-allowed' : 'pointer',
               fontSize: '14px',
               fontWeight: '600',
@@ -201,7 +199,7 @@ export default function NotificationsDashboard() {
         </div>
       )}
 
-      <div style={{ background: '#faf8f3', padding: '16px', borderRadius: '8px', border: '1px solid #D4A373' }}>
+      <div style={{ background: '#faf8f3', padding: '16px', border: '1px solid #D4A373' }}>
         <h4 style={{ margin: '0 0 8px 0', color: '#1a441f', fontSize: '14px' }}>Implementation Note</h4>
         <p style={{ margin: '0', fontSize: '13px', color: '#1a441f', lineHeight: '1.5' }}>
           Email notifications currently use <strong>SendGrid</strong> (100 emails/day free tier).

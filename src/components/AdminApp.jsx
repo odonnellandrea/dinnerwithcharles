@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import ItemFormModal from './ItemFormModal'
 import { formatWindows } from '../lib/deliveryWindows'
+import '../styles/admin.css'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 
@@ -512,7 +513,6 @@ export default function AdminApp({ onLogout }) {
                   background: isExpanded ? '#1a441f' : '#D4A373',
                   color: '#faf8f3',
                   border: 'none',
-                  borderRadius: '6px',
                   cursor: 'pointer',
                   fontWeight: '600',
                   textAlign: 'left',
@@ -526,7 +526,7 @@ export default function AdminApp({ onLogout }) {
               </button>
 
               {isExpanded && (
-                <div style={{ padding: '12px', background: '#faf8f3', borderRadius: '0 0 6px 6px', marginBottom: '8px' }}>
+                <div style={{ padding: '12px', background: '#faf8f3', marginBottom: '8px' }}>
                   {catItems.length === 0 ? (
                     <p style={{ fontSize: '14px', color: '#999', margin: 0 }}>No items in this category</p>
                   ) : (
@@ -537,7 +537,6 @@ export default function AdminApp({ onLogout }) {
                         alignItems: 'center',
                         padding: '10px',
                         background: 'white',
-                        borderRadius: '4px',
                         marginBottom: '8px',
                         border: '1px solid #e0dbd1'
                       }}>
@@ -563,7 +562,6 @@ export default function AdminApp({ onLogout }) {
                             background: selectedItems.some(s => s.item_id === item.id) ? '#D4A373' : '#1a441f',
                             color: '#faf8f3',
                             border: 'none',
-                            borderRadius: '4px',
                             cursor: 'pointer',
                             fontSize: '12px',
                             fontWeight: '600',
@@ -586,50 +584,35 @@ export default function AdminApp({ onLogout }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto' }} />
+    <div className="admin-page">
+      <div className="admin-container">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '30px' }}>
+          <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', width: '55%', height: 'auto' }} />
           <button 
             onClick={onLogout} 
-            style={{ padding: '8px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+            style={{ padding: '10px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             Logout
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '30px' }}>
-          <button 
-            onClick={() => setScreen('approvals')} 
-            style={{ padding: '12px 24px', background: screen === 'approvals' ? '#1a441f' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
-          >
-            Approvals
-          </button>
-          <button 
-            onClick={() => setScreen('menu')} 
-            style={{ padding: '12px 24px', background: screen === 'menu' ? '#1a441f' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
-          >
-            Menu
-          </button>
-          <button 
-            onClick={() => setScreen('orders')} 
-            style={{ padding: '12px 24px', background: screen === 'orders' ? '#1a441f' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
-          >
-            Orders
-          </button>
-          <button 
-            onClick={() => setScreen('notifications')} 
-            style={{ padding: '12px 24px', background: screen === 'notifications' ? '#1a441f' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
-          >
-            Notifications
-          </button>
-          <button 
-            onClick={() => setScreen('documents')} 
-            style={{ padding: '12px 24px', background: screen === 'documents' ? '#1a441f' : '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
-          >
-            Documents
-          </button>
-        </div>
+        <nav className="admin-tabs">
+          {[
+            ['approvals', 'Approvals'],
+            ['menu', 'Menu'],
+            ['orders', 'Orders'],
+            ['notifications', 'Notifications'],
+            ['documents', 'Documents']
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setScreen(key)}
+              className={`admin-tab${screen === key ? ' is-active' : ''}`}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
 
         {screen === 'approvals' && (
           <div>
@@ -642,17 +625,17 @@ export default function AdminApp({ onLogout }) {
                   <p style={{ color: '#666' }}>No customers to manage</p>
                 ) : (
                   pendingCustomers.map(customer => (
-                    <div key={customer.id} style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0dbd1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
+                    <div key={customer.id} className="admin-card-row">
+                      <div className="admin-card-text">
                         <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#1a441f' }}>{customer.name || 'Name not provided'}</p>
                         <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
                         <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong></p>
                       </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div className="admin-card-actions">
                         {customer.approval_status !== 'approved' && (
                           <button 
                             onClick={() => handleApprove(customer.id)} 
-                            style={{ padding: '8px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+                            style={{ background: '#1a441f' }}
                           >
                             Approve
                           </button>
@@ -660,7 +643,7 @@ export default function AdminApp({ onLogout }) {
                         {customer.approval_status !== 'rejected' && (
                           <button 
                             onClick={() => handleReject(customer.id)} 
-                            style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+                            style={{ background: '#D4A373' }}
                           >
                             Reject
                           </button>
@@ -678,13 +661,13 @@ export default function AdminApp({ onLogout }) {
           <div>
             <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Weekly Menu Setup</h2>
             
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>Delivery Date</label>
               <input
                 type="date"
                 value={deliveryDate}
                 onChange={handleDeliveryDateChange}
-                style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px' }}
+                style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px' }}
               />
 
               <label style={{ display: 'block', margin: '20px 0 10px', fontWeight: '600', color: '#1a441f' }}>Orders Close</label>
@@ -705,7 +688,7 @@ export default function AdminApp({ onLogout }) {
               <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#999' }}>Customers can't order after this time, even while the menu is live.</p>
             </div>
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '12px' }}>Customer Survey Question</h3>
               <div style={{ marginBottom: '12px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#1a441f' }}>Question</label>
@@ -713,7 +696,7 @@ export default function AdminApp({ onLogout }) {
                   value={surveyQuestion}
                   onChange={(e) => setSurveyQuestion(e.target.value)}
                   placeholder="Ask customers something about this week's menu..."
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #e0dbd1', minHeight: '60px', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '60px', boxSizing: 'border-box', fontFamily: 'inherit' }}
                 />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
@@ -745,18 +728,18 @@ export default function AdminApp({ onLogout }) {
                     alert('✓ Survey question saved!')
                   }
                 }}
-                style={{ width: '100%', padding: '10px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ width: '100%', padding: '10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Save Survey Question
               </button>
             </div>
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: 0 }}>Entrées</h3>
               {renderItemsByCategory(masterEntrees, 'entree')}
             </div>
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: 0 }}>Salads</h3>
               <div style={{ display: 'grid', gap: '8px' }}>
                 {masterSalads.map(item => (
@@ -766,7 +749,6 @@ export default function AdminApp({ onLogout }) {
                     alignItems: 'center',
                     padding: '10px',
                     background: '#faf8f3',
-                    borderRadius: '4px',
                     border: '1px solid #e0dbd1'
                   }}>
                     <div>
@@ -786,7 +768,6 @@ export default function AdminApp({ onLogout }) {
                         background: selectedItems.some(s => s.item_id === item.id) ? '#D4A373' : '#1a441f',
                         color: '#faf8f3',
                         border: 'none',
-                        borderRadius: '4px',
                         cursor: 'pointer',
                         fontSize: '12px',
                         fontWeight: '600',
@@ -801,12 +782,12 @@ export default function AdminApp({ onLogout }) {
               </div>
             </div>
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: 0 }}>Add-ons</h3>
               {renderItemsByCategory(masterAddOns, 'addon')}
             </div>
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: 0 }}>Menu Summary — Review Before Saving</h3>
               {selectedItems.length === 0 ? (
                 <p style={{ color: '#999' }}>No items selected yet. Click "Add" on items above.</p>
@@ -829,7 +810,6 @@ export default function AdminApp({ onLogout }) {
                               <div key={selectedItem.item_id} style={{
                                 padding: '12px',
                                 background: '#faf8f3',
-                                borderRadius: '6px',
                                 border: '1px solid #e0dbd1'
                               }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
@@ -838,7 +818,7 @@ export default function AdminApp({ onLogout }) {
                                   </p>
                                   <button
                                     onClick={() => handleRemoveItem(selectedItem.item_id)}
-                                    style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                                    style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '11px' }}
                                   >
                                     Remove
                                   </button>
@@ -862,7 +842,7 @@ export default function AdminApp({ onLogout }) {
               )}
             </div>
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: 0 }}>Export Menus by Date Range</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                 <div>
@@ -870,7 +850,7 @@ export default function AdminApp({ onLogout }) {
                   <input
                     type="date"
                     id="exportFromDate"
-                    style={{ width: '100%', padding: '8px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div>
@@ -878,7 +858,7 @@ export default function AdminApp({ onLogout }) {
                   <input
                     type="date"
                     id="exportToDate"
-                    style={{ width: '100%', padding: '8px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
@@ -892,13 +872,13 @@ export default function AdminApp({ onLogout }) {
                   }
                   exportMenusByDateRange(fromDate, toDate)
                 }}
-                style={{ width: '100%', padding: '10px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ width: '100%', padding: '10px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Export Selected Weeks
               </button>
             </div>
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: 0 }}>CSV Upload</h3>
               <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
                 Upload a CSV file to replace this week's entire menu.
@@ -907,7 +887,7 @@ export default function AdminApp({ onLogout }) {
                 type="file"
                 accept=".csv"
                 onChange={handleCSVUpload}
-                style={{ padding: '8px', border: '1px solid #e0dbd1', borderRadius: '6px', cursor: 'pointer' }}
+                style={{ padding: '8px', border: '1px solid #e0dbd1', cursor: 'pointer' }}
               />
             </div>
 
@@ -917,13 +897,13 @@ export default function AdminApp({ onLogout }) {
                   await saveWeeklyMenu()
                   alert('✓ Menu saved for ' + new Date(deliveryDate).toLocaleDateString())
                 }}
-                style={{ padding: '12px 24px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ padding: '12px 24px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Save Menu
               </button>
               <button
                 onClick={() => setShowPreview(true)}
-                style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Preview & Go Live
               </button>
@@ -937,7 +917,7 @@ export default function AdminApp({ onLogout }) {
               <h2 style={{ color: '#1a441f' }}>Orders</h2>
               <button 
                 onClick={exportToCSV} 
-                style={{ padding: '10px 20px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+                style={{ padding: '10px 20px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
               >
                 Export to CSV
               </button>
@@ -947,7 +927,7 @@ export default function AdminApp({ onLogout }) {
               <p>Loading...</p>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white' }}>
+                <table className="admin-orders-table" style={{ width: '100%', borderCollapse: 'collapse', background: 'white' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid #e0dbd1' }}>
                       <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Order ID</th>
@@ -977,22 +957,21 @@ export default function AdminApp({ onLogout }) {
                       
                       return Object.values(groupedOrders).map((order, idx) => (
                         <tr key={idx} style={{ borderBottom: '1px solid #e0dbd1' }}>
-                          <td style={{ padding: '12px', fontSize: '14px' }}>{order.order_id}</td>
-                          <td style={{ padding: '12px', fontSize: '14px' }}>
+                          <td data-label="Order ID" style={{ padding: '12px', fontSize: '14px' }}>{order.order_id}</td>
+                          <td data-label="Customer" style={{ padding: '12px', fontSize: '14px' }}>
                             {order.customer_name}
                             {formatWindows(order.delivery_time_slot) && (
                               <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>{order.delivery_date} · {formatWindows(order.delivery_time_slot)}</div>
                             )}
                           </td>
-                          <td style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
+                          <td data-label="Items" style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
                             {order.items.map((item, i) => (
                               <div key={i}>{item}</div>
                             ))}
                           </td>
-                          <td style={{ padding: '12px', fontSize: '14px' }}>
+                          <td data-label="Status" style={{ padding: '12px', fontSize: '14px' }}>
                             <span style={{ 
                               padding: '4px 8px', 
-                              borderRadius: '4px', 
                               background: order.status === 'delivered' ? '#1a441f' : order.status === 'cancelled' ? '#ffebee' : '#D4A373',
                               color: order.status === 'cancelled' ? '#c62828' : '#faf8f3',
                               fontWeight: '600'
@@ -1000,7 +979,7 @@ export default function AdminApp({ onLogout }) {
                               {order.status === 'delivered' ? '✓ Delivered' : order.status === 'cancelled' ? 'Cancelled' : 'Pending'}
                             </span>
                           </td>
-                          <td style={{ padding: '12px', display: 'flex', gap: '8px' }}>
+                          <td className="admin-order-actions" style={{ padding: '12px', display: 'flex', gap: '8px' }}>
                             {order.status === 'cancelled' ? (
                               <span style={{ fontSize: '12px', color: '#999' }}>Customer can reorder</span>
                             ) : order.status !== 'delivered' ? (
@@ -1010,7 +989,7 @@ export default function AdminApp({ onLogout }) {
                                   fetchOrders()
                                   sendReheatEmail(order.order_id)
                                 }}
-                                style={{ padding: '6px 12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                                style={{ padding: '6px 12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
                               >
                                 Mark Delivered
                               </button>
@@ -1021,7 +1000,7 @@ export default function AdminApp({ onLogout }) {
                                     fetchOrders()
                                   })
                                 }}
-                                style={{ padding: '6px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                                style={{ padding: '6px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
                               >
                                 Mark as Undelivered
                               </button>
@@ -1071,19 +1050,19 @@ export default function AdminApp({ onLogout }) {
             justifyContent: 'center',
             zIndex: 1000
           }}>
-            <div style={{ background: 'white', borderRadius: '8px', padding: '30px', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div style={{ background: 'white', padding: '30px', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}>
               <h2 style={{ color: '#1a441f' }}>Menu Preview</h2>
               <p>Ready to go live? Click the button below.</p>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   onClick={() => setShowPreview(false)}
-                  style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+                  style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
                 >
                   Close
                 </button>
                 <button
                   onClick={toggleMenuLive}
-                  style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+                  style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
                 >
                   Go Live
                 </button>

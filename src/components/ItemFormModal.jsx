@@ -100,7 +100,6 @@ export default function ItemFormModal({ item, onClose, onSave }) {
     }}>
       <div style={{
         background: 'white',
-        borderRadius: '8px',
         padding: '30px',
         maxWidth: '600px',
         maxHeight: '90vh',
@@ -116,7 +115,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
           <select
             value={itemType}
             onChange={(e) => setItemType(e.target.value)}
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #e0dbd1' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1' }}
           >
             <option value="entree">Entrée</option>
             <option value="salad">Salad</option>
@@ -131,7 +130,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Tuscan Chicken"
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
           />
         </div>
 
@@ -141,7 +140,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g., Pan-seared chicken with Italian herbs and garlic"
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #e0dbd1', minHeight: '80px', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '80px', boxSizing: 'border-box' }}
           />
         </div>
 
@@ -153,7 +152,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="e.g., 43.00"
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
           />
         </div>
 
@@ -161,7 +160,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
           <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: '#1a441f' }}>Categories (select all that apply)</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
             {CATEGORIES.map(cat => (
-              <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px', background: '#faf8f3', borderRadius: '6px' }}>
+              <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px', background: '#faf8f3' }}>
                 <input
                   type="checkbox"
                   checked={selectedCategories.includes(cat)}
@@ -176,20 +175,20 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: '#1a441f' }}>Components</label>
           {components.map((comp, idx) => (
-            <div key={idx} style={{ marginBottom: '12px', padding: '12px', background: '#faf8f3', borderRadius: '6px' }}>
+            <div key={idx} style={{ marginBottom: '12px', padding: '12px', background: '#faf8f3' }}>
               <input
                 type="text"
                 placeholder="Component name"
                 value={comp.name}
                 onChange={(e) => handleUpdateComponent(idx, 'name', e.target.value)}
-                style={{ width: '100%', padding: '8px', marginBottom: '8px', borderRadius: '4px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
               />
               <input
                 type="text"
                 placeholder="Reheating instruction"
                 value={comp.instruction}
                 onChange={(e) => handleUpdateComponent(idx, 'instruction', e.target.value)}
-                style={{ width: '100%', padding: '8px', marginBottom: '8px', borderRadius: '4px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
               />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px' }}>
                 <input
@@ -197,12 +196,12 @@ export default function ItemFormModal({ item, onClose, onSave }) {
                   min="1"
                   value={comp.quantity}
                   onChange={(e) => handleUpdateComponent(idx, 'quantity', e.target.value)}
-                  style={{ padding: '8px', borderRadius: '4px', border: '1px solid #e0dbd1' }}
+                  style={{ padding: '8px', border: '1px solid #e0dbd1' }}
                   placeholder="Qty"
                 />
                 <button
                   onClick={() => handleRemoveComponent(idx)}
-                  style={{ padding: '8px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                  style={{ padding: '8px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
                 >
                   Remove
                 </button>
@@ -211,7 +210,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
           ))}
           <button
             onClick={handleAddComponent}
-            style={{ width: '100%', padding: '10px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+            style={{ width: '100%', padding: '10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontWeight: '600' }}
           >
             + Add Component
           </button>
@@ -223,21 +222,21 @@ export default function ItemFormModal({ item, onClose, onSave }) {
             value={chefNotes}
             onChange={(e) => setChefNotes(e.target.value)}
             placeholder="e.g., Best served within 2 days"
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #e0dbd1', minHeight: '60px', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '60px', boxSizing: 'border-box' }}
           />
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={onClose}
-            style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+            style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontWeight: '600' }}
             disabled={loading}
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+            style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontWeight: '600' }}
             disabled={loading}
           >
             {loading ? 'Saving...' : 'Save Item'}
