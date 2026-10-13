@@ -17,6 +17,9 @@ export default function AdminApp({ onLogout }) {
   const [screen, setScreen] = useState('approvals')
   const [orders, setOrders] = useState([])
   const [includeCancelledInExport, setIncludeCancelledInExport] = useState(false)
+  const [orderSearch, setOrderSearch] = useState('')
+  const [orderDateFilter, setOrderDateFilter] = useState('all')
+  const [orderStatusFilter, setOrderStatusFilter] = useState('all') // all | active | delivered | cancelled
   const [pendingCustomers, setPendingCustomers] = useState([])
   const [loading, setLoading] = useState(false)
   
@@ -495,6 +498,39 @@ export default function AdminApp({ onLogout }) {
     a.click()
   }
 
+  // One entry per order (Orders has a row per item), newest first
+  const groupedOrders = Object.values(orders.reduce((acc, row) => {
+    acc[row.order_id] ??= {
+      order_id: row.order_id,
+      customer_name: row.customer_name,
+      email: row.email,
+      delivery_date: row.delivery_date,
+      delivery_time_slot: row.delivery_time_slot,
+      status: row.status,
+      rows: []
+    }
+    acc[row.order_id].rows.push(row)
+    return acc
+  }, {}))
+
+  const orderDeliveryDates = [...new Set(groupedOrders.map(o => o.delivery_date).filter(Boolean))].sort().reverse()
+
+  const matchesStatusFilter = (status) => {
+    if (orderStatusFilter === 'all') return true
+    if (orderStatusFilter === 'active') return status === 'pending' || status === 'confirmed'
+    return status === orderStatusFilter
+  }
+
+  const searchTerm = orderSearch.trim().toLowerCase()
+  const visibleOrders = groupedOrders.filter(order =>
+    matchesStatusFilter(order.status) &&
+    (orderDateFilter === 'all' || order.delivery_date === orderDateFilter) &&
+    (!searchTerm || [order.customer_name, order.email, order.order_id, ...order.rows.map(r => r.item_name)]
+      .some(value => String(value || '').toLowerCase().includes(searchTerm)))
+  )
+
+  const filtersActive = orderSearch || orderDateFilter !== 'all' || orderStatusFilter !== 'all'
+
   const renderItemsByCategory = (items, itemType) => {
     const grouped = {}
     CATEGORIES.forEach(cat => {
@@ -913,7 +949,7 @@ export default function AdminApp({ onLogout }) {
               <h2 style={{ color: '#1a441f' }}>Orders</h2>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                 <button 
-                  onClick={() => exportToCSV(orders)} 
+                  onClick={() => exportToCSV(visibleOrders.flatMap(o => o.rows))} 
                   style={{ padding: '10px 20px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}
                 >
                   Export to CSV
@@ -925,8 +961,59 @@ export default function AdminApp({ onLogout }) {
               </div>
             </div>
 
+            <div className="admin-filters">
+              <div className="admin-filter admin-filter-search">
+                <label htmlFor="orderSearch">Search</label>
+                <input
+                  id="orderSearch"
+                  type="search"
+                  className="admin-input"
+                  placeholder="Name, email, order ID or dish"
+                  value={orderSearch}
+                  onChange={(e) => setOrderSearch(e.target.value)}
+                />
+              </div>
+              <div className="admin-filter">
+                <label htmlFor="orderDateFilter">Delivery date</label>
+                <select id="orderDateFilter" className="admin-input" value={orderDateFilter} onChange={(e) => setOrderDateFilter(e.target.value)}>
+                  <option value="all">All dates</option>
+                  {orderDeliveryDates.map(date => (
+                    <option key={date} value={date}>{date}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="admin-filter">
+                <label htmlFor="orderStatusFilter">Status</label>
+                <select id="orderStatusFilter" className="admin-input" value={orderStatusFilter} onChange={(e) => setOrderStatusFilter(e.target.value)}>
+                  <option value="all">All</option>
+                  <option value="active">Confirmed / pending</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px', fontSize: '13px', color: '#666' }}>
+              <span>
+                Showing {visibleOrders.length} of {groupedOrders.length} orders
+                {visibleOrders.some(o => o.status === 'cancelled') && !includeCancelledInExport ? ' · cancelled orders won\'t be exported' : ''}
+              </span>
+              {filtersActive && (
+                <button
+                  onClick={() => { setOrderSearch(''); setOrderDateFilter('all'); setOrderStatusFilter('all') }}
+                  style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+
             {loading ? (
               <p>Loading...</p>
+            ) : visibleOrders.length === 0 ? (
+              <p style={{ color: '#666', background: 'white', border: '1px solid #e0dbd1', padding: '20px' }}>
+                {groupedOrders.length === 0 ? 'No orders yet.' : 'No orders match these filters.'}
+              </p>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table className="admin-orders-table" style={{ width: '100%', borderCollapse: 'collapse', background: 'white' }}>
@@ -940,25 +1027,8 @@ export default function AdminApp({ onLogout }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {(() => {
-                      const groupedOrders = {}
-                      orders.forEach(order => {
-                        if (!groupedOrders[order.order_id]) {
-                          groupedOrders[order.order_id] = {
-                            order_id: order.order_id,
-                            customer_name: order.customer_name,
-                            email: order.email,
-                            delivery_date: order.delivery_date,
-                            delivery_time_slot: order.delivery_time_slot,
-                            items: [],
-                            status: order.status
-                          }
-                        }
-                        groupedOrders[order.order_id].items.push(`${order.quantity}x ${order.item_name}`)
-                      })
-                      
-                      return Object.values(groupedOrders).map((order, idx) => (
-                        <tr key={idx} style={{ borderBottom: '1px solid #e0dbd1' }}>
+                    {visibleOrders.map(order => (
+                        <tr key={order.order_id} style={{ borderBottom: '1px solid #e0dbd1' }}>
                           <td data-label="Order ID" style={{ padding: '12px', fontSize: '14px' }}>{order.order_id}</td>
                           <td data-label="Customer" style={{ padding: '12px', fontSize: '14px' }}>
                             {order.customer_name}
@@ -967,8 +1037,8 @@ export default function AdminApp({ onLogout }) {
                             )}
                           </td>
                           <td data-label="Items" style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
-                            {order.items.map((item, i) => (
-                              <div key={i}>{item}</div>
+                            {order.rows.map((row, i) => (
+                              <div key={i}>{row.quantity}x {row.item_name}</div>
                             ))}
                           </td>
                           <td data-label="Status" style={{ padding: '12px', fontSize: '14px' }}>
@@ -1022,8 +1092,7 @@ export default function AdminApp({ onLogout }) {
                             )}
                           </td>
                         </tr>
-                      ))
-                    })()}
+                    ))}
                   </tbody>
                 </table>
               </div>

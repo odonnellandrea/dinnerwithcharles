@@ -106,7 +106,50 @@
   margin-bottom: 16px;
 }
 
+/* Orders filter bar */
+.admin-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  background: white;
+  border: 1px solid #e0dbd1;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.admin-filter {
+  min-width: 0;
+}
+
+.admin-filter label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D4A373;
+  font-weight: 600;
+}
+
+.admin-filter select.admin-input {
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, #1a441f 50%), linear-gradient(135deg, #1a441f 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 32px;
+}
+
 @media (max-width: 640px) {
+  .admin-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .admin-filter-search {
+    grid-column: 1 / -1;
+  }
+
+
   .admin-date-range {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
