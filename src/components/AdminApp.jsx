@@ -16,6 +16,7 @@ const CATEGORIES = ['Chicken', 'Beef', 'Fish', 'Lamb', 'Pasta', 'Pork', 'Vegetar
 export default function AdminApp({ onLogout }) {
   const [screen, setScreen] = useState('approvals')
   const [orders, setOrders] = useState([])
+  const [includeCancelledInExport, setIncludeCancelledInExport] = useState(false)
   const [pendingCustomers, setPendingCustomers] = useState([])
   const [loading, setLoading] = useState(false)
   
@@ -462,12 +463,13 @@ export default function AdminApp({ onLogout }) {
     fetchPendingCustomers()
   }
 
-  const exportToCSV = () => {
+  // The kitchen works from this file, so cancelled orders stay out unless asked for
+  const exportToCSV = (rows) => {
     const csv = [
       ['Order ID', 'Customer', 'Email', 'Item Type', 'Item Name', 'Quantity', 'Delivery Date', 'Delivery Windows', 'Total Price', 'Status']
     ]
     
-    orders.forEach(order => {
+    rows.filter(order => includeCancelledInExport || order.status !== 'cancelled').forEach(order => {
       csv.push([
         order.order_id,
         order.customer_name,
@@ -476,13 +478,15 @@ export default function AdminApp({ onLogout }) {
         order.item_name,
         order.quantity,
         order.delivery_date,
-        `"${formatWindows(order.delivery_time_slot)}"`,
+        formatWindows(order.delivery_time_slot),
         order.total_order_price,
         order.status
       ])
     })
 
-    const csvContent = csv.map(row => row.join(',')).join('\n')
+    // Quote every field so commas, quotes and line breaks in names/notes don't shift columns
+    const cell = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`
+    const csvContent = csv.map(row => row.map(cell).join(',')).join('\n')
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -905,14 +909,20 @@ export default function AdminApp({ onLogout }) {
 
         {screen === 'orders' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
               <h2 style={{ color: '#1a441f' }}>Orders</h2>
-              <button 
-                onClick={exportToCSV} 
-                style={{ padding: '10px 20px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
-              >
-                Export to CSV
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                <button 
+                  onClick={() => exportToCSV(orders)} 
+                  style={{ padding: '10px 20px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}
+                >
+                  Export to CSV
+                </button>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#666', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={includeCancelledInExport} onChange={(e) => setIncludeCancelledInExport(e.target.checked)} />
+                  Include cancelled orders in export
+                </label>
+              </div>
             </div>
 
             {loading ? (
@@ -968,7 +978,7 @@ export default function AdminApp({ onLogout }) {
                               color: order.status === 'cancelled' ? '#c62828' : '#faf8f3',
                               fontWeight: '600'
                             }}>
-                              {order.status === 'delivered' ? '✓ Delivered' : order.status === 'cancelled' ? 'Cancelled' : 'Pending'}
+                              {order.status === 'delivered' ? '✓ Delivered' : order.status === 'cancelled' ? 'Cancelled' : order.status === 'pending' ? 'Pending' : order.status}
                             </span>
                           </td>
                           <td className="admin-order-actions" style={{ padding: '12px', display: 'flex', gap: '8px' }}>
@@ -997,7 +1007,7 @@ export default function AdminApp({ onLogout }) {
                                 Mark as Undelivered
                               </button>
                             )}
-                            {order.status === 'pending' && (
+                            {(order.status === 'pending' || order.status === 'confirmed') && (
                               <button
                                 onClick={() => {
                                   if (!window.confirm(`Cancel ${order.customer_name}'s order? They'll be able to place a new one for this delivery date.`)) return

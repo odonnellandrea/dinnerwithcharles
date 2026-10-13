@@ -56,6 +56,7 @@ export default function DocumentGenerationDashboard() {
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState({})
   const [message, setMessage] = useState('')
+  const [includeCancelled, setIncludeCancelled] = useState(false)
 
   useEffect(() => {
     const today = new Date()
@@ -85,11 +86,13 @@ export default function DocumentGenerationDashboard() {
         throw new Error('No delivery settings found for this date')
       }
 
-      // Fetch orders for this delivery
-      const { data: orders } = await supabase
+      // Fetch orders for this delivery; cancelled orders aren't cooked or packed unless asked for
+      let ordersQuery = supabase
         .from('Orders')
         .select('*')
         .eq('delivery_date', deliveryDate)
+      if (!includeCancelled) ordersQuery = ordersQuery.neq('status', 'cancelled')
+      const { data: orders } = await ordersQuery
 
       // Fetch menu items
       const { data: weeklyMenu } = await supabase
@@ -166,6 +169,10 @@ export default function DocumentGenerationDashboard() {
         <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#666' }}>
           <strong>{getDeliveryDateDisplay()}</strong>
         </p>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '13px', color: '#666', cursor: 'pointer' }}>
+          <input type="checkbox" checked={includeCancelled} onChange={(e) => setIncludeCancelled(e.target.checked)} />
+          Include cancelled orders
+        </label>
       </div>
 
       {/* Generate All button */}
