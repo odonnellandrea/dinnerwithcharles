@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import NotificationChoices from './NotificationChoices'
 import { normalizeUsPhone } from '../lib/notificationConsent'
@@ -12,8 +12,37 @@ const supabase = createClient(
 // (e.g. "credit card"); nothing in the app parses this value, so those stay valid.
 const PAYMENT_METHODS = ['Venmo', 'Zelle', 'Cash']
 
-export default function SignupApp({ onBack }) {
-  const [step, setStep] = useState(1)
+// Form field -> users column, for the request-to-join answers (steps 2-5).
+// Shared by the first submission (insert) and a resubmission (update).
+const ANSWER_COLUMNS = {
+  household: 'household_composition',
+  address: 'delivery_address',
+  phone: 'delivery_phone',
+  timeSlots: 'delivery_time_slots',
+  instructions: 'delivery_instructions',
+  paymentMethod: 'payment_method',
+  allergies: 'allergies',
+  healthRestrictions: 'health_restrictions',
+  preferenceRestrictions: 'preference_restrictions',
+  proteinPreferences: 'protein_preferences',
+  cuisines: 'cuisines_enjoyed',
+  flavorTolerance: 'flavor_tolerance',
+  kidsEating: 'kids_eating',
+  kidsQuirks: 'kids_quirks',
+  reheatingPreference: 'reheating_preference',
+  anythingElse: 'anything_else'
+}
+
+const answerColumns = (formData) =>
+  Object.fromEntries(Object.entries(ANSWER_COLUMNS).map(([field, column]) => [column, formData[field]]))
+
+// resubmitFor: the signed-in, rejected user. Skips the account step, pre-fills their
+// previous answers, and updates their profile back to pending instead of signing up.
+export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
+  const isResubmit = !!resubmitFor
+  const firstStep = isResubmit ? 2 : 1
+  const [step, setStep] = useState(firstStep)
+  const [loadingProfile, setLoadingProfile] = useState(isResubmit)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,6 +77,36 @@ export default function SignupApp({ onBack }) {
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
+
+  useEffect(() => {
+    if (!isResubmit) return
+    const loadProfile = async () => {
+      const { data, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', resubmitFor.id)
+        .single()
+      if (profileError || !data) {
+        setError("We couldn't load your previous answers. Please try again.")
+      } else {
+        const answers = Object.fromEntries(Object.entries(ANSWER_COLUMNS).map(([field, column]) => [field, data[column] ?? '']))
+        setFormData(prev => ({
+          ...prev,
+          ...answers,
+          // Legacy free-text payment values aren't in the list, so they must pick again
+          paymentMethod: PAYMENT_METHODS.includes(data.payment_method) ? data.payment_method : '',
+          name: data.name || '',
+          email: data.email || resubmitFor.email,
+          // Show the choices they already saved; nothing new is pre-checked
+          emailOptIn: data.email_opt_in === true,
+          smsOptIn: data.sms_opt_in === true,
+          smsPhone: data.phone_number || ''
+        }))
+      }
+      setLoadingProfile(false)
+    }
+    loadProfile()
+  }, [])
 
   const handleNext = () => {
     if (step === 1) {
@@ -107,7 +166,7 @@ export default function SignupApp({ onBack }) {
   }
 
   const handleBack = () => {
-    if (step === 1) {
+    if (step === firstStep) {
       onBack()
     } else {
       setStep(step - 1)
@@ -127,6 +186,29 @@ export default function SignupApp({ onBack }) {
     setLoading(true)
     setError('')
 
+    if (isResubmit) {
+      try {
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({
+            ...answerColumns(formData),
+            email_opt_in: formData.emailOptIn === true,
+            sms_opt_in: formData.smsOptIn === true,
+            phone_number: formData.smsOptIn ? smsPhone : null,
+            approval_status: 'pending',
+            resubmitted_at: new Date().toISOString()
+          })
+          .eq('id', resubmitFor.id)
+        if (updateError) throw updateError
+        onResubmitted()
+      } catch (err) {
+        setError("Something went wrong resubmitting your request. Please try again, or message us on Instagram at @dinnerwithcharles.")
+        console.error('Resubmit failed:', err)
+      }
+      setLoading(false)
+      return
+    }
+
     try {
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
@@ -143,22 +225,7 @@ export default function SignupApp({ onBack }) {
             username: formData.email,
             name: formData.name,
             email: formData.email,
-            delivery_address: formData.address,
-            delivery_phone: formData.phone,
-            delivery_time_slots: formData.timeSlots,
-            delivery_instructions: formData.instructions,
-            payment_method: formData.paymentMethod,
-            household_composition: formData.household,
-            allergies: formData.allergies,
-            health_restrictions: formData.healthRestrictions,
-            preference_restrictions: formData.preferenceRestrictions,
-            protein_preferences: formData.proteinPreferences,
-            cuisines_enjoyed: formData.cuisines,
-            flavor_tolerance: formData.flavorTolerance,
-            kids_eating: formData.kidsEating,
-            kids_quirks: formData.kidsQuirks,
-            reheating_preference: formData.reheatingPreference,
-            anything_else: formData.anythingElse,
+            ...answerColumns(formData),
             // Always explicit so we never rely on the column default
             email_opt_in: formData.emailOptIn === true,
             sms_opt_in: formData.smsOptIn === true,
@@ -217,7 +284,17 @@ export default function SignupApp({ onBack }) {
             </div>
           )}
 
-          <h2 style={{ color: '#1a441f', marginBottom: '24px' }}>Step {step} of 5</h2>
+          {isResubmit && step === firstStep && (
+            <div style={{ marginBottom: '24px', padding: '16px', background: '#faf8f3', border: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0', color: '#666', fontSize: '14px', lineHeight: '1.6' }}>
+                Update anything that's changed, then resubmit. We'll take another look at your request.
+              </p>
+            </div>
+          )}
+
+          <h2 style={{ color: '#1a441f', marginBottom: '24px' }}>Step {step - firstStep + 1} of {5 - firstStep + 1}</h2>
+
+          {loadingProfile && <p style={{ color: '#666', marginBottom: '16px', fontSize: '14px' }}>Loading your answers...</p>}
 
           {error && <p style={{ color: '#c62828', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
 
@@ -305,8 +382,8 @@ export default function SignupApp({ onBack }) {
                 Next
               </button>
             ) : (
-              <button onClick={handleSubmit} disabled={loading} style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
-                {loading ? 'Submitting...' : 'Request to Join'}
+              <button onClick={handleSubmit} disabled={loading || loadingProfile} style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
+                {loading ? 'Submitting...' : isResubmit ? 'Resubmit Request' : 'Request to Join'}
               </button>
             )}
           </div>

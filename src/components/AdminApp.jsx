@@ -695,6 +695,11 @@ export default function AdminApp({ onLogout }) {
                           <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#1a441f' }}>{customer.name || 'Name not provided'}</p>
                           <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
                           <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong></p>
+                          {customer.resubmitted_at && (
+                            <p style={{ margin: '8px 0 0 0', display: 'inline-block', padding: '3px 8px', background: '#faf8f3', border: '1px solid #D4A373', color: '#1a441f', fontSize: '12px', fontWeight: '600' }}>
+                              Resubmitted {new Date(customer.resubmitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </p>
+                          )}
                         </div>
                         <div className="admin-card-actions">
                           <button

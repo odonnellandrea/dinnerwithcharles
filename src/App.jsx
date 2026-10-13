@@ -78,7 +78,7 @@ function App() {
     if (approvalStatus === 'approved') {
       return <GuestApp user={user} onLogout={handleLogout} />
     } else if (approvalStatus === 'rejected') {
-      return <RejectedApp user={user} onLogout={handleLogout} />
+      return <RejectedApp user={user} onLogout={handleLogout} onResubmitted={() => setApprovalStatus('pending')} />
     } else {
       return <PendingApprovalApp user={user} onLogout={handleLogout} />
     }
