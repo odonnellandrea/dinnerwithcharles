@@ -58,7 +58,7 @@ export default function GuestApp({ user, onLogout }) {
   const [orderHistory, setOrderHistory] = useState([])
   const [reheatDate, setReheatDate] = useState(null)
   // One-time opt-in ask for customers who joined before the choices existed
-  const [prefsPrompt, setPrefsPrompt] = useState(null) // null | { phone }
+  const [prefsPrompt, setPrefsPrompt] = useState(null) // null | { phone, smsOptIn }
 
   useEffect(() => {
     fetchLiveMenu()
@@ -132,16 +132,16 @@ export default function GuestApp({ user, onLogout }) {
     }
   }
 
-  // Ask once if they've never made a choice. If the column doesn't exist yet
+  // Ask once if they've never been asked. If the column doesn't exist yet
   // (migration not run) the query errors and we simply don't ask.
   const checkNotificationPrefs = async () => {
     const { data, error } = await supabase
       .from('users')
-      .select('notification_prefs_set_at, phone_number, delivery_phone')
+      .select('notification_prefs_set_at, sms_opt_in, phone_number, delivery_phone')
       .eq('id', user.id)
       .single()
     if (!error && data && !data.notification_prefs_set_at) {
-      setPrefsPrompt({ phone: data.phone_number || data.delivery_phone || '' })
+      setPrefsPrompt({ phone: data.phone_number || data.delivery_phone || '', smsOptIn: data.sms_opt_in === true })
     }
   }
 
@@ -402,14 +402,14 @@ export default function GuestApp({ user, onLogout }) {
     </div>
   )
 
-  // Shown before the menu; "Not now" hides it until their next visit
+  // Shown once, before the menu; it records itself as asked when it appears
   if (prefsPrompt && screen === 'menu') {
     return page(
       <StayInTouchPrompt
         user={user}
         initialPhone={prefsPrompt.phone}
+        initialSmsOptIn={prefsPrompt.smsOptIn}
         onDone={() => setPrefsPrompt(null)}
-        onSkip={() => setPrefsPrompt(null)}
       />
     )
   }

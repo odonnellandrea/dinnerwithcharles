@@ -23,8 +23,8 @@ export function formatUsPhone(value) {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
 }
 
-// users.notification_prefs_set_at records when the customer made an explicit choice
-// (null = never asked). Until supabase/migrations/20261013_notification_prefs_set_at.sql
+// users.notification_prefs_set_at records when the customer was asked or made a choice
+// (null = never asked; customers are asked once, then change choices in Settings). Until supabase/migrations/20261013_notification_prefs_set_at.sql
 // is run the column doesn't exist, so writers retry without it instead of failing.
 export const PREFS_SET_COLUMN = 'notification_prefs_set_at'
 

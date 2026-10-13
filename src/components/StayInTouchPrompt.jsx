@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import NotificationChoices from './NotificationChoices'
 import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN } from '../lib/notificationConsent'
@@ -8,11 +8,26 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY
 )
 
-// One-time ask for customers who joined before the opt-ins existed. Both boxes start
-// unchecked; saving with neither checked is a valid answer and is never asked again.
-export default function StayInTouchPrompt({ user, initialPhone, onDone, onSkip }) {
+// Asked exactly once, for customers who joined before the opt-ins existed. It's marked as
+// asked as soon as it appears, so saving, skipping or just leaving all end it for good;
+// after that, choices are changed only in Settings.
+// Email starts off: their old "yes" came from a column default, not a choice. Text was
+// never on by default, so an existing text opt-in was their own choice and is kept.
+export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn, onDone }) {
   const [emailOptIn, setEmailOptIn] = useState(false)
-  const [smsOptIn, setSmsOptIn] = useState(false)
+  const [smsOptIn, setSmsOptIn] = useState(initialSmsOptIn === true)
+  const markedAsked = useRef(null)
+
+  useEffect(() => {
+    // .then() sends it now: Supabase queries don't run until something awaits them
+    markedAsked.current = supabase
+      .from('users')
+      .update({ email_opt_in: false, [PREFS_SET_COLUMN]: new Date().toISOString() })
+      .eq('id', user.id)
+      .then(({ error }) => {
+        if (error) console.error('Could not record opt-in prompt as asked:', error)
+      })
+  }, [])
   const [phoneNumber, setPhoneNumber] = useState(formatUsPhone(initialPhone))
   const [phoneError, setPhoneError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -31,6 +46,7 @@ export default function StayInTouchPrompt({ user, initialPhone, onDone, onSkip }
       return
     }
     setSaving(true)
+    await markedAsked.current // so the "asked" write can never land after their choice
     const { error } = await supabase
       .from('users')
       .update({
@@ -73,10 +89,10 @@ export default function StayInTouchPrompt({ user, initialPhone, onDone, onSkip }
           {saving ? 'Saving...' : 'Save my choices'}
         </button>
         <button
-          onClick={onSkip}
+          onClick={onDone}
           style={{ background: 'none', border: 'none', padding: 0, color: '#666', textDecoration: 'underline', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}
         >
-          Not now
+          Skip
         </button>
       </div>
     </div>
