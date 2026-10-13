@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import ReheatInstructions from './ReheatInstructions'
 import NotificationSettings from './NotificationSettings'
 import GuestHeader from './GuestHeader'
+import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
 import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE } from '../lib/pricing'
 
@@ -56,10 +57,13 @@ export default function GuestApp({ user, onLogout }) {
   const [error, setError] = useState('')
   const [orderHistory, setOrderHistory] = useState([])
   const [reheatDate, setReheatDate] = useState(null)
+  // One-time opt-in ask for customers who joined before the choices existed
+  const [prefsPrompt, setPrefsPrompt] = useState(null) // null | { phone }
 
   useEffect(() => {
     fetchLiveMenu()
     fetchOrderHistory()
+    checkNotificationPrefs()
 
     // Deep link from the delivered email: /?reheat=YYYY-MM-DD
     const reheat = new URLSearchParams(window.location.search).get('reheat')
@@ -125,6 +129,19 @@ export default function GuestApp({ user, onLogout }) {
       setError(err.message || 'Failed to load menu')
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Ask once if they've never made a choice. If the column doesn't exist yet
+  // (migration not run) the query errors and we simply don't ask.
+  const checkNotificationPrefs = async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('notification_prefs_set_at, phone_number, delivery_phone')
+      .eq('id', user.id)
+      .single()
+    if (!error && data && !data.notification_prefs_set_at) {
+      setPrefsPrompt({ phone: data.phone_number || data.delivery_phone || '' })
     }
   }
 
@@ -384,6 +401,18 @@ export default function GuestApp({ user, onLogout }) {
       </div>
     </div>
   )
+
+  // Shown before the menu; "Not now" hides it until their next visit
+  if (prefsPrompt && screen === 'menu') {
+    return page(
+      <StayInTouchPrompt
+        user={user}
+        initialPhone={prefsPrompt.phone}
+        onDone={() => setPrefsPrompt(null)}
+        onSkip={() => setPrefsPrompt(null)}
+      />
+    )
+  }
 
   if (screen === 'settings') {
     return page(<NotificationSettings user={user} onClose={() => setScreen('menu')} />)

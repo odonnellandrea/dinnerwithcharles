@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone } from '../lib/notificationConsent'
+import { normalizeUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -188,17 +188,19 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
 
     if (isResubmit) {
       try {
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({
-            ...answerColumns(formData),
-            email_opt_in: formData.emailOptIn === true,
-            sms_opt_in: formData.smsOptIn === true,
-            phone_number: formData.smsOptIn ? smsPhone : null,
-            approval_status: 'pending',
-            resubmitted_at: new Date().toISOString()
-          })
-          .eq('id', resubmitFor.id)
+        const changes = {
+          ...answerColumns(formData),
+          email_opt_in: formData.emailOptIn === true,
+          sms_opt_in: formData.smsOptIn === true,
+          phone_number: formData.smsOptIn ? smsPhone : null,
+          [PREFS_SET_COLUMN]: new Date().toISOString(),
+          approval_status: 'pending',
+          resubmitted_at: new Date().toISOString()
+        }
+        let { error: updateError } = await supabase.from('users').update(changes).eq('id', resubmitFor.id)
+        if (isMissingPrefsColumn(updateError)) {
+          ({ error: updateError } = await supabase.from('users').update(withoutPrefsColumn(changes)).eq('id', resubmitFor.id))
+        }
         if (updateError) throw updateError
         onResubmitted()
       } catch (err) {
@@ -218,22 +220,25 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
       if (signUpError) throw signUpError
 
       if (authData.user) {
-        const { error: insertError } = await supabase
-          .from('users')
-          .insert([{
-            id: authData.user.id,
-            username: formData.email,
-            name: formData.name,
-            email: formData.email,
-            ...answerColumns(formData),
-            // Always explicit so we never rely on the column default
-            email_opt_in: formData.emailOptIn === true,
-            sms_opt_in: formData.smsOptIn === true,
-            phone_number: formData.smsOptIn ? smsPhone : null,
-            approval_status: 'pending',
-            is_active: true
-          }])
+        const profile = {
+          id: authData.user.id,
+          username: formData.email,
+          name: formData.name,
+          email: formData.email,
+          ...answerColumns(formData),
+          // Always explicit so we never rely on the column default
+          email_opt_in: formData.emailOptIn === true,
+          sms_opt_in: formData.smsOptIn === true,
+          phone_number: formData.smsOptIn ? smsPhone : null,
+          [PREFS_SET_COLUMN]: new Date().toISOString(),
+          approval_status: 'pending',
+          is_active: true
+        }
 
+        let { error: insertError } = await supabase.from('users').insert([profile])
+        if (isMissingPrefsColumn(insertError)) {
+          ({ error: insertError } = await supabase.from('users').insert([withoutPrefsColumn(profile)]))
+        }
         if (insertError) throw insertError
         setSuccessScreen(true)
       }

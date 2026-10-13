@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone, formatUsPhone } from '../lib/notificationConsent'
+import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -53,14 +53,16 @@ export default function NotificationSettings({ user }) {
     setSaving(true)
 
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({
-          email_opt_in: emailOptIn === true,
-          sms_opt_in: smsOptIn === true,
-          phone_number: smsOptIn ? normalizedPhone : null
-        })
-        .eq('id', user.id)
+      const changes = {
+        email_opt_in: emailOptIn === true,
+        sms_opt_in: smsOptIn === true,
+        phone_number: smsOptIn ? normalizedPhone : null,
+        [PREFS_SET_COLUMN]: new Date().toISOString()
+      }
+      let { error } = await supabase.from('users').update(changes).eq('id', user.id)
+      if (isMissingPrefsColumn(error)) {
+        ({ error } = await supabase.from('users').update(withoutPrefsColumn(changes)).eq('id', user.id))
+      }
       if (error) throw error
 
       setSaved(true)

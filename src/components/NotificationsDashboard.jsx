@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { PREFS_SET_COLUMN, isMissingPrefsColumn } from '../lib/notificationConsent'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -27,27 +28,34 @@ export default function NotificationsDashboard() {
     }
   }, [deliveryDate])
 
+  // Approved customers who chose this channel. Only explicit choices count: rows where
+  // notification_prefs_set_at is empty hold the old default, not consent. Falls back to the
+  // plain opt-in flag until that column's migration has been run.
+  const optedInCustomers = async (channel, columns, options) => {
+    const build = (confirmedOnly) => {
+      let query = supabase
+        .from('users')
+        .select(columns, options)
+        .eq(channel === 'email' ? 'email_opt_in' : 'sms_opt_in', true)
+        .eq('approval_status', 'approved')
+      if (channel === 'sms') query = query.not('phone_number', 'is', null)
+      if (confirmedOnly) query = query.not(PREFS_SET_COLUMN, 'is', null)
+      return query
+    }
+    const result = await build(true)
+    return isMissingPrefsColumn(result.error) ? build(false) : result
+  }
+
   const fetchNotificationCounts = async () => {
     setLoading(true)
 
     try {
-      // Count customers who opted in to email
-      const { data: emailCustomers } = await supabase
-        .from('users')
-        .select('id', { count: 'exact', head: true })
-        .eq('email_opt_in', true)
-        .eq('approval_status', 'approved')
+      // head: true returns only the count, so read count rather than data
+      const { count: emailTotal } = await optedInCustomers('email', 'id', { count: 'exact', head: true })
+      const { count: smsTotal } = await optedInCustomers('sms', 'id', { count: 'exact', head: true })
 
-      // Count customers who opted in to SMS
-      const { data: smsCustomers } = await supabase
-        .from('users')
-        .select('id', { count: 'exact', head: true })
-        .eq('sms_opt_in', true)
-        .neq('phone_number', null)
-        .eq('approval_status', 'approved')
-
-      setEmailCount(emailCustomers?.length || 0)
-      setSmsCount(smsCustomers?.length || 0)
+      setEmailCount(emailTotal || 0)
+      setSmsCount(smsTotal || 0)
     } catch (err) {
       console.error('Failed to fetch notification counts:', err)
     } finally {
@@ -77,18 +85,8 @@ export default function NotificationsDashboard() {
 
     try {
       // Fetch customers who opted in
-      const { data: emailCustomers } = await supabase
-        .from('users')
-        .select('email, name')
-        .eq('email_opt_in', true)
-        .eq('approval_status', 'approved')
-
-      const { data: smsCustomers } = await supabase
-        .from('users')
-        .select('phone_number, name')
-        .eq('sms_opt_in', true)
-        .neq('phone_number', null)
-        .eq('approval_status', 'approved')
+      const { data: emailCustomers } = await optedInCustomers('email', 'email, name')
+      const { data: smsCustomers } = await optedInCustomers('sms', 'phone_number, name')
 
       // In a real implementation, you would call SendGrid for email and Twilio for SMS
       // For now, we'll just log and show success

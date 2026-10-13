@@ -472,7 +472,12 @@ export default function AdminApp({ onLogout }) {
     ['Anything else', 'anything_else']
   ]
 
-  const optInLabel = (value) => value === true ? 'Yes' : 'No'
+  // Customers who joined before the opt-ins have a value from the old default, not a
+  // real choice, until they answer the one-time prompt (notification_prefs_set_at)
+  const optInLabel = (customer, field) => {
+    if ('notification_prefs_set_at' in customer && !customer.notification_prefs_set_at) return 'Not chosen yet'
+    return customer[field] === true ? 'Yes' : 'No'
+  }
 
   const handleApprove = async (userId) => {
     await supabase
@@ -738,11 +743,11 @@ export default function AdminApp({ onLogout }) {
                           ))}
                           <div>
                             <dt>Email updates</dt>
-                            <dd>{optInLabel(customer.email_opt_in)}</dd>
+                            <dd>{optInLabel(customer, 'email_opt_in')}</dd>
                           </div>
                           <div>
                             <dt>Text updates</dt>
-                            <dd>{optInLabel(customer.sms_opt_in)}{customer.sms_opt_in === true && customer.phone_number ? ` · ${formatUsPhone(customer.phone_number)}` : ''}</dd>
+                            <dd>{optInLabel(customer, 'sms_opt_in')}{optInLabel(customer, 'sms_opt_in') === 'Yes' && customer.phone_number ? ` · ${formatUsPhone(customer.phone_number)}` : ''}</dd>
                           </div>
                         </dl>
                       )}
