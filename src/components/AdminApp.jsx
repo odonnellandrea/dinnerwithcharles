@@ -843,23 +843,15 @@ export default function AdminApp({ onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0 }}>Export Menus by Date Range</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '16px' }}>Export Menus by Date Range</h3>
+              <div className="admin-date-range">
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>From Date</label>
-                  <input
-                    type="date"
-                    id="exportFromDate"
-                    style={{ width: '100%', padding: '8px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
-                  />
+                  <label htmlFor="exportFromDate" style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>From Date</label>
+                  <input type="date" id="exportFromDate" className="admin-input" />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>To Date</label>
-                  <input
-                    type="date"
-                    id="exportToDate"
-                    style={{ width: '100%', padding: '8px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
-                  />
+                  <label htmlFor="exportToDate" style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>To Date</label>
+                  <input type="date" id="exportToDate" className="admin-input" />
                 </div>
               </div>
               <button
@@ -879,7 +871,7 @@ export default function AdminApp({ onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0 }}>CSV Upload</h3>
+              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '16px' }}>CSV Upload</h3>
               <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
                 Upload a CSV file to replace this week's entire menu.
               </p>
@@ -887,7 +879,7 @@ export default function AdminApp({ onLogout }) {
                 type="file"
                 accept=".csv"
                 onChange={handleCSVUpload}
-                style={{ padding: '8px', border: '1px solid #e0dbd1', cursor: 'pointer' }}
+                className="admin-input admin-file-input"
               />
             </div>
 

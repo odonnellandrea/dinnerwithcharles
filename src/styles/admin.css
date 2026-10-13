@@ -76,7 +76,43 @@
   overflow-wrap: anywhere;
 }
 
+/* Form fields that must never be wider than their card */
+.admin-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid #e0dbd1;
+  border-radius: 0;
+  background: white;
+  font-family: inherit;
+  font-size: 14px;
+  color: #333;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.admin-file-input {
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-date-range {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
 @media (max-width: 640px) {
+  .admin-date-range {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+
   .admin-page {
     padding: 16px;
   }
