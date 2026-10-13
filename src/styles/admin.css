@@ -40,10 +40,13 @@
 }
 
 /* Approval cards: text left, buttons right; stacks when narrow */
-.admin-card-row {
+.admin-card {
   background: white;
   padding: 20px;
   border: 1px solid #e0dbd1;
+}
+
+.admin-card-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -74,6 +77,40 @@
 
 .admin-orders-table td {
   overflow-wrap: anywhere;
+}
+
+.admin-card-actions .admin-button-outline {
+  background: white;
+  color: #1a441f;
+  border: 1px solid #1a441f;
+}
+
+/* Request-to-join answers */
+.admin-answers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+  margin: 20px 0 0 0;
+  padding-top: 20px;
+  border-top: 1px solid #e0dbd1;
+}
+
+.admin-answers dt {
+  margin-bottom: 4px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D4A373;
+  font-weight: 600;
+}
+
+.admin-answers dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 /* Form fields that must never be wider than their card */
@@ -174,6 +211,14 @@
   .admin-card-row {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .admin-answers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-card-actions {
+    flex-wrap: wrap;
   }
 
   .admin-card-actions button {

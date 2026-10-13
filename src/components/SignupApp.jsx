@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import NotificationChoices from './NotificationChoices'
+import { normalizeUsPhone } from '../lib/notificationConsent'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -32,8 +34,13 @@ export default function SignupApp({ onBack }) {
     kidsEating: '',
     kidsQuirks: '',
     reheatingPreference: '',
-    anythingElse: ''
+    anythingElse: '',
+    // Marketing opt-ins: always start unchecked
+    emailOptIn: false,
+    smsOptIn: false,
+    smsPhone: ''
   })
+  const [phoneError, setPhoneError] = useState('')
   const [error, setError] = useState('')
   const [successScreen, setSuccessScreen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -109,6 +116,14 @@ export default function SignupApp({ onBack }) {
   }
 
   const handleSubmit = async () => {
+    // Texting consent needs a number to text; without consent the number is optional and not saved
+    const smsPhone = normalizeUsPhone(formData.smsPhone)
+    if (formData.smsOptIn && !smsPhone) {
+      setPhoneError('Enter a valid 10-digit US mobile number, or uncheck the text message box.')
+      return
+    }
+    setPhoneError('')
+
     setLoading(true)
     setError('')
 
@@ -144,6 +159,10 @@ export default function SignupApp({ onBack }) {
             kids_quirks: formData.kidsQuirks,
             reheating_preference: formData.reheatingPreference,
             anything_else: formData.anythingElse,
+            // Always explicit so we never rely on the column default
+            email_opt_in: formData.emailOptIn === true,
+            sms_opt_in: formData.smsOptIn === true,
+            phone_number: formData.smsOptIn ? smsPhone : null,
             approval_status: 'pending',
             is_active: true
           }])
@@ -258,6 +277,22 @@ export default function SignupApp({ onBack }) {
                 <option value="Both">Both</option>
               </select>
               <textarea placeholder="Is there anything else we should know to better understand your family's needs and preferences?" value={formData.anythingElse} onChange={(e) => updateField('anythingElse', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
+
+              <div style={{ marginBottom: '24px', paddingTop: '8px', borderTop: '1px solid #e0dbd1' }}>
+                <h3 style={{ color: '#1a441f', fontSize: '17px', margin: '16px 0 4px 0' }}>Stay in touch (optional)</h3>
+                <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.6' }}>Choose either, both or neither.</p>
+                <NotificationChoices
+                  emailOptIn={formData.emailOptIn}
+                  smsOptIn={formData.smsOptIn}
+                  phoneNumber={formData.smsPhone}
+                  phoneError={phoneError}
+                  onChange={(field, value) => {
+                    if (field === 'phoneNumber') updateField('smsPhone', value)
+                    else updateField(field, value)
+                    setPhoneError('')
+                  }}
+                />
+              </div>
             </div>
           )}
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import ItemFormModal from './ItemFormModal'
 import { formatWindows } from '../lib/deliveryWindows'
+import { formatUsPhone } from '../lib/notificationConsent'
 import '../styles/admin.css'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
@@ -21,6 +22,7 @@ export default function AdminApp({ onLogout }) {
   const [orderDateFilter, setOrderDateFilter] = useState('all')
   const [orderStatusFilter, setOrderStatusFilter] = useState('all') // all | active | delivered | cancelled
   const [pendingCustomers, setPendingCustomers] = useState([])
+  const [expandedAnswers, setExpandedAnswers] = useState({})
   const [loading, setLoading] = useState(false)
   
   // Menu states
@@ -444,11 +446,33 @@ export default function AdminApp({ onLogout }) {
     setLoading(true)
     const { data } = await supabase
       .from('users')
-      .select('id, email, name, approval_status')
+      .select('*')
       .order('created_at', { ascending: false })
     setPendingCustomers(data || [])
     setLoading(false)
   }
+
+  // Request-to-join answers, in the order the form asks them
+  const ANSWER_FIELDS = [
+    ['Household', 'household_composition'],
+    ['Delivery address', 'delivery_address'],
+    ['Phone', 'delivery_phone'],
+    ['Delivery time preferences', 'delivery_time_slots'],
+    ['Special instructions', 'delivery_instructions'],
+    ['Payment method', 'payment_method'],
+    ['Allergies', 'allergies'],
+    ['Health restrictions', 'health_restrictions'],
+    ['Preference restrictions', 'preference_restrictions'],
+    ['Protein preferences', 'protein_preferences'],
+    ['Cuisines enjoyed', 'cuisines_enjoyed'],
+    ['Flavor tolerance', 'flavor_tolerance'],
+    ['Kids eating', 'kids_eating'],
+    ['Kids quirks', 'kids_quirks'],
+    ['Reheating preference', 'reheating_preference'],
+    ['Anything else', 'anything_else']
+  ]
+
+  const optInLabel = (value) => value === true ? 'Yes' : 'No'
 
   const handleApprove = async (userId) => {
     await supabase
@@ -665,30 +689,58 @@ export default function AdminApp({ onLogout }) {
                   <p style={{ color: '#666' }}>No customers to manage</p>
                 ) : (
                   pendingCustomers.map(customer => (
-                    <div key={customer.id} className="admin-card-row">
-                      <div className="admin-card-text">
-                        <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#1a441f' }}>{customer.name || 'Name not provided'}</p>
-                        <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
-                        <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong></p>
-                      </div>
-                      <div className="admin-card-actions">
-                        {customer.approval_status !== 'approved' && (
-                          <button 
-                            onClick={() => handleApprove(customer.id)} 
-                            style={{ background: '#1a441f' }}
+                    <div key={customer.id} className="admin-card">
+                      <div className="admin-card-row">
+                        <div className="admin-card-text">
+                          <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#1a441f' }}>{customer.name || 'Name not provided'}</p>
+                          <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
+                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong></p>
+                        </div>
+                        <div className="admin-card-actions">
+                          <button
+                            onClick={() => setExpandedAnswers(prev => ({ ...prev, [customer.id]: !prev[customer.id] }))}
+                            aria-expanded={!!expandedAnswers[customer.id]}
+                            className="admin-button-outline"
                           >
-                            Approve
+                            {expandedAnswers[customer.id] ? 'Hide answers' : 'View answers'}
                           </button>
-                        )}
-                        {customer.approval_status !== 'rejected' && (
-                          <button 
-                            onClick={() => handleReject(customer.id)} 
-                            style={{ background: '#D4A373' }}
-                          >
-                            Reject
-                          </button>
-                        )}
+                          {customer.approval_status !== 'approved' && (
+                            <button 
+                              onClick={() => handleApprove(customer.id)} 
+                              style={{ background: '#1a441f' }}
+                            >
+                              Approve
+                            </button>
+                          )}
+                          {customer.approval_status !== 'rejected' && (
+                            <button 
+                              onClick={() => handleReject(customer.id)} 
+                              style={{ background: '#D4A373' }}
+                            >
+                              Reject
+                            </button>
+                          )}
+                        </div>
                       </div>
+
+                      {expandedAnswers[customer.id] && (
+                        <dl className="admin-answers">
+                          {ANSWER_FIELDS.map(([label, field]) => (
+                            <div key={field}>
+                              <dt>{label}</dt>
+                              <dd>{customer[field] ? String(customer[field]) : '—'}</dd>
+                            </div>
+                          ))}
+                          <div>
+                            <dt>Email updates</dt>
+                            <dd>{optInLabel(customer.email_opt_in)}</dd>
+                          </div>
+                          <div>
+                            <dt>Text updates</dt>
+                            <dd>{optInLabel(customer.sms_opt_in)}{customer.sms_opt_in === true && customer.phone_number ? ` · ${formatUsPhone(customer.phone_number)}` : ''}</dd>
+                          </div>
+                        </dl>
+                      )}
                     </div>
                   ))
                 )}

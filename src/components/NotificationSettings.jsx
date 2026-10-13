@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import NotificationChoices from './NotificationChoices'
+import { normalizeUsPhone, formatUsPhone } from '../lib/notificationConsent'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -7,9 +9,11 @@ const supabase = createClient(
 )
 
 export default function NotificationSettings({ user }) {
-  const [emailOptIn, setEmailOptIn] = useState(true)
+  // Show exactly what's saved: anything other than true counts as not opted in
+  const [emailOptIn, setEmailOptIn] = useState(false)
   const [smsOptIn, setSmsOptIn] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [phoneError, setPhoneError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -25,29 +29,39 @@ export default function NotificationSettings({ user }) {
       .single()
 
     if (data) {
-      setEmailOptIn(data.email_opt_in !== false)
+      setEmailOptIn(data.email_opt_in === true)
       setSmsOptIn(data.sms_opt_in === true)
-      setPhoneNumber(data.phone_number || '')
+      setPhoneNumber(formatUsPhone(data.phone_number))
     }
   }
 
+  const handleChange = (field, value) => {
+    if (field === 'emailOptIn') setEmailOptIn(value)
+    if (field === 'smsOptIn') setSmsOptIn(value)
+    if (field === 'phoneNumber') setPhoneNumber(value)
+    setPhoneError('')
+    setSaved(false)
+  }
+
   const handleSave = async () => {
-    if (smsOptIn && !phoneNumber.trim()) {
-      alert('Please enter a phone number for SMS notifications')
+    const normalizedPhone = normalizeUsPhone(phoneNumber)
+    if (smsOptIn && !normalizedPhone) {
+      setPhoneError('Enter a valid 10-digit US mobile number, or uncheck the text message box.')
       return
     }
 
     setSaving(true)
 
     try {
-      await supabase
+      const { error } = await supabase
         .from('users')
         .update({
-          email_opt_in: emailOptIn,
-          sms_opt_in: smsOptIn,
-          phone_number: smsOptIn ? phoneNumber : null
+          email_opt_in: emailOptIn === true,
+          sms_opt_in: smsOptIn === true,
+          phone_number: smsOptIn ? normalizedPhone : null
         })
         .eq('id', user.id)
+      if (error) throw error
 
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
@@ -59,71 +73,33 @@ export default function NotificationSettings({ user }) {
   }
 
   return (
-    <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#1a441f', marginTop: '0' }}>Notification Preferences</h3>
-      <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
-        Choose how you'd like to receive updates about your weekly menus and orders.
+    <div style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
+      <h3 style={{ color: '#1a441f', margin: '0 0 6px 0' }}>Notification Preferences</h3>
+      <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
+        Choose either, both or neither. You can change these anytime.
       </p>
 
-      {/* Email opt-in */}
-      <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #e0dbd1' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '6px' }}>
-          <input
-            type="checkbox"
-            checked={emailOptIn}
-            onChange={(e) => setEmailOptIn(e.target.checked)}
-          />
-          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1a441f' }}>Email Notifications</span>
-        </label>
-        <p style={{ margin: '6px 0 0 28px', fontSize: '12px', color: '#999' }}>
-          Receive emails when the weekly menu is available for ordering
-        </p>
-      </div>
+      <NotificationChoices
+        emailOptIn={emailOptIn}
+        smsOptIn={smsOptIn}
+        phoneNumber={phoneNumber}
+        phoneError={phoneError}
+        onChange={handleChange}
+      />
 
-      {/* SMS opt-in */}
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
-          <input
-            type="checkbox"
-            checked={smsOptIn}
-            onChange={(e) => setSmsOptIn(e.target.checked)}
-          />
-          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1a441f' }}>Text Message Notifications</span>
-        </label>
-        <p style={{ margin: '6px 0 10px 28px', fontSize: '12px', color: '#999' }}>
-          Receive text messages when the weekly menu is available for ordering
-        </p>
-
-        {smsOptIn && (
-          <div style={{ marginLeft: '28px', marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>
-              Phone Number *
-            </label>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+1 (555) 123-4567"
-              style={{ width: '100%', maxWidth: '300px', padding: '8px', border: '1px solid #e0dbd1', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' }}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Save button */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '20px' }}>
         <button
           onClick={handleSave}
           disabled={saving}
           style={{
-            padding: '10px 20px',
+            padding: '12px 24px',
             background: '#1a441f',
             color: '#faf8f3',
             border: 'none',
-            borderRadius: '6px',
             cursor: saving ? 'not-allowed' : 'pointer',
             fontSize: '14px',
             fontWeight: '600',
+            fontFamily: 'inherit',
             opacity: saving ? 0.6 : 1
           }}
         >
