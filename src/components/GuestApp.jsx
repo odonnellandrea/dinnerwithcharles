@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import ReheatInstructions from './ReheatInstructions'
 import NotificationSettings from './NotificationSettings'
+import PasswordForm from './PasswordForm'
 import GuestHeader from './GuestHeader'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
@@ -397,7 +398,14 @@ export default function GuestApp({ user, onLogout }) {
   }
 
   if (screen === 'settings') {
-    return page(<NotificationSettings user={user} onClose={() => setScreen('menu')} />)
+    return page(
+      <>
+        <NotificationSettings user={user} onClose={() => setScreen('menu')} />
+        <div style={{ marginTop: '20px' }}>
+          <PasswordForm title="Password" intro="Choose a new password for signing in." />
+        </div>
+      </>
+    )
   }
 
   if (screen === 'history') {
