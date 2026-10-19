@@ -559,96 +559,57 @@ export default function GuestApp({ user, onLogout }) {
           <>
             {deliveryBanner}
 
-            <p style={{ color: '#666', marginBottom: '20px' }}>Pick 3 entrées + 2 salads. Add-ons are optional.</p>
+            {menuItems.intro?.map((text, idx) => (
+              <p key={idx} style={{ color: '#444', fontSize: '15px', lineHeight: '1.7', margin: '0 0 20px 0', whiteSpace: 'pre-line' }}>{text}</p>
+            ))}
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h2 style={{ color: '#1a441f', marginTop: '0' }}>Entrées</h2>
-              {menuItems.entrees?.map(item => (
-                <div key={item.id} style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <p style={{ margin: '0', fontWeight: '600', color: '#1a441f' }}>{item.name}</p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#666' }}>{item.description}</p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {selectedEntrees[item.id] && (
-                      <button
-                        onClick={() => handleRemoveFromCart(item.id, 'entree')}
-                        style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                      >
-                        −
-                      </button>
-                    )}
-                    {selectedEntrees[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedEntrees[item.id]}</span>}
-                    <button
-                      onClick={() => handleAddToCart(item.id, 'entree')}
-                      style={{ padding: '4px 8px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h2 style={{ color: '#1a441f', marginTop: '0' }}>Salads</h2>
-              {menuItems.salads?.map(item => (
-                <div key={item.id} style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <p style={{ margin: '0', fontWeight: '600', color: '#1a441f' }}>{item.name}</p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#666' }}>{item.description}</p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {selectedSalads[item.id] && (
-                      <button
-                        onClick={() => handleRemoveFromCart(item.id, 'salad')}
-                        style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                      >
-                        −
-                      </button>
-                    )}
-                    {selectedSalads[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedSalads[item.id]}</span>}
-                    <button
-                      onClick={() => handleAddToCart(item.id, 'salad')}
-                      style={{ padding: '4px 8px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {menuItems.addOns?.length > 0 && (
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h2 style={{ color: '#1a441f', marginTop: '0' }}>Add-ons</h2>
-              {menuItems.addOns?.map(item => (
-                <div key={item.id} style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <p style={{ margin: '0', fontWeight: '600', color: '#1a441f' }}>{item.name} — ${(item.price / 100).toFixed(2)}</p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#666' }}>{item.description}</p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {selectedAddOns[item.id] && (
-                      <button
-                        onClick={() => handleRemoveFromCart(item.id, 'addon')}
-                        style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                      >
-                        −
-                      </button>
-                    )}
-                    {selectedAddOns[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selectedAddOns[item.id]}</span>}
-                    <button
-                      onClick={() => handleAddToCart(item.id, 'addon')}
-                      style={{ padding: '4px 8px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Fallback guidance for a sheet without section rows */}
+            {!menuItems.sections?.some(s => s.note) && (
+              <p style={{ color: '#666', marginBottom: '20px' }}>Pick 3 entrées + 2 salads. Add-ons are optional.</p>
             )}
+
+            {menuItems.sections?.map((section, sectionIdx) => {
+              const selected = { entree: selectedEntrees, salad: selectedSalads, addon: selectedAddOns }[section.type] || {}
+              return (
+                <div key={sectionIdx} style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '4px 16px', marginBottom: section.items.length > 0 ? '16px' : 0 }}>
+                    <h2 style={{ color: '#1a441f', margin: 0 }}>{section.title}</h2>
+                    {section.note && (
+                      <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{section.note}</span>
+                    )}
+                  </div>
+                  {section.items.map(item => (
+                    <div key={item.id} style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                      <div>
+                        <p style={{ margin: '0', fontWeight: '600', color: '#1a441f' }}>
+                          {item.name}{section.type === 'addon' && ` — $${(item.price / 100).toFixed(2)}`}
+                        </p>
+                        {item.sides && <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#1a441f' }}>{item.sides}</p>}
+                        {section.type === 'addon' && item.note && <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#D4A373', fontWeight: '600' }}>{item.note}</p>}
+                        {item.description && <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#666' }}>{item.description}</p>}
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {selected[item.id] && (
+                          <button
+                            onClick={() => handleRemoveFromCart(item.id, section.type)}
+                            style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                          >
+                            −
+                          </button>
+                        )}
+                        {selected[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selected[item.id]}</span>}
+                        <button
+                          onClick={() => handleAddToCart(item.id, section.type)}
+                          style={{ padding: '4px 8px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '12px' }}>Select all delivery windows that work for your family *</h3>
