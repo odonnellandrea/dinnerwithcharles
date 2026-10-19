@@ -152,15 +152,14 @@ export function reheatGuideEmail({ rows, siteUrl }) {
   const body = `
     ${eyebrow('Delivered')}
     <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">Dinner has arrived, ${escapeHtml(name)}.</h1>
-    <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Your ${escapeHtml(deliveryDate)} delivery is at your door. Everything is cooked and ready; it just needs a gentle reheat.</p>
-    <p style="margin:0;font-size:16px;line-height:1.7;">Your reheat guide has step-by-step instructions for each dish so it tastes the way Charles intended.</p>
+    <p style="margin:0;font-size:16px;line-height:1.7;">Everything is cooked and ready to reheat. Your guide has simple steps for each dish.</p>
     <div style="margin:40px 0 0 0;">
       ${button(link, 'Open your reheat guide')}
     </div>
-    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Please refrigerate everything as soon as you can. You'll be asked to sign in to view the guide.</p>`
+    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Please refrigerate everything as soon as you can. You'll need to sign in to view your guide.</p>`
 
   return {
     subject: `Your reheat guide for ${deliveryDate}`,
-    html: layout({ siteUrl, preheader: 'Step-by-step reheat instructions for this week\'s dishes.', body })
+    html: layout({ siteUrl, preheader: 'Simple reheat steps for each dish.', body })
   }
 }
