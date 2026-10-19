@@ -2,12 +2,14 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { orderConfirmationEmail, reheatGuideEmail } from '../emails/templates.js'
 
-// Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM (optional).
+// Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM and EMAIL_REPLY_TO (optional).
 // Supabase URL/key reuse the VITE_ vars the site is built with.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_KEY
 const ADMIN_EMAIL = 'admin@dinnerwithcharles.com'
 const EMAIL_FROM = process.env.EMAIL_FROM || 'Dinner with Charles <onboarding@resend.dev>'
+// Customer replies go here; info@ forwards to the Dinner with Charles Gmail
+const EMAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || 'info@dinnerwithcharles.com'
 
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
 
@@ -68,7 +70,7 @@ export default async (req) => {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const { data, error } = await resend.emails.send({ from: EMAIL_FROM, to: customerEmail, subject: message.subject, html: message.html })
+  const { data, error } = await resend.emails.send({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: customerEmail, subject: message.subject, html: message.html })
   if (error) {
     // Release the claim so marking delivered again can retry
     if (type === 'reheat_link') await supabase.from('Orders').update({ reheat_email_sent_at: null }).eq('order_id', orderId)
