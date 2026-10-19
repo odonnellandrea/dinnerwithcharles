@@ -157,7 +157,8 @@ export default function GuestApp({ user, onLogout }) {
           }
           grouped[row.order_id].items.push(row)
         })
-        setOrderHistory(Object.values(grouped))
+        // Newest delivery first; YYYY-MM-DD strings sort correctly as text
+        setOrderHistory(Object.values(grouped).sort((a, b) => String(b.delivery_date || '').localeCompare(String(a.delivery_date || ''))))
       }
     } catch (err) {
       console.error('Failed to load order history:', err)
