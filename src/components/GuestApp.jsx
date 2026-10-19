@@ -6,6 +6,7 @@ import GuestHeader from './GuestHeader'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
 import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE } from '../lib/pricing'
+import { fetchSheetMenu } from '../lib/sheetMenu'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -101,32 +102,28 @@ export default function GuestApp({ user, onLogout }) {
       setDeliveryDate(liveDate)
       setOrderCloseDatetime(deliverySettings.order_close_datetime)
 
+      // Entrées and salads come from the Google Sheet; add-ons still come from Supabase
+      const { entrees, salads } = await fetchSheetMenu()
+
       const { data: weeklyMenu } = await supabase
         .from('weekly_menu')
         .select('item_id, item_type')
         .eq('delivery_date', liveDate)
+        .eq('item_type', 'addon')
 
-      if (!weeklyMenu || weeklyMenu.length === 0) {
-        setError('Menu not found for this week')
-        setLoading(false)
-        return
-      }
-
-      const entreeIds = weeklyMenu.filter(m => m.item_type === 'entree').map(m => m.item_id)
-      const saladIds = weeklyMenu.filter(m => m.item_type === 'salad').map(m => m.item_id)
-      const addOnIds = weeklyMenu.filter(m => m.item_type === 'addon').map(m => m.item_id)
-
-      const { data: entrees } = await supabase.from('entrees').select('*').in('id', entreeIds)
-      const { data: salads } = await supabase.from('salads').select('*').in('id', saladIds)
-      const { data: addOns } = await supabase.from('add_ons').select('*').in('id', addOnIds)
+      const addOnIds = (weeklyMenu || []).map(m => m.item_id)
+      const { data: addOns } = addOnIds.length > 0
+        ? await supabase.from('add_ons').select('*').in('id', addOnIds)
+        : { data: [] }
 
       setMenuItems({
-        entrees: entrees || [],
-        salads: salads || [],
+        entrees,
+        salads,
         addOns: addOns || []
       })
     } catch (err) {
-      setError(err.message || 'Failed to load menu')
+      setError("We couldn't load this week's menu. Please refresh the page.")
+      console.error('Failed to load menu:', err)
     } finally {
       setLoading(false)
     }
@@ -377,6 +374,7 @@ export default function GuestApp({ user, onLogout }) {
   const placedOrder = orderHistory.find(o => o.delivery_date === deliveryDate && o.status !== 'cancelled')
 
   const menuClosed = noLiveMenu || (orderCloseDatetime && new Date() > new Date(orderCloseDatetime))
+  const menuEmpty = !menuItems.entrees?.length && !menuItems.salads?.length
 
   const deliveryBanner = (
     <div style={{ background: '#1a441f', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
@@ -568,7 +566,13 @@ export default function GuestApp({ user, onLogout }) {
           </div>
         )}
 
-        {!loading && !error && !placedOrder && !menuClosed && (
+        {!loading && !error && !placedOrder && !menuClosed && menuEmpty && (
+          <div style={{ background: 'white', padding: '56px 40px', border: '1px solid #e0dbd1', textAlign: 'center' }}>
+            <h2 style={{ color: '#1a441f', margin: 0, fontSize: '26px' }}>Menu coming soon.</h2>
+          </div>
+        )}
+
+        {!loading && !error && !placedOrder && !menuClosed && !menuEmpty && (
           <>
             {deliveryBanner}
 
@@ -632,6 +636,7 @@ export default function GuestApp({ user, onLogout }) {
               ))}
             </div>
 
+            {menuItems.addOns?.length > 0 && (
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h2 style={{ color: '#1a441f', marginTop: '0' }}>Add-ons</h2>
               {menuItems.addOns?.map(item => (
@@ -660,6 +665,7 @@ export default function GuestApp({ user, onLogout }) {
                 </div>
               ))}
             </div>
+            )}
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '12px' }}>Select all delivery windows that work for your family *</h3>
