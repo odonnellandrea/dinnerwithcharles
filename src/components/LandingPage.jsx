@@ -83,13 +83,32 @@ export default function LandingPage({ onSignIn, onJoin }) {
         </div>
       </section>
 
-      <section className="landing-section landing-section--white">
+      <section className="landing-section">
         <div className="landing-wrap">
           <p className="landing-eyebrow">From our kitchen</p>
           <div className="landing-gallery">
             <img src="/images/soup-greens.jpg" alt="Creamy potato and greens soup topped with seared sausage and microgreens" />
+            <img className="landing-gallery-low" src="/images/salmon-mushroom-bowl.jpg" alt="Seared salmon and roasted mushrooms over rice in a blue bowl, beside a white teapot" />
             <img className="landing-gallery-right" src="/images/beets-pistachio.jpg" alt="Roasted beets over whipped cheese with pistachios and microgreens" />
-            <img src="/images/curry-bowl.jpg" alt="Curry over rice garnished with cilantro" />
+            <img className="landing-gallery-low" src="/images/torch-brulee.jpg" alt="A kitchen torch caramelizing sugar on a dessert" />
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-section landing-section--white">
+        <div className="landing-wrap landing-about landing-about--flip">
+          <img src="/images/sesame-packet.jpg" alt="Packets of toasted sesame seeds labeled Add to cabbage salad" />
+          <div>
+            <p className="landing-eyebrow">The details</p>
+            <h2>Thoughtful down to the last sprinkle.</h2>
+            <p>
+              Crunchy toppings, dressings and garnishes come packed on the side and labeled for the dish they
+              belong to, so everything tastes as fresh at your table as it did in our kitchen.
+            </p>
+            <p>
+              Every container is labeled, and every delivery comes with a reheat guide written for that
+              week’s menu.
+            </p>
           </div>
         </div>
       </section>
