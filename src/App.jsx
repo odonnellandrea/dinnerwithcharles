@@ -5,6 +5,7 @@ import AdminApp from './components/AdminApp'
 import SignupApp from './components/SignupApp'
 import PendingApprovalApp from './components/PendingApprovalApp'
 import RejectedApp from './components/RejectedApp'
+import LandingPage from './components/LandingPage'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -91,37 +92,12 @@ function App() {
 
   // Landing page
   return (
-    <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '40px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ maxWidth: '600px', textAlign: 'center' }}>
-        <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '280px', height: 'auto', marginBottom: '40px' }} />
-        
-        <h1 style={{ color: '#1a441f', marginBottom: '30px', fontSize: '28px' }}>Welcome to Dinner with Charles</h1>
-        
-        <p style={{ fontSize: '16px', color: '#666', marginBottom: '40px', lineHeight: '1.6' }}>
-          Your own private chef, cooking for your family the way we cook for ours.
-        </p>
-        
-        <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
-          <button 
-            onClick={() => setScreen('login')} 
-            style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
-          >
-            Sign In
-          </button>
-          
-          <button 
-            onClick={() => setScreen('signup')} 
-            style={{ padding: '12px 24px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}
-          >
-            Request to Join
-          </button>
-        </div>
-      </div>
-
+    <>
+      <LandingPage onSignIn={() => setScreen('login')} onJoin={() => setScreen('signup')} />
       {screen === 'login' && (
         <LoginForm onSuccess={() => setScreen('app')} onBack={() => setScreen('landing')} />
       )}
-    </div>
+    </>
   )
 }
 
