@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { fetchSheetReheat } from '../lib/sheetMenu'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -44,11 +45,31 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
 
       const itemsToFetch = Object.keys(itemsMap)
 
+      // Latest steps from the menu sheet; if it can't be reached, fall back to the item library
+      let sheetSteps = {}
+      try {
+        sheetSteps = await fetchSheetReheat()
+      } catch (err) {
+        console.error('Failed to load reheat steps from the menu sheet:', err)
+      }
+
       // Fetch all items and their components
       const dishInstructions = {}
 
       for (const itemKey of itemsToFetch) {
         const [itemType, itemName] = itemKey.split(':')
+        const quantity = orders.filter(o => o.item_name === itemName).length
+
+        const steps = sheetSteps[itemName.toLowerCase()]
+        if (steps?.length) {
+          dishInstructions[itemName] = {
+            type: itemType,
+            components: steps.map(comp => ({ ...comp, quantity }))
+          }
+          continue
+        }
+
+        // Dishes not in the sheet (e.g. from before it existed): look them up in the item library
         const table = itemType === 'entree' ? 'entrees' : itemType === 'salad' ? 'salads' : 'add_ons'
 
         const { data: item } = await supabase
@@ -58,7 +79,6 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
           .single()
 
         if (item && item.components) {
-          const quantity = orders.filter(o => o.item_name === itemName).length
           dishInstructions[itemName] = {
             type: itemType,
             components: item.components.map(comp => ({
@@ -152,14 +172,16 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
                           background: compIdx % 2 === 0 ? '#faf8f3' : 'white'
                         }}
                       >
-                        <h4 style={{ color: '#1a441f', margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600' }}>
-                          {comp.name}
-                          {comp.quantity > 1 && (
-                            <span style={{ color: '#D4A373', marginLeft: '8px', fontSize: '12px', fontWeight: '500' }}>
-                              × {comp.quantity}
-                            </span>
-                          )}
-                        </h4>
+                        {(comp.name || comp.quantity > 1) && (
+                          <h4 style={{ color: '#1a441f', margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600' }}>
+                            {comp.name}
+                            {comp.quantity > 1 && (
+                              <span style={{ color: '#D4A373', marginLeft: comp.name ? '8px' : 0, fontSize: '12px', fontWeight: '500' }}>
+                                × {comp.quantity}
+                              </span>
+                            )}
+                          </h4>
+                        )}
                         <p style={{ color: '#333', margin: '0', fontSize: '13px', lineHeight: '1.5' }}>
                           {comp.instruction}
                         </p>
