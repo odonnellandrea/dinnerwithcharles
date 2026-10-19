@@ -1,8 +1,10 @@
 // The guest menu lives in a public Google Sheet so it can be edited without the admin.
 // Columns: week, visible, delivery_date, type (entree|salad|addon), sort_order, name, description,
 // price (add-ons only, in dollars)
+// headers=1 stops Google from guessing how many rows are headers, which it gets wrong
+// when a column is all text (e.g. it can merge the first dish into the "name" header)
 export const MENU_SHEET_URL =
-  'https://docs.google.com/spreadsheets/d/1Po7fmDOUBCVRFAQD0Y0zZdiy_6vsgLLavis7LHsnbTU/gviz/tq?tqx=out:csv'
+  'https://docs.google.com/spreadsheets/d/1Po7fmDOUBCVRFAQD0Y0zZdiy_6vsgLLavis7LHsnbTU/gviz/tq?tqx=out:csv&headers=1'
 
 // Handles quoted fields with commas, doubled quotes and line breaks (descriptions can have all three)
 export function parseCsv(text) {
