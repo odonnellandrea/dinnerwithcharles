@@ -157,7 +157,8 @@
 .landing-plan img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
 .landing-price-card { border: 1px solid var(--border); background: var(--cream); padding: 40px; }
 .landing-price { font-size: 56px; font-weight: 700; color: var(--green); margin: 0; line-height: 1; }
-.landing-price-sub { margin: 12px 0 28px 0; color: var(--muted); font-size: 15px; }
+.landing-price-sub { margin: 12px 0 8px 0; color: var(--muted); font-size: 15px; }
+.landing-price-card p.landing-price-serves { margin: 0 0 28px 0; color: var(--green); font-size: 15px; font-style: italic; line-height: 1.6; }
 .landing-price-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
 .landing-price-list li {
   display: flex;

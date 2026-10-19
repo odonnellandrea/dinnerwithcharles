@@ -91,6 +91,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <div className="landing-price-card">
               <p className="landing-price">${BASE_PRICE}</p>
               <p className="landing-price-sub">{BASE_ENTREES} entrées + {BASE_SALADS} salads, cooked and delivered</p>
+              <p className="landing-price-serves">Each dish serves two to three, depending on the dish and the appetites at your table.</p>
               <ul className="landing-price-list">
                 <li><span>Extra entrée</span><span>${EXTRA_ENTREE_PRICE} each</span></li>
                 <li><span>Extra salad</span><span>${EXTRA_SALAD_PRICE} each</span></li>
