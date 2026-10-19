@@ -34,7 +34,8 @@ export default async (req) => {
   } catch {
     return json(400, { error: 'Invalid JSON' })
   }
-  const { type, order_id: orderId } = payload || {}
+  // resend: admin asked to send the reheat email again, even if it already went out
+  const { type, order_id: orderId, resend: isResend = false } = payload || {}
   if (!orderId) return json(400, { error: 'order_id is required' })
 
   const { data: rows, error: ordersError } = await supabase.from('Orders').select('*').eq('order_id', orderId)
@@ -55,13 +56,13 @@ export default async (req) => {
     }
     // Only the first time an order is marked delivered
     if (rows.some(r => r.status !== 'delivered')) return json(409, { error: 'Order is not marked delivered' })
-    // Claim the send atomically so a double-click can't email twice
-    const { data: claimed, error: claimError } = await supabase
+    // Claim the send atomically so a double-click can't email twice (unless resending on purpose)
+    let claim = supabase
       .from('Orders')
       .update({ reheat_email_sent_at: new Date().toISOString() })
       .eq('order_id', orderId)
-      .is('reheat_email_sent_at', null)
-      .select('order_id')
+    if (!isResend) claim = claim.is('reheat_email_sent_at', null)
+    const { data: claimed, error: claimError } = await claim.select('order_id')
     if (claimError) return json(500, { error: claimError.message })
     if (!claimed?.length) return json(200, { skipped: 'already sent' })
     message = reheatGuideEmail({ rows, siteUrl })
@@ -72,8 +73,8 @@ export default async (req) => {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { data, error } = await resend.emails.send({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: customerEmail, subject: message.subject, html: message.html })
   if (error) {
-    // Release the claim so marking delivered again can retry
-    if (type === 'reheat_link') await supabase.from('Orders').update({ reheat_email_sent_at: null }).eq('order_id', orderId)
+    // Undo the claim: empty again for a first send so marking delivered can retry, or the earlier send's time for a resend
+    if (type === 'reheat_link') await supabase.from('Orders').update({ reheat_email_sent_at: rows[0].reheat_email_sent_at ?? null }).eq('order_id', orderId)
     return json(502, { error: error.message })
   }
   return json(200, { id: data?.id })

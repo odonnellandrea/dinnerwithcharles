@@ -414,21 +414,25 @@ export default function AdminApp({ onLogout }) {
     a.click()
   }
 
-  // The function only emails the first time an order is delivered, so re-marking is safe
-  const sendReheatEmail = async (orderId) => {
+  // The function only emails the first time an order is delivered, so re-marking is safe.
+  // resend: true sends it again on purpose (the Resend Reheat Email button).
+  const sendReheatEmail = async (orderId, { resend = false } = {}) => {
+    const failed = resend ? 'The reheat email failed: ' : 'Marked delivered, but the reheat email failed: '
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch('/.netlify/functions/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ type: 'reheat_link', order_id: orderId })
+        body: JSON.stringify({ type: 'reheat_link', order_id: orderId, resend })
       })
       if (!res.ok) {
         const { error } = await res.json().catch(() => ({}))
-        alert('Marked delivered, but the reheat email failed: ' + (error || res.status))
+        alert(failed + (error || res.status))
+      } else if (resend) {
+        alert('✓ Reheat email sent')
       }
     } catch (err) {
-      alert('Marked delivered, but the reheat email failed: ' + err.message)
+      alert(failed + err.message)
     }
   }
 
@@ -1128,16 +1132,27 @@ export default function AdminApp({ onLogout }) {
                                 Mark Delivered
                               </button>
                             ) : (
-                              <button
-                                onClick={() => {
-                                  supabase.from('Orders').update({ status: 'pending' }).eq('order_id', order.order_id).then(() => {
-                                    fetchOrders()
-                                  })
-                                }}
-                                style={{ padding: '6px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
-                              >
-                                Mark as Undelivered
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => {
+                                    supabase.from('Orders').update({ status: 'pending' }).eq('order_id', order.order_id).then(() => {
+                                      fetchOrders()
+                                    })
+                                  }}
+                                  style={{ padding: '6px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                                >
+                                  Mark as Undelivered
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (!window.confirm(`Send ${order.customer_name} the reheat guide email again?`)) return
+                                    sendReheatEmail(order.order_id, { resend: true })
+                                  }}
+                                  style={{ padding: '6px 12px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px' }}
+                                >
+                                  Resend Reheat Email
+                                </button>
+                              </>
                             )}
                             {(order.status === 'pending' || order.status === 'confirmed') && (
                               <button
