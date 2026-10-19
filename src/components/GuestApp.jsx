@@ -102,25 +102,8 @@ export default function GuestApp({ user, onLogout }) {
       setDeliveryDate(liveDate)
       setOrderCloseDatetime(deliverySettings.order_close_datetime)
 
-      // Entrées and salads come from the Google Sheet; add-ons still come from Supabase
-      const { entrees, salads } = await fetchSheetMenu()
-
-      const { data: weeklyMenu } = await supabase
-        .from('weekly_menu')
-        .select('item_id, item_type')
-        .eq('delivery_date', liveDate)
-        .eq('item_type', 'addon')
-
-      const addOnIds = (weeklyMenu || []).map(m => m.item_id)
-      const { data: addOns } = addOnIds.length > 0
-        ? await supabase.from('add_ons').select('*').in('id', addOnIds)
-        : { data: [] }
-
-      setMenuItems({
-        entrees,
-        salads,
-        addOns: addOns || []
-      })
+      // The menu itself comes from the Google Sheet
+      setMenuItems(await fetchSheetMenu())
     } catch (err) {
       setError("We couldn't load this week's menu. Please refresh the page.")
       console.error('Failed to load menu:', err)

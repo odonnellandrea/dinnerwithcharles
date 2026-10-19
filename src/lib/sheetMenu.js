@@ -1,5 +1,6 @@
 // The guest menu lives in a public Google Sheet so it can be edited without the admin.
-// Columns: week, visible, delivery_date, type (entree|salad), sort_order, name, description
+// Columns: week, visible, delivery_date, type (entree|salad|addon), sort_order, name, description,
+// price (add-ons only, in dollars)
 export const MENU_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1Po7fmDOUBCVRFAQD0Y0zZdiy_6vsgLLavis7LHsnbTU/gviz/tq?tqx=out:csv'
 
@@ -43,7 +44,7 @@ export function parseCsv(text) {
   return rows.filter(r => r.some(cell => cell.trim() !== ''))
 }
 
-// Returns { entrees, salads }, each holding only visible rows sorted by sort_order
+// Returns { entrees, salads, addOns }, each holding only visible rows sorted by sort_order
 export function menuFromCsv(text) {
   const [header = [], ...rows] = parseCsv(text)
   const columns = header.map(h => h.trim().toLowerCase())
@@ -56,10 +57,13 @@ export function menuFromCsv(text) {
   const visible = items
     .filter(row => (row.visible || '').toUpperCase() === 'TRUE' && row.name)
     .map(row => ({
-      type: (row.type || '').toLowerCase().replace('é', 'e'),
+      // "Entrée" -> entree, "Add-on" -> addon
+      type: (row.type || '').toLowerCase().replace('é', 'e').replace(/[^a-z]/g, ''),
       sortOrder: row.sort_order === '' ? Infinity : Number(row.sort_order),
       name: row.name,
-      description: row.description || ''
+      description: row.description || '',
+      // Stored in cents to match how the order form already prices add-ons
+      price: Math.round(parseFloat((row.price || '').replace(/[$,]/g, '')) * 100)
     }))
     .sort((a, b) => (a.sortOrder - b.sortOrder) || 0)
 
@@ -68,7 +72,12 @@ export function menuFromCsv(text) {
     .filter(item => item.type === type)
     .map((item, i) => ({ ...item, id: `${type}-${i}-${item.name}` }))
 
-  return { entrees: withIds('entree'), salads: withIds('salad') }
+  return {
+    entrees: withIds('entree'),
+    salads: withIds('salad'),
+    // An add-on without a price can't be charged, so leave it off the menu
+    addOns: withIds('addon').filter(item => Number.isFinite(item.price))
+  }
 }
 
 export async function fetchSheetMenu() {
