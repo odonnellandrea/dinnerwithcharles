@@ -163,10 +163,19 @@ export default function LandingPage({ onSignIn, onJoin }) {
       </section>
 
       <footer className="landing-footer">
-        <div className="landing-wrap">
+        <div className="landing-wrap landing-follow">
+          <div>
+            <p className="landing-eyebrow">Follow along</p>
+            <h3>See what’s cooking on Instagram.</h3>
+            <p>New menus, behind-the-scenes moments and the latest from our kitchen.</p>
+          </div>
+          <a className="landing-btn landing-btn--ghost-light" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
+            Follow @dinnerwithcharles
+          </a>
+        </div>
+        <div className="landing-wrap landing-footer-bottom">
           <img src="/Cream Horizontal Logo.png" alt="Dinner with Charles" />
           <div className="landing-footer-links">
-            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Instagram @dinnerwithcharles</a>
             <button className="landing-link" onClick={onSignIn}>Sign In</button>
             <small>© {new Date().getFullYear()} Dinner with Charles</small>
           </div>

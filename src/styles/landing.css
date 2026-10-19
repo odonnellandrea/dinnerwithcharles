@@ -54,6 +54,8 @@
 .landing-btn--outline:hover { background: var(--green); color: var(--cream); }
 .landing-btn--light { background: var(--cream); border-color: var(--cream); color: var(--green); }
 .landing-btn--light:hover { background: transparent; color: var(--cream); }
+.landing-btn--ghost-light { background: transparent; border-color: var(--cream); color: var(--cream); }
+.landing-btn--ghost-light:hover { background: var(--cream); color: var(--green); }
 
 /* Header */
 .landing-header {
@@ -202,7 +204,7 @@
 
 /* Footer */
 .landing-footer { background: var(--green); border-top: 1px solid rgba(250,248,243,0.15); }
-.landing-footer .landing-wrap {
+.landing-footer-bottom {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -213,7 +215,19 @@
 }
 .landing-footer img { height: 18px; width: auto; display: block; }
 .landing-footer-links { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
-.landing-footer a, .landing-footer .landing-link { color: rgba(250,248,243,0.85); font-size: 13px; text-decoration: none; letter-spacing: 0.04em; font-weight: 500; }
+.landing-footer-links a, .landing-footer .landing-link { color: rgba(250,248,243,0.85); font-size: 13px; text-decoration: none; letter-spacing: 0.04em; font-weight: 500; }
+.landing-follow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px 48px;
+  padding-top: 56px;
+  padding-bottom: 56px;
+  border-bottom: 1px solid rgba(250,248,243,0.15);
+}
+.landing-follow h3 { color: var(--cream); font-size: clamp(22px, 2.6vw, 28px); line-height: 1.25; margin-bottom: 10px; }
+.landing-follow p:not(.landing-eyebrow) { color: rgba(250,248,243,0.8); font-size: 15px; line-height: 1.7; margin: 0; }
 .landing-footer small { color: rgba(250,248,243,0.6); font-size: 12px; }
 
 @media (max-width: 900px) {
@@ -259,4 +273,6 @@
   .landing-hero-photo { aspect-ratio: 1 / 1; }
   .landing-price-card { padding: 28px 24px; }
   .landing-join { padding: 80px 0; }
+  .landing-follow { padding-top: 48px; padding-bottom: 48px; }
+  .landing-follow .landing-btn { width: 100%; text-align: center; }
 }
