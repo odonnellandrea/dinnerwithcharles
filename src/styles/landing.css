@@ -213,6 +213,7 @@
   .landing-section { padding: 72px 0; }
   .landing-band { min-height: 440px; }
   .landing-about img { aspect-ratio: 4 / 3; }
+  .landing-hero-photo { aspect-ratio: 3 / 2; }
 }
 
 @media (max-width: 560px) {
