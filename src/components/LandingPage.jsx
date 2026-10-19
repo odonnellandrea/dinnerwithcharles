@@ -7,7 +7,7 @@ const INSTAGRAM_URL = 'https://www.instagram.com/dinnerwithcharles/'
 const STEPS = [
   {
     title: 'A new menu each week',
-    body: 'Every week we write a fresh menu: a handful of entrées, a few salads and a couple of extras, built around what’s in season.'
+    body: 'Every week we write a fresh menu of entrées, salads and extras, built around what’s in season.'
   },
   {
     title: 'Choose what you love',
@@ -15,7 +15,7 @@ const STEPS = [
   },
   {
     title: 'We cook from scratch',
-    body: 'Everything is made by us in small batches, cooked fresh for delivery day.'
+    body: 'Every dish is cooked from scratch, fresh for delivery day, with the care we’d give our own family’s dinner.'
   },
   {
     title: 'Delivered to your door',
@@ -42,7 +42,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <p className="landing-eyebrow">Weekly Kitchen</p>
             <h1>Your own private chef, cooking for your family the way we cook for ours.</h1>
             <p>
-              Each week we cook a small menu of entrées and salads from scratch and deliver it to your door,
+              Each week we cook a fresh menu of entrées and salads from scratch and deliver it to your door,
               ready to reheat and enjoy. Weeknight dinners, taken care of.
             </p>
             <div className="landing-hero-actions">
@@ -106,14 +106,14 @@ export default function LandingPage({ onSignIn, onJoin }) {
           <img src="/images/pastry-bites.jpg" alt="Golden pastry bites with chopsticks and a cup of soup" />
           <div>
             <p className="landing-eyebrow">Who we are</p>
-            <h2>A small kitchen that cooks like family.</h2>
+            <h2>A kitchen that cooks like family.</h2>
             <p>
               Dinner with Charles started the way most good meals do: cooking for the people around our own table.
               Weekly Kitchen brings that same food to yours.
             </p>
             <p>
-              We cook every dish ourselves, in small batches, for a small group of families. The menu follows the
-              seasons and the places we’ve traveled, and it’s always made the way we’d make it at home.
+              Every dish is cooked from scratch with real ingredients and real care. The menu follows the seasons
+              and the places we’ve traveled, and it’s always made the way we’d make it at home.
             </p>
           </div>
         </div>
@@ -124,8 +124,8 @@ export default function LandingPage({ onSignIn, onJoin }) {
           <p className="landing-eyebrow">Join us</p>
           <h2>Pull up a chair.</h2>
           <p>
-            We cook for a limited number of families each week, so membership is by request. Tell us a little
-            about your household and we’ll be in touch.
+            Tell us a little about your household and we’ll be in touch to get your first week of dinners
+            on the table.
           </p>
           <button className="landing-btn landing-btn--light" onClick={onJoin}>Request to Join</button>
         </div>
