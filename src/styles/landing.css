@@ -147,6 +147,16 @@
 .landing-band h2 { color: var(--cream); font-size: clamp(28px, 4vw, 44px); line-height: 1.15; max-width: 720px; }
 .landing-band p { color: rgba(250,248,243,0.85); font-size: 17px; line-height: 1.7; max-width: 560px; margin: 20px 0 0 0; }
 
+/* Photo row */
+.landing-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.landing-gallery img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }
+/* The beets photo's dish sits on the right side of the frame */
+.landing-gallery img.landing-gallery-right { object-position: 85% center; }
+
 /* Plan & pricing */
 .landing-plan {
   display: grid;
@@ -225,6 +235,19 @@
   .landing-header .landing-btn { display: none; }
   .landing-steps { grid-template-columns: 1fr; }
   .landing-step:nth-child(even) { padding-left: 0; border-left: none; }
+  /* Swipeable row of photos instead of three tall ones stacked */
+  .landing-gallery {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 16px;
+    margin: 0 -16px;
+    padding: 0 16px;
+    gap: 12px;
+    scrollbar-width: none;
+  }
+  .landing-gallery::-webkit-scrollbar { display: none; }
+  .landing-gallery img { flex: 0 0 78%; scroll-snap-align: start; }
   .landing-hero-actions .landing-btn { flex: 1 1 100%; text-align: center; }
   .landing-hero-photo { aspect-ratio: 1 / 1; }
   .landing-price-card { padding: 28px 24px; }

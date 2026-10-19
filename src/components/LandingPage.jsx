@@ -83,9 +83,20 @@ export default function LandingPage({ onSignIn, onJoin }) {
         </div>
       </section>
 
+      <section className="landing-section landing-section--white">
+        <div className="landing-wrap">
+          <p className="landing-eyebrow">From our kitchen</p>
+          <div className="landing-gallery">
+            <img src="/images/soup-greens.jpg" alt="Creamy potato and greens soup topped with seared sausage and microgreens" />
+            <img className="landing-gallery-right" src="/images/beets-pistachio.jpg" alt="Roasted beets over whipped cheese with pistachios and microgreens" />
+            <img src="/images/curry-bowl.jpg" alt="Curry over rice garnished with cilantro" />
+          </div>
+        </div>
+      </section>
+
       <section className="landing-section">
         <div className="landing-wrap landing-plan">
-          <img src="/images/curry-bowl.jpg" alt="Curry over rice garnished with cilantro" />
+          <img src="/images/roast-chicken-wide.jpg" alt="Sliced roast chicken with mustard sauce, baby potatoes and carrots" />
           <div>
             <p className="landing-eyebrow">Your week</p>
             <div className="landing-price-card">
