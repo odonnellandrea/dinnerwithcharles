@@ -58,13 +58,11 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
 
       for (const itemKey of itemsToFetch) {
         const [itemType, itemName] = itemKey.split(':')
-        const quantity = orders.filter(o => o.item_name === itemName).length
-
         const steps = sheetSteps[itemName.toLowerCase()]
         if (steps?.length) {
           dishInstructions[itemName] = {
             type: itemType,
-            components: steps.map(comp => ({ ...comp, quantity }))
+            components: steps
           }
           continue
         }
@@ -81,11 +79,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
         if (item && item.components) {
           dishInstructions[itemName] = {
             type: itemType,
-            components: item.components.map(comp => ({
-              name: comp.name,
-              instruction: comp.instruction,
-              quantity: (comp.quantity || 1) * quantity
-            }))
+            components: item.components.map(comp => ({ name: comp.name, instruction: comp.instruction }))
           }
         }
       }
@@ -172,14 +166,9 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
                           background: compIdx % 2 === 0 ? '#faf8f3' : 'white'
                         }}
                       >
-                        {(comp.name || comp.quantity > 1) && (
+                        {comp.name && (
                           <h4 style={{ color: '#1a441f', margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600' }}>
                             {comp.name}
-                            {comp.quantity > 1 && (
-                              <span style={{ color: '#D4A373', marginLeft: comp.name ? '8px' : 0, fontSize: '12px', fontWeight: '500' }}>
-                                × {comp.quantity}
-                              </span>
-                            )}
                           </h4>
                         )}
                         <p style={{ color: '#333', margin: '0', fontSize: '13px', lineHeight: '1.5' }}>
