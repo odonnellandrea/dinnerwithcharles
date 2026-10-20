@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { orderConfirmationEmail, reheatGuideEmail, approvedEmail } from '../emails/templates.js'
+import { orderConfirmationEmail, reheatGuideEmail, approvedEmail, menuLiveEmail } from '../emails/templates.js'
 import { MESSENGER_FEE } from '../../src/lib/pricing.js'
 
 // Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM and EMAIL_REPLY_TO (optional).
@@ -36,7 +36,7 @@ export default async (req) => {
     return json(400, { error: 'Invalid JSON' })
   }
   // resend: admin asked to send the reheat email again, even if it already went out
-  const { type, order_id: orderId, user_id: userId, resend: isResend = false } = payload || {}
+  const { type, order_id: orderId, user_id: userId, delivery_date: deliveryDate, resend: isResend = false } = payload || {}
   const siteUrl = process.env.URL || new URL(req.url).origin
   const resend = new Resend(process.env.RESEND_API_KEY)
   const deliver = async (to, message) => {
@@ -54,6 +54,43 @@ export default async (req) => {
     const { id, error } = await deliver(profile.email, approvedEmail({ profile, siteUrl }))
     if (error) return json(502, { error: error.message })
     return json(200, { id })
+  }
+
+  // "The menu is live" to every approved customer who opted in to menu emails
+  if (type === 'menu_live') {
+    if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+    if (!deliveryDate) return json(400, { error: 'delivery_date is required' })
+    const { data: settings, error: settingsError } = await supabase.from('delivery_settings').select('*').eq('delivery_date', deliveryDate).maybeSingle()
+    if (settingsError) return json(500, { error: settingsError.message })
+    if (!settings) return json(404, { error: 'No menu set up for that delivery date' })
+    if (!settings.is_live) return json(409, { error: 'The menu is not live yet' })
+    if (!('menu_email_sent_at' in settings)) {
+      return json(500, { error: 'delivery_settings.menu_email_sent_at is missing; run supabase/migrations/20261020_menu_email_sent_at.sql' })
+    }
+    // Claim the send so a double-click can't email everyone twice (unless resending on purpose)
+    let claim = supabase.from('delivery_settings').update({ menu_email_sent_at: new Date().toISOString() }).eq('delivery_date', deliveryDate)
+    if (!isResend) claim = claim.is('menu_email_sent_at', null)
+    const { data: claimed, error: claimError } = await claim.select('delivery_date')
+    if (claimError) return json(500, { error: claimError.message })
+    if (!claimed?.length) return json(200, { skipped: 'already sent' })
+    const undoClaim = () => supabase.from('delivery_settings').update({ menu_email_sent_at: settings.menu_email_sent_at ?? null }).eq('delivery_date', deliveryDate)
+
+    const { data: recipients, error: usersError } = await supabase.from('users').select('email, first_name, name').eq('approval_status', 'approved').eq('email_opt_in', true)
+    if (usersError) { await undoClaim(); return json(500, { error: usersError.message }) }
+    if (!recipients?.length) { await undoClaim(); return json(409, { error: 'No approved customers have opted in to menu emails' }) }
+
+    // Resend batches up to 100 per call
+    const failed = []
+    for (let i = 0; i < recipients.length; i += 100) {
+      const chunk = recipients.filter(r => r.email).slice(i, i + 100)
+      const { error } = await resend.batch.send(chunk.map(profile => {
+        const message = menuLiveEmail({ profile, settings, siteUrl })
+        return { from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: profile.email, subject: message.subject, html: message.html }
+      }))
+      if (error) failed.push(...chunk.map(r => r.email))
+    }
+    if (failed.length === recipients.length) { await undoClaim(); return json(502, { error: 'Resend rejected the emails' }) }
+    return json(200, { sent: recipients.length - failed.length, failed })
   }
 
   if (!orderId) return json(400, { error: 'order_id is required' })

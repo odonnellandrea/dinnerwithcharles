@@ -32,6 +32,10 @@ export default function AdminApp({ onLogout }) {
   // Menu states
   const [deliveryDate, setDeliveryDate] = useState('')
   const [orderCloseLocal, setOrderCloseLocal] = useState('') // value for <input type="datetime-local">
+  const [menuLive, setMenuLive] = useState(false) // delivery_settings.is_live for the selected date
+  const [menuEmailSentAt, setMenuEmailSentAt] = useState(null)
+  const [menuEmailRecipients, setMenuEmailRecipients] = useState(null) // approved customers opted in to menu emails
+  const [sendingMenuEmail, setSendingMenuEmail] = useState(false)
   const [selectedItems, setSelectedItems] = useState([]) // [{id, name, item_type}]
   const [masterEntrees, setMasterEntrees] = useState([])
   const [masterSalads, setMasterSalads] = useState([])
@@ -59,6 +63,7 @@ export default function AdminApp({ onLogout }) {
     const nextDate = getNextDeliveryDate()
     setDeliveryDate(nextDate)
     await fetchOrderClose(nextDate)
+    await fetchMenuEmailRecipients()
     setLoading(false)
   }
 
@@ -73,9 +78,49 @@ export default function AdminApp({ onLogout }) {
   const fetchOrderClose = async (date) => {
     const { data } = await supabase
       .from('delivery_settings')
-      .select('order_close_datetime')
+      .select('*')
       .eq('delivery_date', date)
     setOrderCloseLocal(toLocalInput(data?.[0]?.order_close_datetime))
+    setMenuLive(data?.[0]?.is_live === true)
+    setMenuEmailSentAt(data?.[0]?.menu_email_sent_at || null)
+  }
+
+  const fetchMenuEmailRecipients = async () => {
+    const { count } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('approval_status', 'approved')
+      .eq('email_opt_in', true)
+    setMenuEmailRecipients(count ?? 0)
+  }
+
+  // Emails this week's menu to every approved customer who opted in. The function refuses
+  // to send twice for the same delivery date unless resend is true.
+  const sendMenuEmail = async () => {
+    const resend = !!menuEmailSentAt
+    const who = `${menuEmailRecipients ?? 'all opted-in'} customer${menuEmailRecipients === 1 ? '' : 's'}`
+    if (!window.confirm(resend ? `Send the menu email again to ${who}?` : `Send this week's menu to ${who}?`)) return
+    setSendingMenuEmail(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ type: 'menu_live', delivery_date: deliveryDate, resend })
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        alert('The menu email failed: ' + (body.error || res.status))
+      } else if (body.skipped) {
+        alert('The menu email already went out for this date.')
+      } else {
+        alert(`✓ Menu email sent to ${body.sent} customer${body.sent === 1 ? '' : 's'}` + (body.failed?.length ? `. Failed for: ${body.failed.join(', ')}` : ''))
+      }
+    } catch (err) {
+      alert('The menu email failed: ' + err.message)
+    }
+    setSendingMenuEmail(false)
+    await fetchOrderClose(deliveryDate)
   }
 
   const saveOrderClose = async () => {
@@ -198,6 +243,7 @@ export default function AdminApp({ onLogout }) {
     }
     
     setShowPreview(false)
+    await fetchOrderClose(deliveryDate)
   }
 
   const handleOpenItemForm = (item = null) => {
@@ -862,6 +908,25 @@ export default function AdminApp({ onLogout }) {
                 </button>
               </div>
               <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#999' }}>Customers can't order after this time, even while the menu is live.</p>
+            </div>
+
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Menu Email</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+                Tells every approved customer who opted in to menu emails that the menu is up, with the delivery date and close time, and sends them to the site
+                {menuEmailRecipients != null && <> ({menuEmailRecipients} right now)</>}.
+                {' '}{menuLive ? '' : 'Go live first, then send.'}
+              </p>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={sendMenuEmail}
+                  disabled={!menuLive || sendingMenuEmail}
+                  style={{ padding: '8px 20px', background: menuEmailSentAt ? '#D4A373' : '#1a441f', color: '#faf8f3', border: 'none', cursor: !menuLive || sendingMenuEmail ? 'not-allowed' : 'pointer', fontSize: '14px', fontFamily: 'inherit', opacity: !menuLive || sendingMenuEmail ? 0.6 : 1 }}
+                >
+                  {sendingMenuEmail ? 'Sending...' : menuEmailSentAt ? 'Resend Menu Email' : 'Send Menu Email'}
+                </button>
+                {menuEmailSentAt && <span style={{ fontSize: '13px', color: '#1a441f' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
+              </div>
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>

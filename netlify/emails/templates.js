@@ -216,3 +216,39 @@ export function reheatGuideEmail({ rows, siteUrl }) {
     html: layout({ siteUrl, preheader: 'Simple reheat steps for each dish.', body })
   }
 }
+
+// "The menu is live" to one opted-in customer. Short on purpose: the menu itself lives on
+// the site, so this just points them there. settings: the live delivery_settings row.
+const NY = 'America/New_York'
+const formatCloseTime = (iso) => {
+  if (!iso) return ''
+  const dt = new Date(iso)
+  const date = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: NY })
+  const time = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: NY })
+  return `${date} at ${time}`
+}
+
+export function menuLiveEmail({ profile, settings, siteUrl }) {
+  const name = firstName(profile.first_name || profile.name)
+  const deliveryDate = formatDeliveryDate(settings.delivery_date)
+  const closes = formatCloseTime(settings.order_close_datetime)
+
+  const body = `
+    ${eyebrow("This week's menu")}
+    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('The menu is live', name)}</h1>
+    <p style="margin:0;font-size:16px;line-height:1.7;">This week's menu is up on the site. Take a look and get your order in${closes ? ` by ${closes}` : ''}.</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0;">
+      <tr><td style="background:${CREAM};border:1px solid ${BORDER};padding:20px 24px;font-family:${FONT};font-size:15px;line-height:1.7;color:#333333;">
+        <strong style="color:${GREEN};">Delivery ${deliveryDate}.</strong>${closes ? ` Orders close ${closes}.` : ''}
+      </td></tr>
+    </table>
+    <div style="margin:32px 0 0 0;">
+      ${button(siteUrl, 'See the menu')}
+    </div>
+    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">You're getting this because you asked for weekly menu announcements. You can change that any time in Settings.</p>`
+
+  return {
+    subject: `This week's menu is live`,
+    html: layout({ siteUrl, preheader: `Delivery ${deliveryDate}. Order${closes ? ` by ${closes}` : ' now'}.`, body })
+  }
+}
