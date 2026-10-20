@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { normalizeUsPhone, formatUsPhone } from '../lib/notificationConsent'
 import { nameColumns, namesFrom, joinName, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
+import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions } from '../lib/deliveryOptions'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -11,7 +12,8 @@ const supabase = createClient(
 const inputStyle = { width: '100%', padding: '12px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }
 const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#1a441f', margin: '0 0 6px 0' }
 
-// Name, delivery address and phone, editable by the customer. onSaved gets the new name
+// Name, delivery address, phone and delivery preferences, editable by the customer.
+// (The messenger fee itself stays admin-controlled.) onSaved gets the new name
 // so the order form can use it right away.
 export default function ProfileDetails({ user, onSaved }) {
   const [firstName, setFirstName] = useState('')
@@ -19,6 +21,8 @@ export default function ProfileDetails({ user, onSaved }) {
   const [savedAs, setSavedAs] = useState('') // full name from before first/last existed
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
+  const [deliveryOption, setDeliveryOption] = useState('')
+  const [hasDeliveryColumn, setHasDeliveryColumn] = useState(true)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -30,7 +34,7 @@ export default function ProfileDetails({ user, onSaved }) {
   const fetchDetails = async () => {
     const { data } = await supabase
       .from('users')
-      .select('name, first_name, last_name, delivery_address, delivery_phone')
+      .select('*')
       .eq('id', user.id)
       .single()
     if (data) {
@@ -40,6 +44,8 @@ export default function ProfileDetails({ user, onSaved }) {
       setSavedAs(names.savedAs)
       setAddress(data.delivery_address || '')
       setPhone(formatUsPhone(data.delivery_phone))
+      setDeliveryOption(data.delivery_option || '')
+      setHasDeliveryColumn('delivery_option' in data)
     }
   }
 
@@ -57,8 +63,13 @@ export default function ProfileDetails({ user, onSaved }) {
       return
     }
 
+    if (hasDeliveryColumn && !deliveryOption) {
+      setError('Please tick at least one way to get your order')
+      return
+    }
+
     setSaving(true)
-    const changes = { ...nameColumns(firstName, lastName), delivery_address: address.trim(), delivery_phone: normalizedPhone }
+    const changes = { ...nameColumns(firstName, lastName), delivery_address: address.trim(), delivery_phone: normalizedPhone, ...(hasDeliveryColumn ? { delivery_option: deliveryOption } : {}) }
     let { error: updateError } = await supabase.from('users').update(changes).eq('id', user.id)
     if (isMissingNameColumns(updateError)) {
       ({ error: updateError } = await supabase.from('users').update(withoutNameColumns(changes)).eq('id', user.id))
@@ -104,6 +115,27 @@ export default function ProfileDetails({ user, onSaved }) {
 
       <label style={labelStyle}>Phone for delivery day</label>
       <input type="tel" value={phone} onChange={edit(setPhone)} placeholder="(555) 123-4567" autoComplete="tel" style={{ ...inputStyle, marginBottom: '16px' }} />
+
+      {hasDeliveryColumn && (
+        <div style={{ marginBottom: '16px' }}>
+          <label style={labelStyle}>How would you like to get your order? <span style={{ fontWeight: '400', color: '#999' }}>Tick all that work for you.</span></label>
+          {DELIVERY_OPTIONS.map(o => {
+            const chosen = parseDeliveryOptions(deliveryOption)
+            const checked = chosen.includes(o.value)
+            return (
+              <label key={o.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '6px 0', fontSize: '14px', color: '#333', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => { setDeliveryOption(joinDeliveryOptions(checked ? chosen.filter(v => v !== o.value) : [...chosen, o.value])); setSaved(false); setError('') }}
+                  style={{ marginTop: '3px', cursor: 'pointer' }}
+                />
+                <span>{o.label}{o.hint ? <span style={{ color: '#999' }}> ({o.hint})</span> : null}</span>
+              </label>
+            )
+          })}
+        </div>
+      )}
 
       {error && <p style={{ color: '#c62828', fontSize: '13px', margin: '0 0 16px 0' }}>{error}</p>}
 
