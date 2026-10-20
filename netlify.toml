@@ -9,3 +9,7 @@ port = 5173
 [functions]
 directory = "netlify/functions"
 node_bundler = "esbuild"
+
+# pdfkit loads its built-in font data at runtime, so ship the package as is
+[functions."reheat-pdf"]
+external_node_modules = ["pdfkit"]

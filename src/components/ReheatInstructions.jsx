@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { fetchSheetReheat } from '../lib/sheetMenu'
+import { buildReheatGuide, LIBRARY_TABLE } from '../lib/reheatGuide'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -12,6 +13,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [sheetDown, setSheetDown] = useState(false) // couldn't read the latest steps from the menu sheet
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     fetchReheatInstructions()
@@ -35,17 +37,6 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
         return
       }
 
-      // Get unique item names and types, maintaining order
-      const itemsMap = {}
-      orders.forEach(o => {
-        const key = `${o.item_type}:${o.item_name}`
-        if (!itemsMap[key]) {
-          itemsMap[key] = { type: o.item_type, name: o.name || o.item_name }
-        }
-      })
-
-      const itemsToFetch = Object.keys(itemsMap)
-
       // Latest steps from the menu sheet; if it can't be reached, fall back to the item library
       let sheetSteps = {}
       try {
@@ -54,51 +45,11 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
         console.error('Failed to load reheat steps from the menu sheet:', err)
         setSheetDown(true)
       }
-
-      // Fetch all items and their components
-      const dishInstructions = {}
-
-      for (const itemKey of itemsToFetch) {
-        const [itemType, itemName] = itemKey.split(':')
-        const steps = sheetSteps[itemName.toLowerCase()]
-        if (steps?.length) {
-          dishInstructions[itemName] = {
-            type: itemType,
-            components: steps
-          }
-          continue
-        }
-
-        // Dishes not in the sheet (e.g. from before it existed): look them up in the item library
-        const table = itemType === 'entree' ? 'entrees' : itemType === 'salad' ? 'salads' : 'add_ons'
-
-        const { data: item } = await supabase
-          .from(table)
-          .select('*')
-          .eq('name', itemName)
-          .single()
-
-        if (item && item.components) {
-          dishInstructions[itemName] = {
-            type: itemType,
-            components: item.components.map(comp => ({ name: comp.name, instruction: comp.instruction }))
-          }
-        }
+      const lookupLibrary = async (type, name) => {
+        const { data } = await supabase.from(LIBRARY_TABLE[type] || 'add_ons').select('*').eq('name', name).single()
+        return data
       }
-
-      // Create ordered array of dishes (in the order they were ordered)
-      const orderedDishes = []
-      const seen = new Set()
-      orders.forEach(o => {
-        if (!seen.has(o.item_name)) {
-          orderedDishes.push({
-            name: o.item_name,
-            type: o.item_type,
-            components: dishInstructions[o.item_name]?.components || []
-          })
-          seen.add(o.item_name)
-        }
-      })
+      const orderedDishes = await buildReheatGuide({ orders, sheetSteps, lookupLibrary })
 
       setInstructions(orderedDishes)
     } catch (err) {
@@ -106,6 +57,35 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
     } finally {
       setLoading(false)
     }
+  }
+
+  // Same guide as a PDF, built by the reheat-pdf function with the customer's own session
+  const downloadPdf = async () => {
+    setDownloading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(`/.netlify/functions/reheat-pdf?delivery_date=${encodeURIComponent(deliveryDate)}`, {
+        headers: { Authorization: `Bearer ${session?.access_token}` }
+      })
+      if (!res.ok) {
+        const { error: message } = await res.json().catch(() => ({}))
+        throw new Error(message || `Request failed (${res.status})`)
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const disposition = res.headers.get('content-disposition') || ''
+      const match = /filename="([^"]+)"/.exec(disposition)
+      a.download = match ? match[1] : `Reheat Instructions ${deliveryDate}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
+    } catch (err) {
+      alert("Sorry, we couldn't build the PDF. Please try again in a moment.\n\n(" + err.message + ")")
+    }
+    setDownloading(false)
   }
 
   const getDeliveryDateDisplay = () => {
@@ -136,9 +116,20 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
         <h1 style={{ color: '#1a441f', fontSize: '28px', marginTop: '0', marginBottom: '8px' }}>
           Reheat Guide
         </h1>
-        <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
-          For your delivery {getDeliveryDateDisplay()}
-        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <p style={{ color: '#666', margin: 0, fontSize: '14px' }}>
+            For your delivery {getDeliveryDateDisplay()}
+          </p>
+          {!loading && !error && instructions.length > 0 && (
+            <button
+              onClick={downloadPdf}
+              disabled={downloading}
+              style={{ padding: '10px 18px', background: 'transparent', color: '#1a441f', border: '1px solid #1a441f', cursor: downloading ? 'wait' : 'pointer', fontSize: '13px', fontWeight: '600', letterSpacing: '0.04em', fontFamily: 'inherit', opacity: downloading ? 0.6 : 1 }}
+            >
+              {downloading ? 'Preparing PDF…' : 'Download PDF'}
+            </button>
+          )}
+        </div>
 
         {/* Instructions */}
         {loading && <p>Loading reheat instructions...</p>}
