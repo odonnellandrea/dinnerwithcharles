@@ -107,7 +107,7 @@ export function orderConfirmationEmail({ rows, siteUrl }) {
   const body = `
     ${eyebrow('Order confirmed')}
     <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Thank you', name)}</h1>
-    <p style="margin:0;font-size:16px;line-height:1.7;">We've received your order and Charles is planning the week. Here's what's coming your way.</p>
+    <p style="margin:0;font-size:16px;line-height:1.7;">Your order is in. Here's what's coming your way.</p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:40px 0 0 0;background:${CREAM};border:1px solid ${BORDER};">
       <tr>
