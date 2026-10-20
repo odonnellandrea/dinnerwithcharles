@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import NotificationChoices from './NotificationChoices'
 import { normalizeUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
 import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
+import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions, hasDeliveryOption } from '../lib/deliveryOptions'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -18,6 +19,7 @@ const PAYMENT_METHODS = ['Venmo', 'Zelle', 'Cash']
 const ANSWER_COLUMNS = {
   household: 'household_composition',
   address: 'delivery_address',
+  deliveryOption: 'delivery_option',
   phone: 'delivery_phone',
   timeSlots: 'delivery_time_slots',
   instructions: 'delivery_instructions',
@@ -52,6 +54,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
     confirmPassword: '',
     household: '',
     address: '',
+    deliveryOption: '',
     phone: '',
     instructions: '',
     timeSlots: '',
@@ -161,6 +164,10 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         setError('Please enter your delivery address')
         return
       }
+      if (!formData.deliveryOption) {
+        setError('Please tick at least one way to get your order')
+        return
+      }
       if (!formData.phone || !formData.phone.trim()) {
         setError('Please enter your phone number')
         return
@@ -250,7 +257,8 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           phone_number: formData.smsOptIn ? smsPhone : null,
           [PREFS_SET_COLUMN]: new Date().toISOString(),
           approval_status: 'pending',
-          is_active: true
+          is_active: true,
+          ...(hasDeliveryOption(formData.deliveryOption, 'messenger') ? { messenger_delivery: true } : {})
         }
 
         let { error: insertError } = await supabase.from('users').insert([profile])
@@ -259,6 +267,11 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         }
         if (isMissingNameColumns(insertError)) {
           ({ error: insertError } = await supabase.from('users').insert([withoutNameColumns(profile)]))
+        }
+        // Until 20261020_messenger_delivery.sql is run these columns don't exist; keep the signup going
+        if (insertError && /messenger_delivery|delivery_option/.test(insertError.message || '')) {
+          const { messenger_delivery: _m, delivery_option: _d, ...rest } = withoutNameColumns(profile)
+          ;({ error: insertError } = await supabase.from('users').insert([rest]))
         }
         if (insertError) throw insertError
         setSuccessScreen(true)
@@ -343,6 +356,24 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
                 Currently serving NoMad, Gramercy, Kips Bay, Murray Hill and some parts of Chelsea. Outside that area? You're still welcome to join: choose pickup in NoMad, or Uber messenger delivery as a pass-through cost ($12–15 within most of Manhattan). We hope to deliver to more neighborhoods soon.
               </p>
               <input type="text" placeholder="Delivery address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <div style={{ border: '1px solid #e0dbd1', borderRadius: '6px', padding: '12px', marginBottom: '12px' }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#1a441f' }}>How would you like to get your order? <span style={{ fontWeight: '400', color: '#999' }}>Tick all that work for you.</span></p>
+                {DELIVERY_OPTIONS.map(o => {
+                  const chosen = parseDeliveryOptions(formData.deliveryOption)
+                  const checked = chosen.includes(o.value)
+                  return (
+                    <label key={o.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '6px 0', fontSize: '14px', color: '#333', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => updateField('deliveryOption', joinDeliveryOptions(checked ? chosen.filter(v => v !== o.value) : [...chosen, o.value]))}
+                        style={{ marginTop: '3px', cursor: 'pointer' }}
+                      />
+                      <span>{o.label}{o.hint ? <span style={{ color: '#999' }}> ({o.hint})</span> : null}</span>
+                    </label>
+                  )
+                })}
+              </div>
               <input type="tel" placeholder="Phone number" value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Delivery time preferences" value={formData.timeSlots} onChange={(e) => updateField('timeSlots', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Special delivery instructions" value={formData.instructions} onChange={(e) => updateField('instructions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />

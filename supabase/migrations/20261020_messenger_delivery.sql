@@ -5,3 +5,5 @@
 alter table public.users add column if not exists messenger_delivery boolean not null default false;
 -- What that customer's messenger run actually costs (admin sets it; $12 to start)
 alter table public.users add column if not exists messenger_fee numeric(6,2) not null default 12;
+-- How they get their order, chosen on the join form: home | office | pickup | messenger | waitlist
+alter table public.users add column if not exists delivery_option text;

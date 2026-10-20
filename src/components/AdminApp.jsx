@@ -8,6 +8,7 @@ import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 import CustomerEditModal from './CustomerEditModal'
 import { MESSENGER_FEE } from '../lib/pricing'
+import { deliveryOptionLabel } from '../lib/deliveryOptions'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -465,6 +466,7 @@ export default function AdminApp({ onLogout }) {
   const ANSWER_FIELDS = [
     ['Household', 'household_composition'],
     ['Delivery address', 'delivery_address'],
+    ['Delivery option', 'delivery_option'],
     ['Phone', 'delivery_phone'],
     ['Delivery time preferences', 'delivery_time_slots'],
     ['Special delivery instructions', 'delivery_instructions'],
@@ -736,7 +738,7 @@ export default function AdminApp({ onLogout }) {
                             </button>
                           </p>
                           <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
-                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong></p>
+                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong>{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
                           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0 0 0', fontSize: '12px', color: '#1a441f', cursor: 'pointer' }}>
                             <input
                               type="checkbox"

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
+import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions } from '../lib/deliveryOptions'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -72,7 +73,19 @@ export default function CustomerEditModal({ customer, fields, onClose, onSaved }
         {fields.map(([label, column]) => (
           <div key={column} style={{ marginBottom: '14px' }}>
             <label style={labelStyle}>{label}</label>
-            {column === 'payment_method' ? (
+            {column === 'delivery_option' ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 18px' }}>
+                {DELIVERY_OPTIONS.map(o => {
+                  const chosen = parseDeliveryOptions(answers[column]); const checked = chosen.includes(o.value)
+                  return (
+                    <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={checked} onChange={() => setAnswers(prev => ({ ...prev, [column]: joinDeliveryOptions(checked ? chosen.filter(v => v !== o.value) : [...chosen, o.value]) }))} />
+                      {o.label}
+                    </label>
+                  )
+                })}
+              </div>
+            ) : column === 'payment_method' ? (
               <select value={answers[column]} onChange={setAnswer(column)} style={inputStyle}>
                 <option value="">—</option>
                 {[...PAYMENT_METHODS, ...(answers[column] && !PAYMENT_METHODS.includes(answers[column]) ? [answers[column]] : [])].map(m => (
