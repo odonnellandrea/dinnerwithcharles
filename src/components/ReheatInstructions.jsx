@@ -11,6 +11,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
   const [instructions, setInstructions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [sheetDown, setSheetDown] = useState(false) // couldn't read the latest steps from the menu sheet
 
   useEffect(() => {
     fetchReheatInstructions()
@@ -51,6 +52,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
         sheetSteps = await fetchSheetReheat()
       } catch (err) {
         console.error('Failed to load reheat steps from the menu sheet:', err)
+        setSheetDown(true)
       }
 
       // Fetch all items and their components
@@ -123,7 +125,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
           {onClose && (
             <button
               onClick={onClose}
-              style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+              style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}
             >
               ← Back
             </button>
@@ -140,54 +142,42 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
 
         {/* Instructions */}
         {loading && <p>Loading reheat instructions...</p>}
-        {error && <p style={{ color: '#c62828', padding: '12px', background: '#ffebee', borderRadius: '6px', marginBottom: '20px' }}>{error}</p>}
+        {error && <p style={{ color: '#c62828', padding: '12px', background: '#fdf3f2', border: '1px solid #e8b4ae', marginBottom: '20px' }}>{error}</p>}
 
         {!loading && !error && instructions.length > 0 && (
           <div>
-            <div style={{ background: 'white', borderRadius: '8px', border: '1px solid #e0dbd1', overflow: 'hidden' }}>
-              {instructions.map((dish, dishIdx) => (
-                <div key={dishIdx} style={{ borderBottom: dishIdx < instructions.length - 1 ? '2px solid #e0dbd1' : 'none' }}>
-                  {/* Dish header */}
-                  <div style={{ padding: '16px', background: '#1a441f', color: '#faf8f3' }}>
-                    <h2 style={{ margin: '0', fontSize: '18px', fontWeight: '600' }}>
-                      {dish.name}
-                    </h2>
-                  </div>
+            {instructions.map((dish, dishIdx) => (
+              <div key={dishIdx} style={{ background: 'white', border: '1px solid #e0dbd1', padding: '22px 24px', marginBottom: '16px' }}>
+                <p style={{ margin: '0 0 4px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>
+                  {dish.type === 'salad' ? 'Salad' : dish.type === 'addon' ? 'Add-on' : 'Entrée'}
+                </p>
+                <h2 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: '500', color: '#1a441f', lineHeight: 1.3 }}>
+                  {dish.name}
+                </h2>
 
-                  {/* Components */}
-                  <div>
-                    {dish.components.map((comp, compIdx) => (
-                      <div
-                        key={compIdx}
-                        style={{
-                          padding: '16px',
-                          paddingLeft: '24px',
-                          borderBottom: compIdx < dish.components.length - 1 ? '1px solid #e0dbd1' : 'none',
-                          background: compIdx % 2 === 0 ? '#faf8f3' : 'white'
-                        }}
-                      >
-                        {comp.name && (
-                          <h4 style={{ color: '#1a441f', margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600' }}>
-                            {comp.name}
-                          </h4>
-                        )}
-                        <p style={{ color: '#333', margin: '0', fontSize: '13px', lineHeight: '1.5' }}>
-                          {comp.instruction}
-                        </p>
-                      </div>
-                    ))}
+                {dish.components.length === 0 && (
+                  <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#666' }}>
+                    {sheetDown ? "We couldn't load the steps for this dish. Please refresh in a moment." : 'Nothing to reheat. Serve as is.'}
+                  </p>
+                )}
+                {dish.components.map((comp, compIdx) => (
+                  <div key={compIdx} style={{ padding: '14px 0 0 0', marginTop: '14px', borderTop: '1px solid #e0dbd1' }}>
+                    {comp.name && (
+                      <p style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '500', color: '#1a441f' }}>{comp.name}</p>
+                    )}
+                    <p style={{ margin: 0, fontSize: '15px', lineHeight: 1.6, color: '#333' }}>{comp.instruction}</p>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ))}
 
             {/* Tips section */}
-            <div style={{ background: '#faf8f3', padding: '16px', borderRadius: '8px', marginTop: '24px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: '0' }}>Tips</h3>
-              <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
-                <li>Reheat only what you'll eat — these instructions are for single portions</li>
-                <li>All times are approximate — adjust based on your oven or microwave</li>
-                <li>When in doubt, reheat low and slow for best flavor</li>
+            <div style={{ padding: '20px 24px', marginTop: '28px', borderTop: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0 0 8px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Tips</p>
+              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '14px', color: '#666', lineHeight: 1.7 }}>
+                <li>Reheat only what you'll eat. These steps are for single portions.</li>
+                <li>Times are approximate, so adjust for your oven or microwave.</li>
+                <li>When in doubt, reheat low and slow.</li>
               </ul>
             </div>
           </div>
