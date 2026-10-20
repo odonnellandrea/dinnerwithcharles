@@ -2,9 +2,9 @@
 // (admin can change it); users.delivery_option stores the values comma-separated, e.g. "home,pickup".
 export const DELIVERY_OPTIONS = [
   { value: 'home', label: 'Home delivery', hint: 'within range' },
-  { value: 'office', label: 'Office delivery', hint: 'within range' },
+  { value: 'office', label: 'Delivery to an office or a friend’s place', hint: 'within range' },
   { value: 'pickup', label: 'Pickup in NoMad' },
-  { value: 'messenger', label: 'Uber messenger delivery', hint: 'at cost, $12–15' },
+  { value: 'messenger', label: 'Uber messenger delivery', hint: 'anywhere in Manhattan, at cost, $12–15' },
   { value: 'waitlist', label: 'Waitlist for my neighborhood' }
 ]
 
