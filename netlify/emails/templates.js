@@ -11,6 +11,12 @@ const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, s
 export const escapeHtml = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 
+// Older orders saved the email address as the customer name; greet those with "there"
+const firstName = (customerName) => {
+  const first = (customerName || '').trim().split(/\s+/)[0]
+  return first && !first.includes('@') ? first : 'there'
+}
+
 const money = (n) => `$${Number(n).toFixed(2)}`
 
 // delivery_date is a plain YYYY-MM-DD; format it without letting a timezone shift the day
@@ -70,7 +76,7 @@ const ITEM_GROUPS = [
 // rows: the Orders rows for one order_id (one row per item)
 export function orderConfirmationEmail({ rows, siteUrl }) {
   const first = rows[0]
-  const name = (first.customer_name || '').split(' ')[0] || 'there'
+  const name = firstName(first.customer_name)
   const deliveryDate = formatDeliveryDate(first.delivery_date)
 
   const count = (type) => rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
@@ -145,7 +151,7 @@ export function orderConfirmationEmail({ rows, siteUrl }) {
 
 export function reheatGuideEmail({ rows, siteUrl }) {
   const first = rows[0]
-  const name = (first.customer_name || '').split(' ')[0] || 'there'
+  const name = firstName(first.customer_name)
   const deliveryDate = formatDeliveryDate(first.delivery_date)
   const link = `${siteUrl}/?reheat=${encodeURIComponent(first.delivery_date)}`
 

@@ -701,7 +701,22 @@ export default function AdminApp({ onLogout }) {
                     <div key={customer.id} className="admin-card">
                       <div className="admin-card-row">
                         <div className="admin-card-text">
-                          <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#1a441f' }}>{customer.name || 'Name not provided'}</p>
+                          <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#1a441f' }}>
+                            {customer.name || 'Name not provided'}
+                            <button
+                              onClick={async () => {
+                                const name = window.prompt(`Name for ${customer.email}:`, customer.name || '')
+                                if (name === null || !name.trim()) return
+                                const { error } = await supabase.from('users').update({ name: name.trim() }).eq('id', customer.id)
+                                if (error) alert('Failed to save name: ' + error.message)
+                                else fetchPendingCustomers()
+                              }}
+                              title="Edit name"
+                              style={{ marginLeft: '10px', padding: '2px 8px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'inherit', verticalAlign: 'middle' }}
+                            >
+                              Edit
+                            </button>
+                          </p>
                           <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
                           <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong></p>
                           {customer.resubmitted_at && (

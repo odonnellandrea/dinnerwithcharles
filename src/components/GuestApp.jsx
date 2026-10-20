@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import ReheatInstructions from './ReheatInstructions'
 import NotificationSettings from './NotificationSettings'
 import PasswordForm from './PasswordForm'
+import ProfileDetails from './ProfileDetails'
 import GuestHeader from './GuestHeader'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
@@ -61,6 +62,8 @@ export default function GuestApp({ user, onLogout }) {
   const [reheatDate, setReheatDate] = useState(null)
   // One-time opt-in ask for customers who joined before the choices existed
   const [prefsPrompt, setPrefsPrompt] = useState(null) // null | { phone, smsOptIn }
+  // From the users profile; the sign-in account itself carries no name
+  const [profileName, setProfileName] = useState('')
 
   useEffect(() => {
     fetchLiveMenu()
@@ -118,9 +121,10 @@ export default function GuestApp({ user, onLogout }) {
   const checkNotificationPrefs = async () => {
     const { data, error } = await supabase
       .from('users')
-      .select('notification_prefs_set_at, sms_opt_in, phone_number, delivery_phone')
+      .select('name, notification_prefs_set_at, sms_opt_in, phone_number, delivery_phone')
       .eq('id', user.id)
       .single()
+    if (data?.name) setProfileName(data.name)
     if (!error && data && !data.notification_prefs_set_at) {
       setPrefsPrompt({ phone: data.phone_number || data.delivery_phone || '', smsOptIn: data.sms_opt_in === true })
     }
@@ -264,7 +268,7 @@ export default function GuestApp({ user, onLogout }) {
         if (item) {
           orders.push({
             order_id: orderId,
-            customer_name: user.name || user.email,
+            customer_name: profileName || user.email,
             email: user.email,
             item_type: 'entree',
             item_name: item.name,
@@ -284,7 +288,7 @@ export default function GuestApp({ user, onLogout }) {
         if (item) {
           orders.push({
             order_id: orderId,
-            customer_name: user.name || user.email,
+            customer_name: profileName || user.email,
             email: user.email,
             item_type: 'salad',
             item_name: item.name,
@@ -304,7 +308,7 @@ export default function GuestApp({ user, onLogout }) {
         if (item) {
           orders.push({
             order_id: orderId,
-            customer_name: user.name || user.email,
+            customer_name: profileName || user.email,
             email: user.email,
             item_type: 'addon',
             item_name: item.name,
@@ -400,7 +404,10 @@ export default function GuestApp({ user, onLogout }) {
   if (screen === 'settings') {
     return page(
       <>
-        <NotificationSettings user={user} onClose={() => setScreen('menu')} />
+        <ProfileDetails user={user} onSaved={setProfileName} />
+        <div style={{ marginTop: '20px' }}>
+          <NotificationSettings user={user} onClose={() => setScreen('menu')} />
+        </div>
         <div style={{ marginTop: '20px' }}>
           <PasswordForm title="Password" intro="Choose a new password for signing in." />
         </div>
