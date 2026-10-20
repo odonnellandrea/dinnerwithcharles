@@ -142,6 +142,13 @@ export function orderConfirmationEmail({ rows, siteUrl }) {
       </tr>
     </table>
 
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0;background:${CREAM};border:1px solid ${BORDER};">
+      <tr><td style="padding:24px 28px;">
+        ${eyebrow('Payment')}
+        <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">Payment of <strong style="color:${GREEN};">${money(price.total)}</strong> is due upon delivery, by Venmo, Zelle or cash.</p>
+      </td></tr>
+    </table>
+
     <div style="margin:48px 0 0 0;">
       ${button(siteUrl, 'View your order')}
     </div>`
