@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { normalizeUsPhone, formatUsPhone } from '../lib/notificationConsent'
+import { nameColumns, namesFrom, joinName, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -13,7 +14,9 @@ const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', colo
 // Name, delivery address and phone, editable by the customer. onSaved gets the new name
 // so the order form can use it right away.
 export default function ProfileDetails({ user, onSaved }) {
-  const [name, setName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [savedAs, setSavedAs] = useState('') // full name from before first/last existed
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
   const [error, setError] = useState('')
@@ -27,11 +30,14 @@ export default function ProfileDetails({ user, onSaved }) {
   const fetchDetails = async () => {
     const { data } = await supabase
       .from('users')
-      .select('name, delivery_address, delivery_phone')
+      .select('name, first_name, last_name, delivery_address, delivery_phone')
       .eq('id', user.id)
       .single()
     if (data) {
-      setName(data.name || '')
+      const names = namesFrom(data)
+      setFirstName(names.firstName)
+      setLastName(names.lastName)
+      setSavedAs(names.savedAs)
       setAddress(data.delivery_address || '')
       setPhone(formatUsPhone(data.delivery_phone))
     }
@@ -41,8 +47,8 @@ export default function ProfileDetails({ user, onSaved }) {
     e.preventDefault()
     setError('')
     setSaved(false)
-    if (!name.trim()) {
-      setError('Please enter your name')
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('Please enter your first and last name')
       return
     }
     const normalizedPhone = phone.trim() ? normalizeUsPhone(phone) : null
@@ -52,18 +58,20 @@ export default function ProfileDetails({ user, onSaved }) {
     }
 
     setSaving(true)
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ name: name.trim(), delivery_address: address.trim(), delivery_phone: normalizedPhone })
-      .eq('id', user.id)
+    const changes = { ...nameColumns(firstName, lastName), delivery_address: address.trim(), delivery_phone: normalizedPhone }
+    let { error: updateError } = await supabase.from('users').update(changes).eq('id', user.id)
+    if (isMissingNameColumns(updateError)) {
+      ({ error: updateError } = await supabase.from('users').update(withoutNameColumns(changes)).eq('id', user.id))
+    }
     setSaving(false)
     if (updateError) {
       setError('Failed to save: ' + updateError.message)
       return
     }
     setPhone(formatUsPhone(normalizedPhone))
+    setSavedAs('')
     setSaved(true)
-    onSaved?.(name.trim())
+    onSaved?.(joinName(firstName, lastName))
   }
 
   const edit = (setter) => (e) => { setter(e.target.value); setSaved(false); setError('') }
@@ -75,8 +83,21 @@ export default function ProfileDetails({ user, onSaved }) {
         We use these for your deliveries.
       </p>
 
-      <label style={labelStyle}>Name</label>
-      <input type="text" value={name} onChange={edit(setName)} autoComplete="name" style={{ ...inputStyle, marginBottom: '16px' }} />
+      {savedAs && (
+        <p style={{ fontSize: '13px', color: '#666', margin: '0 0 12px 0' }}>
+          We have your name as <strong style={{ color: '#1a441f' }}>{savedAs}</strong>. Please enter it as first and last name below.
+        </p>
+      )}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>First name</label>
+          <input type="text" value={firstName} onChange={edit(setFirstName)} autoComplete="given-name" style={inputStyle} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={labelStyle}>Last name</label>
+          <input type="text" value={lastName} onChange={edit(setLastName)} autoComplete="family-name" style={inputStyle} />
+        </div>
+      </div>
 
       <label style={labelStyle}>Delivery address</label>
       <input type="text" value={address} onChange={edit(setAddress)} autoComplete="street-address" style={{ ...inputStyle, marginBottom: '16px' }} />

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import NotificationChoices from './NotificationChoices'
 import { normalizeUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
+import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -44,7 +45,8 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
   const [step, setStep] = useState(firstStep)
   const [loadingProfile, setLoadingProfile] = useState(isResubmit)
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -95,7 +97,8 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           ...answers,
           // Legacy free-text payment values aren't in the list, so they must pick again
           paymentMethod: PAYMENT_METHODS.includes(data.payment_method) ? data.payment_method : '',
-          name: data.name || '',
+          firstName: namesFrom(data).firstName,
+          lastName: namesFrom(data).lastName,
           email: data.email || resubmitFor.email,
           // Show the choices they already saved; nothing new is pre-checked
           emailOptIn: data.email_opt_in === true,
@@ -111,8 +114,8 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
   const handleNext = () => {
     if (step === 1) {
       // Step 1 validation
-      if (!formData.name || !formData.name.trim()) {
-        setError('Please enter your name')
+      if (!formData.firstName.trim() || !formData.lastName.trim()) {
+        setError('Please enter your first and last name')
         return
       }
       if (!formData.email || !formData.email.trim()) {
@@ -190,6 +193,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
       try {
         const changes = {
           ...answerColumns(formData),
+          ...nameColumns(formData.firstName, formData.lastName),
           email_opt_in: formData.emailOptIn === true,
           sms_opt_in: formData.smsOptIn === true,
           phone_number: formData.smsOptIn ? smsPhone : null,
@@ -200,6 +204,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         let { error: updateError } = await supabase.from('users').update(changes).eq('id', resubmitFor.id)
         if (isMissingPrefsColumn(updateError)) {
           ({ error: updateError } = await supabase.from('users').update(withoutPrefsColumn(changes)).eq('id', resubmitFor.id))
+        }
+        if (isMissingNameColumns(updateError)) {
+          ({ error: updateError } = await supabase.from('users').update(withoutNameColumns(changes)).eq('id', resubmitFor.id))
         }
         if (updateError) throw updateError
         onResubmitted()
@@ -223,7 +230,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         const profile = {
           id: authData.user.id,
           username: formData.email,
-          name: formData.name,
+          ...nameColumns(formData.firstName, formData.lastName),
           email: formData.email,
           ...answerColumns(formData),
           // Always explicit so we never rely on the column default
@@ -238,6 +245,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         let { error: insertError } = await supabase.from('users').insert([profile])
         if (isMissingPrefsColumn(insertError)) {
           ({ error: insertError } = await supabase.from('users').insert([withoutPrefsColumn(profile)]))
+        }
+        if (isMissingNameColumns(insertError)) {
+          ({ error: insertError } = await supabase.from('users').insert([withoutNameColumns(profile)]))
         }
         if (insertError) throw insertError
         setSuccessScreen(true)
@@ -305,7 +315,10 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
 
           {step === 1 && (
             <div>
-              <input type="text" placeholder="Name" value={formData.name} onChange={(e) => updateField('name', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <input type="text" placeholder="First name" autoComplete="given-name" value={formData.firstName} onChange={(e) => updateField('firstName', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+                <input type="text" placeholder="Last name" autoComplete="family-name" value={formData.lastName} onChange={(e) => updateField('lastName', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              </div>
               <input type="email" placeholder="Email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="password" placeholder="Password" value={formData.password} onChange={(e) => updateField('password', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="password" placeholder="Confirm Password" value={formData.confirmPassword} onChange={(e) => updateField('confirmPassword', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />

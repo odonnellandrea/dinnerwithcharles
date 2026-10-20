@@ -6,6 +6,7 @@ import { formatUsPhone } from '../lib/notificationConsent'
 import '../styles/admin.css'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
+import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -705,9 +706,17 @@ export default function AdminApp({ onLogout }) {
                             {customer.name || 'Name not provided'}
                             <button
                               onClick={async () => {
-                                const name = window.prompt(`Name for ${customer.email}:`, customer.name || '')
-                                if (name === null || !name.trim()) return
-                                const { error } = await supabase.from('users').update({ name: name.trim() }).eq('id', customer.id)
+                                const current = namesFrom(customer)
+                                const hint = current.savedAs ? ` (currently saved as "${current.savedAs}")` : ''
+                                const first = window.prompt(`First name for ${customer.email}${hint}:`, current.firstName)
+                                if (first === null || !first.trim()) return
+                                const last = window.prompt(`Last name for ${customer.email}${hint}:`, current.lastName)
+                                if (last === null) return
+                                const changes = nameColumns(first, last)
+                                let { error } = await supabase.from('users').update(changes).eq('id', customer.id)
+                                if (isMissingNameColumns(error)) {
+                                  ({ error } = await supabase.from('users').update(withoutNameColumns(changes)).eq('id', customer.id))
+                                }
                                 if (error) alert('Failed to save name: ' + error.message)
                                 else fetchPendingCustomers()
                               }}
