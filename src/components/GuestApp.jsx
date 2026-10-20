@@ -8,6 +8,7 @@ import GuestHeader from './GuestHeader'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
 import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, MESSENGER_FEE } from '../lib/pricing'
+import { downloadPdf } from '../lib/downloadPdf'
 import { fetchSheetMenu } from '../lib/sheetMenu'
 
 const supabase = createClient(
@@ -66,6 +67,7 @@ export default function GuestApp({ user, onLogout }) {
   const [profileName, setProfileName] = useState('')
   // Outside the walking range: orders come by Uber messenger and the fee is added
   const [messengerFee, setMessengerFee] = useState(0)
+  const [downloadingMenu, setDownloadingMenu] = useState(false)
 
   useEffect(() => {
     fetchLiveMenu()
@@ -590,6 +592,21 @@ export default function GuestApp({ user, onLogout }) {
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1a441f', fontFamily: "'Courier New', Courier, monospace" }}>Dinner with Charles</p>
               <h1 style={{ margin: 0, fontSize: '34px', fontWeight: '700', color: '#1a441f', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
               <p style={{ margin: '6px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>cooked by Chef Robert, your private chef</p>
+              <button
+                onClick={async () => {
+                  setDownloadingMenu(true)
+                  try {
+                    await downloadPdf('/.netlify/functions/menu-pdf', `Weekly Kitchen Menu - week of ${deliveryDate}.pdf`)
+                  } catch (err) {
+                    alert("Sorry, we couldn't build the menu PDF. Please try again in a moment.\n\n(" + err.message + ")")
+                  }
+                  setDownloadingMenu(false)
+                }}
+                disabled={downloadingMenu}
+                style={{ marginTop: '14px', padding: '9px 16px', background: 'transparent', color: '#1a441f', border: '1px solid #1a441f', cursor: downloadingMenu ? 'wait' : 'pointer', fontSize: '12px', fontWeight: '600', letterSpacing: '0.06em', fontFamily: 'inherit', opacity: downloadingMenu ? 0.6 : 1 }}
+              >
+                {downloadingMenu ? 'Preparing PDF…' : 'Download menu PDF'}
+              </button>
             </div>
 
             {menuItems.intro?.map((text, idx) => (

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { fetchSheetReheat } from '../lib/sheetMenu'
 import { buildReheatGuide, LIBRARY_TABLE } from '../lib/reheatGuide'
+import { downloadPdf } from '../lib/downloadPdf'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -60,28 +61,10 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
   }
 
   // Same guide as a PDF, built by the reheat-pdf function with the customer's own session
-  const downloadPdf = async () => {
+  const handleDownload = async () => {
     setDownloading(true)
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const res = await fetch(`/.netlify/functions/reheat-pdf?delivery_date=${encodeURIComponent(deliveryDate)}`, {
-        headers: { Authorization: `Bearer ${session?.access_token}` }
-      })
-      if (!res.ok) {
-        const { error: message } = await res.json().catch(() => ({}))
-        throw new Error(message || `Request failed (${res.status})`)
-      }
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      const disposition = res.headers.get('content-disposition') || ''
-      const match = /filename="([^"]+)"/.exec(disposition)
-      a.download = match ? match[1] : `Reheat Instructions ${deliveryDate}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      setTimeout(() => URL.revokeObjectURL(url), 60000)
+      await downloadPdf(`/.netlify/functions/reheat-pdf?delivery_date=${encodeURIComponent(deliveryDate)}`, `Reheat Instructions ${deliveryDate}.pdf`)
     } catch (err) {
       alert("Sorry, we couldn't build the PDF. Please try again in a moment.\n\n(" + err.message + ")")
     }
@@ -122,7 +105,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
           </p>
           {!loading && !error && instructions.length > 0 && (
             <button
-              onClick={downloadPdf}
+              onClick={handleDownload}
               disabled={downloading}
               style={{ padding: '10px 18px', background: 'transparent', color: '#1a441f', border: '1px solid #1a441f', cursor: downloading ? 'wait' : 'pointer', fontSize: '13px', fontWeight: '600', letterSpacing: '0.04em', fontFamily: 'inherit', opacity: downloading ? 0.6 : 1 }}
             >

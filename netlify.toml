@@ -13,3 +13,6 @@ node_bundler = "esbuild"
 # pdfkit loads its built-in font data at runtime, so ship the package as is
 [functions."reheat-pdf"]
 external_node_modules = ["pdfkit"]
+
+[functions."menu-pdf"]
+external_node_modules = ["pdfkit"]
