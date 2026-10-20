@@ -353,7 +353,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
             <div>
               <input type="text" placeholder="Household composition (e.g., 2 adults, 1 kid)" value={formData.household} onChange={(e) => updateField('household', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
-                Currently serving NoMad, Gramercy, Kips Bay, Murray Hill, Hudson Yards and some parts of Chelsea. Outside that area? You're still welcome to join: choose pickup in NoMad, or Uber messenger delivery as a pass-through cost ($12–15 within most of Manhattan). We hope to deliver to more neighborhoods soon.
+                Delivery is included in NoMad, Gramercy, Kips Bay, Murray Hill, Hudson Yards and some parts of Chelsea. Everywhere else in Manhattan, please choose pickup in NoMad or Uber messenger delivery at cost ($12–15). We're always looking to expand our delivery area, so stay tuned.
               </p>
               <input type="text" placeholder="Delivery address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <div style={{ border: '1px solid #e0dbd1', borderRadius: '6px', padding: '12px', marginBottom: '12px' }}>
