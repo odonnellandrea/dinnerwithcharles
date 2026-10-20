@@ -6,7 +6,7 @@ import { formatUsPhone } from '../lib/notificationConsent'
 import '../styles/admin.css'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
-import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
+import CustomerEditModal from './CustomerEditModal'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -23,6 +23,7 @@ export default function AdminApp({ onLogout }) {
   const [orderDateFilter, setOrderDateFilter] = useState('all')
   const [orderStatusFilter, setOrderStatusFilter] = useState('all') // all | active | delivered | cancelled
   const [pendingCustomers, setPendingCustomers] = useState([])
+  const [editingCustomer, setEditingCustomer] = useState(null)
   const [expandedAnswers, setExpandedAnswers] = useState({})
   const [loading, setLoading] = useState(false)
   
@@ -726,22 +727,8 @@ export default function AdminApp({ onLogout }) {
                           <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#1a441f' }}>
                             {customer.name || 'Name not provided'}
                             <button
-                              onClick={async () => {
-                                const current = namesFrom(customer)
-                                const hint = current.savedAs ? ` (currently saved as "${current.savedAs}")` : ''
-                                const first = window.prompt(`First name for ${customer.email}${hint}:`, current.firstName)
-                                if (first === null || !first.trim()) return
-                                const last = window.prompt(`Last name for ${customer.email}${hint}:`, current.lastName)
-                                if (last === null) return
-                                const changes = nameColumns(first, last)
-                                let { error } = await supabase.from('users').update(changes).eq('id', customer.id)
-                                if (isMissingNameColumns(error)) {
-                                  ({ error } = await supabase.from('users').update(withoutNameColumns(changes)).eq('id', customer.id))
-                                }
-                                if (error) alert('Failed to save name: ' + error.message)
-                                else fetchPendingCustomers()
-                              }}
-                              title="Edit name"
+                              onClick={() => setEditingCustomer(customer)}
+                              title="Edit customer details"
                               style={{ marginLeft: '10px', padding: '2px 8px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'inherit', verticalAlign: 'middle' }}
                             >
                               Edit
@@ -1262,6 +1249,15 @@ export default function AdminApp({ onLogout }) {
               </div>
             </div>
           </div>
+        )}
+
+        {editingCustomer && (
+          <CustomerEditModal
+            customer={editingCustomer}
+            fields={ANSWER_FIELDS}
+            onClose={() => setEditingCustomer(null)}
+            onSaved={() => { setEditingCustomer(null); fetchPendingCustomers() }}
+          />
         )}
 
         {showItemForm && (
