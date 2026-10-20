@@ -111,7 +111,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
     loadProfile()
   }, [])
 
-  const handleNext = () => {
+  const [checkingEmail, setCheckingEmail] = useState(false)
+
+  const handleNext = async () => {
     if (step === 1) {
       // Step 1 validation
       if (!formData.firstName.trim() || !formData.lastName.trim()) {
@@ -136,6 +138,15 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
       }
       if (formData.password.length < 6) {
         setError('Password must be at least 6 characters')
+        return
+      }
+      // Say so now if this email already has an account, rather than after every step.
+      // If the check itself fails (function not installed yet), carry on; signup still catches it.
+      setCheckingEmail(true)
+      const { data: taken, error: checkError } = await supabase.rpc('email_taken', { addr: formData.email.trim() })
+      setCheckingEmail(false)
+      if (!checkError && taken === true) {
+        setError('There is already an account for this email. Go back and sign in instead, or use "Forgot password?" if you need a new password.')
         return
       }
     }
@@ -396,7 +407,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
               Back
             </button>
             {step < 5 ? (
-              <button onClick={handleNext} style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
+              <button onClick={handleNext} disabled={checkingEmail} style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: checkingEmail ? 'wait' : 'pointer', fontSize: '16px', fontWeight: '500', opacity: checkingEmail ? 0.7 : 1 }}>
                 Next
               </button>
             ) : (
