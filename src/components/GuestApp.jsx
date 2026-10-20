@@ -560,8 +560,8 @@ export default function GuestApp({ user, onLogout }) {
             <h2 style={{ color: '#1a441f', margin: '0 0 16px 0', fontSize: '26px' }}>{betweenMenus ? "Next week's menu is on its way" : "This week's menu is closed"}</h2>
             <p style={{ color: '#666', margin: '0 auto 32px', maxWidth: '460px', lineHeight: '1.7', fontSize: '15px' }}>
               {betweenMenus
-                ? "We're putting the finishing touches on next week's menu. Stay tuned; we'll let you know the moment ordering opens."
-                : `Orders for ${formatDeliveryDate(deliveryDate)} closed ${formatCloseDatetime(orderCloseDatetime)}. Hoping to squeeze one in? Send us a message and we'll see what we can do.`}
+                ? "Stay tuned. We'll let you know the moment ordering opens."
+                : `Ordering for ${formatDeliveryDate(deliveryDate)} closed ${formatCloseDatetime(orderCloseDatetime)}. Need to squeeze one in? Message us and we'll see what we can do.`}
             </p>
             <a
               href={INSTAGRAM_DM_URL}
