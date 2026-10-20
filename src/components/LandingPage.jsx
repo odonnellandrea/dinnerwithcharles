@@ -143,12 +143,13 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <p className="landing-eyebrow">Who we are</p>
             <h2>A kitchen that cooks like family.</h2>
             <p>
-              Dinner with Charles started the way most good meals do: cooking for the people around our own table.
-              Weekly Kitchen brings that same food to yours.
+              Dinner with Charles started the way most good meals do, cooking for the people around our own table.
+              Charles is our son, and we cook for him the way any parent would want to: real ingredients, made from
+              scratch, nothing we wouldn’t eat ourselves. Our Weekly Kitchen brings that same food to yours.
             </p>
             <p>
-              Every dish is cooked from scratch with real ingredients and real care. The menu follows the seasons
-              and the places we’ve traveled, and it’s always made the way we’d make it at home.
+              Chef Robert cooks every dish himself. The menu follows the seasons and the places we’ve traveled, and
+              it’s always made the way he’d make it for us at home.
             </p>
           </div>
         </div>
