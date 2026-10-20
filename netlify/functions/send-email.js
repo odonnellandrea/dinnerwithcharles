@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { orderConfirmationEmail, reheatGuideEmail } from '../emails/templates.js'
+import { orderConfirmationEmail, reheatGuideEmail, approvedEmail } from '../emails/templates.js'
 
 // Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM and EMAIL_REPLY_TO (optional).
 // Supabase URL/key reuse the VITE_ vars the site is built with.
@@ -35,7 +35,26 @@ export default async (req) => {
     return json(400, { error: 'Invalid JSON' })
   }
   // resend: admin asked to send the reheat email again, even if it already went out
-  const { type, order_id: orderId, resend: isResend = false } = payload || {}
+  const { type, order_id: orderId, user_id: userId, resend: isResend = false } = payload || {}
+  const siteUrl = process.env.URL || new URL(req.url).origin
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const deliver = async (to, message) => {
+    const { data, error } = await resend.emails.send({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to, subject: message.subject, html: message.html })
+    return { id: data?.id, error }
+  }
+
+  // Welcome email when the admin approves a request to join
+  if (type === 'approved') {
+    if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+    if (!userId) return json(400, { error: 'user_id is required' })
+    const { data: profile, error: profileError } = await supabase.from('users').select('email, name, first_name, approval_status').eq('id', userId).single()
+    if (profileError || !profile) return json(404, { error: 'Customer not found' })
+    if (profile.approval_status !== 'approved') return json(409, { error: 'Customer is not approved' })
+    const { id, error } = await deliver(profile.email, approvedEmail({ profile, siteUrl }))
+    if (error) return json(502, { error: error.message })
+    return json(200, { id })
+  }
+
   if (!orderId) return json(400, { error: 'order_id is required' })
 
   const { data: rows, error: ordersError } = await supabase.from('Orders').select('*').eq('order_id', orderId)
@@ -43,7 +62,6 @@ export default async (req) => {
   if (!rows?.length) return json(404, { error: 'Order not found' })
 
   const customerEmail = rows[0].email
-  const siteUrl = process.env.URL || new URL(req.url).origin
 
   let message
   if (type === 'order_confirmation') {
@@ -70,12 +88,11 @@ export default async (req) => {
     return json(400, { error: `Unknown email type: ${type}` })
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY)
-  const { data, error } = await resend.emails.send({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: customerEmail, subject: message.subject, html: message.html })
+  const { id, error } = await deliver(customerEmail, message)
   if (error) {
     // Undo the claim: empty again for a first send so marking delivered can retry, or the earlier send's time for a resend
     if (type === 'reheat_link') await supabase.from('Orders').update({ reheat_email_sent_at: rows[0].reheat_email_sent_at ?? null }).eq('order_id', orderId)
     return json(502, { error: error.message })
   }
-  return json(200, { id: data?.id })
+  return json(200, { id })
 }

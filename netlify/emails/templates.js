@@ -11,11 +11,14 @@ const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, s
 export const escapeHtml = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 
-// Older orders saved the email address as the customer name; greet those with "there"
+// First name for greetings, or '' when there isn't one (older orders saved the email
+// address as the customer name). Headings leave the name out rather than guess.
 const firstName = (customerName) => {
   const first = (customerName || '').trim().split(/\s+/)[0]
-  return first && !first.includes('@') ? first : 'there'
+  return first && !first.includes('@') ? first : ''
 }
+// "Dinner has arrived, Jiaqi." or just "Dinner has arrived."
+const greet = (text, name) => (name ? `${text}, ${escapeHtml(name)}.` : `${text}.`)
 
 const money = (n) => `$${Number(n).toFixed(2)}`
 
@@ -103,7 +106,7 @@ export function orderConfirmationEmail({ rows, siteUrl }) {
 
   const body = `
     ${eyebrow('Order confirmed')}
-    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">Thank you, ${escapeHtml(name)}.</h1>
+    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Thank you', name)}</h1>
     <p style="margin:0;font-size:16px;line-height:1.7;">We've received your order and Charles is planning the week. Here's what's coming your way.</p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:40px 0 0 0;background:${CREAM};border:1px solid ${BORDER};">
@@ -149,6 +152,25 @@ export function orderConfirmationEmail({ rows, siteUrl }) {
   }
 }
 
+// Sent once the admin approves a request to join
+export function approvedEmail({ profile, siteUrl }) {
+  const name = firstName(profile.first_name || profile.name)
+
+  const body = `
+    ${eyebrow('Approved')}
+    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Welcome to the table', name)}</h1>
+    <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Your request to join is approved. When each week's menu opens, pick your entrées and salads, choose the delivery windows that suit you, and we'll take care of the rest.</p>
+    <div style="margin:40px 0 0 0;">
+      ${button(siteUrl, 'Sign in and order')}
+    </div>
+    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Sign in with the email and password you chose when you requested to join.</p>`
+
+  return {
+    subject: 'Welcome to Dinner with Charles',
+    html: layout({ siteUrl, preheader: 'Your request to join is approved. The weekly menu is waiting.', body })
+  }
+}
+
 export function reheatGuideEmail({ rows, siteUrl }) {
   const first = rows[0]
   const name = firstName(first.customer_name)
@@ -157,7 +179,7 @@ export function reheatGuideEmail({ rows, siteUrl }) {
 
   const body = `
     ${eyebrow('Delivered')}
-    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">Dinner has arrived, ${escapeHtml(name)}.</h1>
+    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Dinner has arrived', name)}</h1>
     <p style="margin:0;font-size:16px;line-height:1.7;">Everything is cooked and ready to reheat. Your guide has simple steps for each dish.</p>
     <div style="margin:40px 0 0 0;">
       ${button(link, 'Open your reheat guide')}

@@ -487,11 +487,30 @@ export default function AdminApp({ onLogout }) {
   }
 
   const handleApprove = async (userId) => {
-    await supabase
+    const { error } = await supabase
       .from('users')
       .update({ approval_status: 'approved' })
       .eq('id', userId)
     fetchPendingCustomers()
+    if (error) {
+      alert('Failed to approve: ' + error.message)
+      return
+    }
+    // Best effort: the approval stands even if the welcome email fails
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ type: 'approved', user_id: userId })
+      })
+      if (!res.ok) {
+        const { error: message } = await res.json().catch(() => ({}))
+        alert('Approved, but the welcome email failed: ' + (message || res.status))
+      }
+    } catch (err) {
+      alert('Approved, but the welcome email failed: ' + err.message)
+    }
   }
 
   const handleReject = async (userId) => {
