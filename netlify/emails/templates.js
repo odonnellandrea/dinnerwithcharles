@@ -60,7 +60,7 @@ function layout({ siteUrl, preheader, body }) {
           ${body}
         </td></tr>
         <tr><td align="center" style="padding:40px 24px 0 24px;font-family:${FONT};font-size:12px;line-height:1.8;color:#999999;">
-          Dinner with Charles &middot; Your own private chef<br>
+          Dinner with Charles &middot; Dinner, taken care of<br>
           Questions? Message <a href="https://ig.me/m/dinnerwithcharles" style="color:${GREEN};">@dinnerwithcharles</a> on Instagram.
         </td></tr>
       </table>
