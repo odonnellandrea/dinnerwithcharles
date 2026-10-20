@@ -128,7 +128,9 @@ export default function GuestApp({ user, onLogout }) {
       .single()
     if (data?.name) setProfileName(data.name)
     setMessengerFee(data?.messenger_delivery === true ? (Number(data.messenger_fee) || MESSENGER_FEE) : 0)
-    if (!error && data && !data.notification_prefs_set_at) {
+    // Ask once about email/text updates. Needs the notification_prefs_set_at column
+    // (20261013_notification_prefs_set_at.sql); without it the prompt could never be dismissed.
+    if (!error && data && 'notification_prefs_set_at' in data && !data.notification_prefs_set_at) {
       setPrefsPrompt({ phone: data.phone_number || data.delivery_phone || '', smsOptIn: data.sms_opt_in === true })
     }
   }

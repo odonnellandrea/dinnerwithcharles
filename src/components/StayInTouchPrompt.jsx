@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN } from '../lib/notificationConsent'
+import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -47,18 +47,20 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
     }
     setSaving(true)
     await markedAsked.current // so the "asked" write can never land after their choice
-    const { error } = await supabase
-      .from('users')
-      .update({
-        email_opt_in: emailOptIn === true,
-        sms_opt_in: smsOptIn === true,
-        phone_number: smsOptIn ? normalizedPhone : null,
-        [PREFS_SET_COLUMN]: new Date().toISOString()
-      })
-      .eq('id', user.id)
+    const changes = {
+      email_opt_in: emailOptIn === true,
+      sms_opt_in: smsOptIn === true,
+      phone_number: smsOptIn ? normalizedPhone : null,
+      [PREFS_SET_COLUMN]: new Date().toISOString()
+    }
+    let { error } = await supabase.from('users').update(changes).eq('id', user.id)
+    if (isMissingPrefsColumn(error)) {
+      ({ error } = await supabase.from('users').update(withoutPrefsColumn(changes)).eq('id', user.id))
+    }
     setSaving(false)
     if (error) {
-      alert("Sorry, we couldn't save your choices. Please try again.")
+      console.error('Could not save notification choices:', error)
+      alert("Sorry, we couldn't save your choices. Please try again.\n\n(" + error.message + ")")
       return
     }
     onDone()
