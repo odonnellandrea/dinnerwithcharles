@@ -160,6 +160,14 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0 }) {
   }
 }
 
+// Same four steps as the landing page's "How it works"
+const HOW_IT_WORKS = [
+  ['A new menu each week', 'Every week we write a fresh menu of entrées, salads and extras, built around what’s in season.'],
+  ['Choose what you love', 'Pick 3 entrées and 2 salads for your household. Want more? Add extra dishes or an add-on to round out the week.'],
+  ['We cook from scratch', 'Every dish is cooked from scratch, fresh for delivery day, with the care we’d give our own family’s dinner.'],
+  ['Delivered to your door', 'Choose the delivery windows that work for you. Every container comes labeled, with simple reheat instructions.']
+]
+
 // Sent once the admin approves a request to join
 export function approvedEmail({ profile, siteUrl }) {
   const name = firstName(profile.first_name || profile.name)
@@ -167,9 +175,16 @@ export function approvedEmail({ profile, siteUrl }) {
   const body = `
     ${eyebrow('Approved')}
     <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Welcome to the table', name)}</h1>
-    <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're in. Every week a new menu goes up on the site. Pick your entrées and salads, choose the delivery windows that suit you, and we'll take care of the rest.</p>
+    <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're in. Here's how ordering works:</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px 0;">
+      ${HOW_IT_WORKS.map(([title, body], i) => `
+      <tr>
+        <td valign="top" style="padding:0 14px 14px 0;font-size:15px;font-weight:600;color:${GOLD};">${i + 1}.</td>
+        <td valign="top" style="padding:0 0 14px 0;font-size:15px;line-height:1.6;"><strong style="color:${GREEN};">${title}.</strong> ${body}</td>
+      </tr>`).join('')}
+    </table>
     ${String(profile.delivery_option || '').split(',').includes('pickup') ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Picking up in NoMad? We'll let you know when your order is ready and where to find us.</p>` : ''}
-    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Since you're a little outside our walking range, your orders will come by Uber messenger. We pass the cost through as is, usually ${MESSENGER_FEE_RANGE} in Manhattan, and you'll see an estimate on each order since the exact price can change from day to day. If you'd rather pick up in NoMad, just reply and let us know. And as more of your neighbors join, we hope to bring our own delivery to your area.</p>` : ''}
+    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Since you're outside our walking range, your orders will come by Uber messenger. We pass the Uber cost through exactly as we're charged, usually ${MESSENGER_FEE_RANGE} in Manhattan. The amount on your order is an estimate, and the final charge is whatever Uber bills us, which may be a little more or less. If you'd rather pick up in NoMad, or have us deliver to an office or a friend's place within our range, just reply and let us know. As more of your neighbors join, we hope to bring our own delivery to your area.</p>` : ''}
     <div style="margin:40px 0 0 0;">
       ${button(siteUrl, 'Sign in and order')}
     </div>
