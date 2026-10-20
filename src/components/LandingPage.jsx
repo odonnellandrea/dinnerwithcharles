@@ -1,5 +1,5 @@
 import React from 'react'
-import { BASE_PRICE, BASE_ENTREES, BASE_SALADS, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, MESSENGER_FEE } from '../lib/pricing'
+import { BASE_PRICE, BASE_ENTREES, BASE_SALADS, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, MESSENGER_FEE_RANGE } from '../lib/pricing'
 import '../styles/landing.css'
 
 const INSTAGRAM_URL = 'https://www.instagram.com/dinnerwithcharles/'
@@ -126,10 +126,10 @@ export default function LandingPage({ onSignIn, onJoin }) {
                 <li><span>Extra entrée</span><span>${EXTRA_ENTREE_PRICE} each</span></li>
                 <li><span>Extra salad</span><span>${EXTRA_SALAD_PRICE} each</span></li>
                 <li><span>Optional add-ons</span><span>Priced weekly</span></li>
-                <li><span>Outside our walking range</span><span>Pickup in NoMad, or messenger at cost (about ${MESSENGER_FEE})</span></li>
+                <li><span>Outside our walking range</span><span>Pickup in NoMad, or messenger at cost ({MESSENGER_FEE_RANGE})</span></li>
               </ul>
               <p className="landing-price-note">
-                Currently serving NoMad, Gramercy, Kips Bay, Murray Hill and some parts of Chelsea. For all other locations, we offer pickup in NoMad or Uber messenger delivery as a pass-through cost.
+                Currently serving NoMad, Gramercy, Kips Bay, Murray Hill and some parts of Chelsea. For all other locations, we offer pickup in NoMad or Uber messenger delivery as a pass-through cost ($12–15 within most of Manhattan).
               </p>
             </div>
           </div>

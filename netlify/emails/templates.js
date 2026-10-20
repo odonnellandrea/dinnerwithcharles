@@ -1,4 +1,4 @@
-import { priceOrder, BASE_PRICE, MESSENGER_FEE } from '../../src/lib/pricing.js'
+import { priceOrder, BASE_PRICE, MESSENGER_FEE_RANGE } from '../../src/lib/pricing.js'
 import { formatWindows } from '../../src/lib/deliveryWindows.js'
 
 const GREEN = '#1a441f'
@@ -77,7 +77,7 @@ const ITEM_GROUPS = [
 ]
 
 // rows: the Orders rows for one order_id (one row per item)
-export function orderConfirmationEmail({ rows, siteUrl, messengerDelivery = false }) {
+export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0 }) {
   const first = rows[0]
   const name = firstName(first.customer_name)
   const deliveryDate = formatDeliveryDate(first.delivery_date)
@@ -85,7 +85,7 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerDelivery = fals
   const count = (type) => rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
   // add-on rows store the unit price in dollars
   const addOnsCost = rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
-  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: messengerDelivery ? MESSENGER_FEE : 0 })
+  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0 })
 
   const groups = ITEM_GROUPS.map(({ type, label }) => {
     const items = rows.filter(r => r.item_type === type)
@@ -168,7 +168,7 @@ export function approvedEmail({ profile, siteUrl }) {
     ${eyebrow('Approved')}
     <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Welcome to the table', name)}</h1>
     <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Your request to join is approved. When each week's menu opens, pick your entrées and salads, choose the delivery windows that suit you, and we'll take care of the rest.</p>
-    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're a little outside our walking range, so your orders will come by Uber messenger, about ${money(MESSENGER_FEE)} passed through at cost, which shows on each order. Prefer to collect it yourself? Pickup in NoMad is always an option; just reply and let us know.</p>` : ''}
+    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're a little outside our walking range, so your orders will come by Uber messenger, typically ${MESSENGER_FEE_RANGE} within Manhattan, passed through at cost and shown on each order. Prefer to collect it yourself? Pickup in NoMad is always an option; just reply and let us know.</p>` : ''}
     <div style="margin:40px 0 0 0;">
       ${button(siteUrl, 'Sign in and order')}
     </div>

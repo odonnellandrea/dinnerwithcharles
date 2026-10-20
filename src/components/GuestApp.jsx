@@ -65,7 +65,7 @@ export default function GuestApp({ user, onLogout }) {
   // From the users profile; the sign-in account itself carries no name
   const [profileName, setProfileName] = useState('')
   // Outside the walking range: orders come by Uber messenger and the fee is added
-  const [messengerDelivery, setMessengerDelivery] = useState(false)
+  const [messengerFee, setMessengerFee] = useState(0)
 
   useEffect(() => {
     fetchLiveMenu()
@@ -127,7 +127,7 @@ export default function GuestApp({ user, onLogout }) {
       .eq('id', user.id)
       .single()
     if (data?.name) setProfileName(data.name)
-    setMessengerDelivery(data?.messenger_delivery === true)
+    setMessengerFee(data?.messenger_delivery === true ? (Number(data.messenger_fee) || MESSENGER_FEE) : 0)
     if (!error && data && !data.notification_prefs_set_at) {
       setPrefsPrompt({ phone: data.phone_number || data.delivery_phone || '', smsOptIn: data.sms_opt_in === true })
     }
@@ -673,7 +673,7 @@ export default function GuestApp({ user, onLogout }) {
                 const totalEntrees = Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0)
                 const totalSalads = Object.values(selectedSalads).reduce((sum, q) => sum + q, 0)
                 const addOnsCost = menuItems.addOns?.filter(item => selectedAddOns[item.id]).reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0) || 0
-                const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, messengerFee, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost, messengerFee: messengerDelivery ? MESSENGER_FEE : 0 })
+                const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost, messengerFee })
 
                 return (
                   <div>

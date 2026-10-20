@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { orderConfirmationEmail, reheatGuideEmail, approvedEmail } from '../emails/templates.js'
+import { MESSENGER_FEE } from '../../src/lib/pricing.js'
 
 // Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM and EMAIL_REPLY_TO (optional).
 // Supabase URL/key reuse the VITE_ vars the site is built with.
@@ -67,8 +68,9 @@ export default async (req) => {
   if (type === 'order_confirmation') {
     if (customerEmail.toLowerCase() !== user.email.toLowerCase()) return json(403, { error: 'Not your order' })
     // Customers outside the walking range pay the messenger fee; their own row, so RLS allows it
-    const { data: profile } = await supabase.from('users').select('messenger_delivery').eq('id', user.id).maybeSingle()
-    message = orderConfirmationEmail({ rows, siteUrl, messengerDelivery: profile?.messenger_delivery === true })
+    const { data: profile } = await supabase.from('users').select('messenger_delivery, messenger_fee').eq('id', user.id).maybeSingle()
+    const messengerFee = profile?.messenger_delivery === true ? (Number(profile.messenger_fee) || MESSENGER_FEE) : 0
+    message = orderConfirmationEmail({ rows, siteUrl, messengerFee })
   } else if (type === 'reheat_link') {
     if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
     if (!('reheat_email_sent_at' in rows[0])) {
