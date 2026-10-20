@@ -586,8 +586,14 @@ export default function GuestApp({ user, onLogout }) {
           <>
             {deliveryBanner}
 
+            <div style={{ textAlign: 'center', margin: '8px 0 28px 0' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1a441f', fontFamily: "'Courier New', Courier, monospace" }}>Dinner with Charles</p>
+              <h1 style={{ margin: 0, fontSize: '34px', fontWeight: '700', color: '#1a441f', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
+              <p style={{ margin: '6px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>cooked by Chef Robert, your private chef</p>
+            </div>
+
             {menuItems.intro?.map((text, idx) => (
-              <p key={idx} style={{ color: '#444', fontSize: '15px', lineHeight: '1.7', margin: '0 0 20px 0', whiteSpace: 'pre-line' }}>{text}</p>
+              <p key={idx} style={{ color: '#444', fontSize: '15px', lineHeight: '1.7', margin: '0 auto 28px', maxWidth: '560px', textAlign: 'center', whiteSpace: 'pre-line' }}>{text}</p>
             ))}
 
             {/* Fallback guidance for a sheet without section rows */}
@@ -598,28 +604,37 @@ export default function GuestApp({ user, onLogout }) {
             {menuItems.sections?.map((section, sectionIdx) => {
               const selected = { entree: selectedEntrees, salad: selectedSalads, addon: selectedAddOns }[section.type] || {}
               return (
-                <div key={sectionIdx} style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '4px 16px', marginBottom: section.items.length > 0 ? '16px' : 0 }}>
-                    <h2 style={{ color: '#1a441f', margin: 0 }}>{section.title}</h2>
+                <div key={sectionIdx} style={{ background: 'white', padding: '24px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px', borderBottom: '2px solid #1a441f' }}>
+                    <h2 style={{ color: '#1a441f', margin: 0, fontSize: '24px', fontWeight: '700', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.title}</h2>
                     {section.note && (
-                      <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{section.note}</span>
+                      section.type === 'addon'
+                        ? <span style={{ fontSize: '13px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.note}</span>
+                        : <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#faf8f3', background: '#1a441f', padding: '5px 10px', fontFamily: "'Courier New', Courier, monospace" }}>{section.note}</span>
                     )}
                   </div>
-                  {section.items.map(item => (
-                    <div key={item.id} style={{ padding: '12px', background: '#faf8f3', borderRadius: '6px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                      <div>
-                        <p style={{ margin: '0', fontWeight: '600', color: '#1a441f' }}>
-                          {item.name}{section.type === 'addon' && ` — $${(item.price / 100).toFixed(2)}`}
-                        </p>
-                        {item.sides && <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#1a441f' }}>{item.sides}</p>}
-                        {section.type === 'addon' && item.note && <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#D4A373', fontWeight: '600' }}>{item.note}</p>}
-                        {item.description && <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#666' }}>{item.description}</p>}
+                  {section.items.map((item, itemIdx) => (
+                    <div key={item.id} style={{ padding: '18px 0', borderTop: itemIdx === 0 ? 'none' : '1px dashed #d9d1bd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', minWidth: 0 }}>
+                        {section.type !== 'addon' && (
+                          <span style={{ flex: '0 0 auto', width: '30px', height: '30px', border: '1px solid #cfc6ad', color: '#8a8470', fontSize: '11px', fontFamily: "'Courier New', Courier, monospace", display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', marginTop: '1px' }}>
+                            {String(itemIdx + 1).padStart(2, '0')}
+                          </span>
+                        )}
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ margin: '0', fontSize: '18px', fontWeight: '700', fontStyle: 'italic', color: '#1a441f', lineHeight: 1.3, fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>
+                            {item.name}{section.type === 'addon' && <span style={{ color: '#b8923f', fontStyle: 'normal', marginLeft: '10px' }}>${(item.price / 100).toFixed(0)}</span>}
+                          </p>
+                          {item.sides && <p style={{ margin: '5px 0 0 0', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8a8470', fontFamily: "'Courier New', Courier, monospace" }}>{item.sides}</p>}
+                          {section.type === 'addon' && item.note && <p style={{ margin: '5px 0 0 0', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#b8923f', fontFamily: "'Courier New', Courier, monospace" }}>{item.note}</p>}
+                          {item.description && <p style={{ margin: '8px 0 0 0', fontSize: '14px', lineHeight: 1.6, color: '#444' }}>{item.description}</p>}
+                        </div>
                       </div>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         {selected[item.id] && (
                           <button
                             onClick={() => handleRemoveFromCart(item.id, section.type)}
-                            style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                            style={{ width: '32px', height: '32px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontFamily: 'inherit' }}
                           >
                             −
                           </button>
@@ -627,7 +642,7 @@ export default function GuestApp({ user, onLogout }) {
                         {selected[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selected[item.id]}</span>}
                         <button
                           onClick={() => handleAddToCart(item.id, section.type)}
-                          style={{ padding: '4px 8px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                          style={{ width: '32px', height: '32px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontFamily: 'inherit' }}
                         >
                           +
                         </button>
