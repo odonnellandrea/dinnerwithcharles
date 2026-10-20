@@ -129,7 +129,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
                 <li><span>Outside our walking range</span><span>Pickup in NoMad, or messenger at cost ({MESSENGER_FEE_RANGE})</span></li>
               </ul>
               <p className="landing-price-note">
-                Delivery is included in NoMad, Gramercy, Kips Bay, Murray Hill, Hudson Yards and some parts of Chelsea. Everywhere else in Manhattan, please choose pickup in NoMad or Uber messenger delivery at cost ($12–15).
+                Delivery is included in NoMad, Gramercy, Kips Bay, Murray Hill, Hudson Yards and some parts of Chelsea. Everywhere else in Manhattan, please choose pickup in NoMad or Uber messenger delivery at cost ($12–18, depending on delivery conditions).
               </p>
             </div>
           </div>

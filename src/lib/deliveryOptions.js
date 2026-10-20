@@ -4,7 +4,7 @@ export const DELIVERY_OPTIONS = [
   { value: 'home', label: 'Home delivery', hint: 'within range' },
   { value: 'office', label: 'Delivery to an office or a friend’s place', hint: 'within range' },
   { value: 'pickup', label: 'Pickup in NoMad' },
-  { value: 'messenger', label: 'Uber messenger delivery', hint: 'anywhere in Manhattan, at cost, $12–15' },
+  { value: 'messenger', label: 'Uber messenger delivery', hint: 'anywhere in Manhattan, at cost, $12–18 depending on delivery conditions' },
   { value: 'waitlist', label: 'Waitlist for my neighborhood' }
 ]
 
