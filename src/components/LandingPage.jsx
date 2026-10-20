@@ -28,7 +28,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
     <div className="landing">
       <header className="landing-header">
         <div className="landing-wrap">
-          <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" />
+          <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Green Horizontal Logo.png" alt="Dinner with Charles" /></a>
           <div className="landing-header-actions">
             <button className="landing-link" onClick={onSignIn}>Sign In</button>
             <button className="landing-btn" onClick={onJoin}>Request to Join</button>
@@ -174,7 +174,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
           </a>
         </div>
         <div className="landing-wrap landing-footer-bottom">
-          <img src="/Cream Horizontal Logo.png" alt="Dinner with Charles" />
+          <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Cream Horizontal Logo.png" alt="Dinner with Charles" /></a>
           <div className="landing-footer-links">
             <button className="landing-link" onClick={onSignIn}>Sign In</button>
             <small>© {new Date().getFullYear()} Dinner with Charles</small>

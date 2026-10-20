@@ -54,7 +54,7 @@ function layout({ siteUrl, preheader, body }) {
     <tr><td align="center" style="padding:56px 16px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
         <tr><td align="center" style="padding:0 0 40px 0;">
-          <img src="${logo}" alt="Dinner with Charles" width="220" style="display:block;width:220px;max-width:100%;height:auto;border:0;">
+          <a href="${siteUrl}" style="display:inline-block;"><img src="${logo}" alt="Dinner with Charles" width="220" style="display:block;width:220px;max-width:100%;height:auto;border:0;"></a>
         </td></tr>
         <tr><td style="background:#ffffff;border:1px solid ${BORDER};border-top:4px solid ${GREEN};padding:56px 48px;font-family:${FONT};color:${MUTED};">
           ${body}

@@ -57,6 +57,8 @@
 .landing-btn--ghost-light { background: transparent; border-color: var(--cream); color: var(--cream); }
 .landing-btn--ghost-light:hover { background: var(--cream); color: var(--green); }
 
+.landing-logo { display: inline-block; line-height: 0; }
+
 /* Header */
 .landing-header {
   border-bottom: 1px solid var(--border);
