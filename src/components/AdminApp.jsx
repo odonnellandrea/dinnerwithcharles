@@ -466,7 +466,7 @@ export default function AdminApp({ onLogout }) {
     ['Delivery address', 'delivery_address'],
     ['Phone', 'delivery_phone'],
     ['Delivery time preferences', 'delivery_time_slots'],
-    ['Special instructions', 'delivery_instructions'],
+    ['Special delivery instructions', 'delivery_instructions'],
     ['Payment method', 'payment_method'],
     ['Allergies', 'allergies'],
     ['Health restrictions', 'health_restrictions'],
