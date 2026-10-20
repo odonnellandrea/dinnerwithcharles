@@ -453,7 +453,9 @@ export default function AdminApp({ onLogout }) {
       .from('users')
       .select('*')
       .order('created_at', { ascending: false })
-    setPendingCustomers(data || [])
+    // Waiting for approval always on top, then approved, then rejected; newest first within each
+    const rank = { pending: 0, approved: 1, rejected: 2 }
+    setPendingCustomers((data || []).slice().sort((a, b) => (rank[a.approval_status] ?? 0) - (rank[b.approval_status] ?? 0)))
     setLoading(false)
   }
 
