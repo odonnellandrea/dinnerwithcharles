@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import ItemFormModal from './ItemFormModal'
 import { formatWindows } from '../lib/deliveryWindows'
 import { formatUsPhone } from '../lib/notificationConsent'
 import '../styles/admin.css'
@@ -9,13 +8,16 @@ import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 import CustomerEditModal from './CustomerEditModal'
 import { MESSENGER_FEE } from '../lib/pricing'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
+import { fetchSheetMenu, MENU_SHEET_URL } from '../lib/sheetMenu'
+
+// The sheet itself, for editing (the URL above is its CSV export)
+const MENU_SHEET_EDIT_URL = MENU_SHEET_URL.replace(/\/gviz\/.*$/, '/edit')
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_KEY
 )
 
-const CATEGORIES = ['Chicken', 'Beef', 'Fish', 'Lamb', 'Pasta', 'Pork', 'Vegetarian', 'Frozen']
 
 export default function AdminApp({ onLogout }) {
   const [screen, setScreen] = useState('approvals')
@@ -36,14 +38,8 @@ export default function AdminApp({ onLogout }) {
   const [menuEmailSentAt, setMenuEmailSentAt] = useState(null)
   const [menuEmailRecipients, setMenuEmailRecipients] = useState(null) // approved customers opted in to menu emails
   const [sendingMenuEmail, setSendingMenuEmail] = useState(false)
-  const [selectedItems, setSelectedItems] = useState([]) // [{id, name, item_type}]
-  const [masterEntrees, setMasterEntrees] = useState([])
-  const [masterSalads, setMasterSalads] = useState([])
-  const [masterAddOns, setMasterAddOns] = useState([])
-  const [showPreview, setShowPreview] = useState(false)
-  const [showItemForm, setShowItemForm] = useState(false)
-  const [editingItem, setEditingItem] = useState(null)
-  const [expandedCategories, setExpandedCategories] = useState({})
+  const [sheetMenu, setSheetMenu] = useState(null) // what customers see right now, read from the Google Sheet
+  const [sheetError, setSheetError] = useState('')
   const [surveyQuestion, setSurveyQuestion] = useState('')
   const [isSurveyActive, setIsSurveyActive] = useState(false)
 
@@ -59,7 +55,7 @@ export default function AdminApp({ onLogout }) {
 
   const initializeMenu = async () => {
     setLoading(true)
-    await fetchMasterItems()
+    loadSheetMenu()
     const nextDate = getNextDeliveryDate()
     setDeliveryDate(nextDate)
     await fetchOrderClose(nextDate)
@@ -156,72 +152,21 @@ export default function AdminApp({ onLogout }) {
     return nextMonday.toISOString().split('T')[0]
   }
 
-  const fetchMasterItems = async () => {
-    const { data: entrees } = await supabase
-      .from('entrees')
-      .select('*')
-      .is('archived_at', null)
-      .order('created_at')
-    const { data: salads } = await supabase
-      .from('salads')
-      .select('*')
-      .is('archived_at', null)
-      .order('created_at')
-    const { data: addOns } = await supabase
-      .from('add_ons')
-      .select('*')
-      .is('archived_at', null)
-      .order('created_at')
-    
-    setMasterEntrees(entrees || [])
-    setMasterSalads(salads || [])
-    setMasterAddOns(addOns || [])
+
+  const loadSheetMenu = async () => {
+    setSheetError('')
+    try {
+      setSheetMenu(await fetchSheetMenu())
+    } catch (err) {
+      setSheetMenu(null)
+      setSheetError("Couldn't read the menu sheet. Check that it's shared as \"Anyone with the link can view\".")
+    }
   }
 
   const handleDeliveryDateChange = async (e) => {
     const newDate = e.target.value
     setDeliveryDate(newDate)
-    await fetchWeeklyMenu(newDate)
     await fetchOrderClose(newDate)
-  }
-
-  const fetchWeeklyMenu = async (date) => {
-    const { data } = await supabase
-      .from('weekly_menu')
-      .select('id, item_id, item_type')
-      .eq('delivery_date', date)
-    
-    if (data) {
-      setSelectedItems(data)
-    }
-  }
-
-  const handleAddItem = (item, itemType) => {
-    if (!selectedItems.find(s => s.item_id === item.id)) {
-      setSelectedItems([...selectedItems, { item_id: item.id, item_type: itemType, name: item.name }])
-    }
-  }
-
-  const handleRemoveItem = (itemId) => {
-    setSelectedItems(selectedItems.filter(s => s.item_id !== itemId))
-  }
-
-  const saveWeeklyMenu = async () => {
-    await supabase
-      .from('weekly_menu')
-      .delete()
-      .eq('delivery_date', deliveryDate)
-    
-    const itemsToInsert = selectedItems.map((item, idx) => ({
-      delivery_date: deliveryDate,
-      item_id: item.item_id,
-      item_type: item.item_type,
-      sort_order: idx + 1
-    }))
-    
-    if (itemsToInsert.length > 0) {
-      await supabase.from('weekly_menu').insert(itemsToInsert)
-    }
   }
 
   const toggleMenuLive = async () => {
@@ -229,8 +174,7 @@ export default function AdminApp({ onLogout }) {
       alert('Set when orders close before going live')
       return
     }
-    await saveWeeklyMenu()
-    
+
     const { data } = await supabase
       .from('delivery_settings')
       .select('*')
@@ -252,169 +196,7 @@ export default function AdminApp({ onLogout }) {
         })
     }
     
-    setShowPreview(false)
     await fetchOrderClose(deliveryDate)
-  }
-
-  const handleOpenItemForm = (item = null) => {
-    if (item) {
-      const itemWithType = { ...item, item_type: item.item_type || 'entree' }
-      setEditingItem(itemWithType)
-    } else {
-      setEditingItem(null)
-    }
-    setShowItemForm(true)
-  }
-
-  const handleSaveItem = async () => {
-    await fetchMasterItems()
-    setEditingItem(null)
-    setShowItemForm(false)
-  }
-
-  const handleCSVUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    
-    const reader = new FileReader()
-    reader.onload = async (event) => {
-      try {
-        const csv = event.target.result
-        const lines = csv.split('\n').filter(line => line.trim())
-        
-        if (lines.length < 2) {
-          alert('CSV must have at least 1 data row')
-          return
-        }
-
-        const headerLine = lines[0]
-        const headers = headerLine.split(',').map(h => h.trim().replace(/"/g, ''))
-        
-        let successCount = 0
-        let failCount = 0
-        const itemsToAddToMenu = []
-
-        for (let i = 1; i < lines.length; i++) {
-          if (!lines[i].trim()) continue
-          
-          try {
-            const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''))
-            const row = {}
-            
-            headers.forEach((h, idx) => {
-              row[h] = values[idx] || ''
-            })
-
-            if (!row.name || !row.description) {
-              console.warn(`Row ${i} skipped - missing name or description`)
-              continue
-            }
-
-            const components = []
-            if (row.components && row.components.trim()) {
-              const componentPairs = row.components.split(';')
-              componentPairs.forEach(pair => {
-                const parts = pair.split('|')
-                if (parts[0]?.trim() && parts[1]?.trim()) {
-                  components.push({
-                    name: parts[0].trim(),
-                    instruction: parts[1].trim(),
-                    quantity: parts[2] ? parseInt(parts[2]) || 1 : 1
-                  })
-                }
-              })
-            }
-
-            if (components.length === 0) {
-              console.warn(`Row ${i} skipped - no valid components`)
-              continue
-            }
-
-            const itemData = {
-              name: row.name.trim(),
-              description: row.description.trim(),
-              price: row.price ? Math.round(parseFloat(row.price) * 100) : null,
-              components: components,
-              chef_notes: row.chef_notes?.trim() || null,
-              category: row.category ? row.category.split(';').map(c => c.trim()).filter(c => c) : null
-            }
-
-            const itemType = row.type?.trim() || 'entree'
-            const table = itemType === 'entree' ? 'entrees' 
-                        : itemType === 'salad' ? 'salads' 
-                        : 'add_ons'
-
-            const { data: existing } = await supabase
-              .from(table)
-              .select('id')
-              .eq('name', row.name.trim())
-
-            let itemId = null
-            
-            if (existing?.length > 0) {
-              const { error } = await supabase
-                .from(table)
-                .update(itemData)
-                .eq('id', existing[0].id)
-              
-              if (error) throw error
-              itemId = existing[0].id
-              successCount++
-            } else {
-              const { data: inserted, error } = await supabase
-                .from(table)
-                .insert([itemData])
-                .select()
-              
-              if (error) throw error
-              itemId = inserted?.[0]?.id
-              successCount++
-            }
-
-            if (itemId) {
-              itemsToAddToMenu.push({
-                item_id: itemId,
-                item_type: itemType
-              })
-            }
-          } catch (rowErr) {
-            console.error(`Row ${i} failed:`, rowErr)
-            failCount++
-          }
-        }
-
-        await supabase
-          .from('weekly_menu')
-          .delete()
-          .eq('delivery_date', deliveryDate)
-
-        if (itemsToAddToMenu.length > 0) {
-          const menuRows = itemsToAddToMenu.map((item, idx) => ({
-            delivery_date: deliveryDate,
-            item_id: item.item_id,
-            item_type: item.item_type,
-            sort_order: idx + 1
-          }))
-
-          const { error: menuError } = await supabase
-            .from('weekly_menu')
-            .insert(menuRows)
-          
-          if (menuError) throw menuError
-        }
-
-        await fetchMasterItems()
-        alert(`✓ Imported ${successCount} items for ${new Date(deliveryDate).toLocaleDateString()}${failCount > 0 ? ` (${failCount} failed)` : ''}`)
-        
-        if (failCount > 0) {
-          console.log('Check browser console for failed row details')
-        }
-      } catch (err) {
-        console.error('CSV import error:', err)
-        alert('CSV import failed: ' + err.message)
-      }
-    }
-    reader.readAsText(file)
   }
 
   const exportMenusByDateRange = async (fromDate, toDate) => {
@@ -645,98 +427,6 @@ export default function AdminApp({ onLogout }) {
   )
 
   const filtersActive = orderSearch || orderDateFilter !== 'all' || orderStatusFilter !== 'all'
-
-  const renderItemsByCategory = (items, itemType) => {
-    const grouped = {}
-    CATEGORIES.forEach(cat => {
-      grouped[cat] = items.filter(item => item.category && item.category.includes(cat))
-    })
-
-    return (
-      <div>
-        {CATEGORIES.map(cat => {
-          const catItems = grouped[cat]
-          const isExpanded = expandedCategories[cat]
-          
-          return (
-            <div key={cat} style={{ marginBottom: '12px' }}>
-              <button
-                onClick={() => setExpandedCategories({ ...expandedCategories, [cat]: !isExpanded })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: isExpanded ? '#1a441f' : '#D4A373',
-                  color: '#faf8f3',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  textAlign: 'left',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <span>{cat}</span>
-                <span>{isExpanded ? '▼' : '▶'} ({catItems.length})</span>
-              </button>
-
-              {isExpanded && (
-                <div style={{ padding: '12px', background: '#faf8f3', marginBottom: '8px' }}>
-                  {catItems.length === 0 ? (
-                    <p style={{ fontSize: '14px', color: '#999', margin: 0 }}>No items in this category</p>
-                  ) : (
-                    catItems.map(item => (
-                      <div key={item.id} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '10px',
-                        background: 'white',
-                        marginBottom: '8px',
-                        border: '1px solid #e0dbd1'
-                      }}>
-                        <div style={{ flex: 1 }}>
-                          <p style={{ fontWeight: '600', margin: '0 0 4px 0', fontSize: '14px', color: '#1a441f' }}>{item.name}</p>
-                          <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#666' }}>{item.description}</p>
-                          {item.price && (
-                            <p style={{ margin: 0, fontSize: '13px', color: '#D4A373', fontWeight: '600' }}>
-                              ${(item.price / 100).toFixed(2)}
-                            </p>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => {
-                            if (selectedItems.some(s => s.item_id === item.id)) {
-                              handleRemoveItem(item.id)
-                            } else {
-                              handleAddItem(item, itemType)
-                            }
-                          }}
-                          style={{
-                            padding: '6px 12px',
-                            background: selectedItems.some(s => s.item_id === item.id) ? '#D4A373' : '#1a441f',
-                            color: '#faf8f3',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            marginLeft: '12px',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {selectedItems.some(s => s.item_id === item.id) ? 'Remove' : 'Add'}
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
 
   return (
     <div className="admin-page">
@@ -986,115 +676,53 @@ export default function AdminApp({ onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0 }}>Entrées</h3>
-              {renderItemsByCategory(masterEntrees, 'entree')}
-            </div>
-
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0 }}>Salads</h3>
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {masterSalads.map(item => (
-                  <div key={item.id} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '10px',
-                    background: '#faf8f3',
-                    border: '1px solid #e0dbd1'
-                  }}>
-                    <div>
-                      <p style={{ fontWeight: '600', margin: '0 0 4px 0', fontSize: '14px', color: '#1a441f' }}>{item.name}</p>
-                      <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>{item.description}</p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (selectedItems.some(s => s.item_id === item.id)) {
-                          handleRemoveItem(item.id)
-                        } else {
-                          handleAddItem(item, 'salad')
-                        }
-                      }}
-                      style={{
-                        padding: '6px 12px',
-                        background: selectedItems.some(s => s.item_id === item.id) ? '#D4A373' : '#1a441f',
-                        color: '#faf8f3',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        marginLeft: '12px',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {selectedItems.some(s => s.item_id === item.id) ? 'Remove' : 'Add'}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0 }}>Add-ons</h3>
-              {renderItemsByCategory(masterAddOns, 'addon')}
-            </div>
-
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0 }}>Menu Summary — Review Before Saving</h3>
-              {selectedItems.length === 0 ? (
-                <p style={{ color: '#999' }}>No items selected yet. Click "Add" on items above.</p>
-              ) : (
-                <div style={{ display: 'grid', gap: '20px' }}>
-                  {['entree', 'salad', 'addon'].map(type => {
-                    const typeItems = selectedItems.filter(s => s.item_type === type)
-                    if (typeItems.length === 0) return null
-                    
-                    const typeLabel = type === 'entree' ? 'ENTRÉES' : type === 'salad' ? 'SALADS' : 'ADD-ONS'
-                    const masterList = type === 'entree' ? masterEntrees : type === 'salad' ? masterSalads : masterAddOns
-                    
-                    return (
-                      <div key={type} style={{ borderBottom: '2px solid #e0dbd1', paddingBottom: '16px' }}>
-                        <h4 style={{ color: '#1a441f', marginTop: 0, marginBottom: '12px' }}>{typeLabel} ({typeItems.length})</h4>
-                        <div style={{ display: 'grid', gap: '12px' }}>
-                          {typeItems.map((selectedItem, idx) => {
-                            const fullItem = masterList.find(m => m.id === selectedItem.item_id)
-                            return (
-                              <div key={selectedItem.item_id} style={{
-                                padding: '12px',
-                                background: '#faf8f3',
-                                border: '1px solid #e0dbd1'
-                              }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                                  <p style={{ fontWeight: '600', margin: 0, fontSize: '14px', color: '#1a441f' }}>
-                                    {idx + 1}. {fullItem?.name}
-                                  </p>
-                                  <button
-                                    onClick={() => handleRemoveItem(selectedItem.item_id)}
-                                    style={{ padding: '4px 8px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '11px' }}
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
-                                <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#666', fontStyle: 'italic' }}>
-                                  {fullItem?.description}
-                                </p>
-                                {fullItem?.price && (
-                                  <p style={{ margin: 0, fontSize: '13px', color: '#1a441f', fontWeight: '600' }}>
-                                    ${(fullItem.price / 100).toFixed(2)}
-                                  </p>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    )
-                  })}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px 16px', marginBottom: '6px' }}>
+                <h3 style={{ color: '#1a441f', margin: 0 }}>This Week's Menu</h3>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <a href={MENU_SHEET_EDIT_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#1a441f', fontWeight: '600' }}>Open the menu sheet ↗</a>
+                  <button onClick={loadSheetMenu} style={{ padding: '6px 12px', background: 'none', border: '1px solid #e0dbd1', color: '#1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
                 </div>
+              </div>
+              <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+                Exactly what customers see: every row in the sheet with visible set to TRUE. Edit the sheet, then refresh here to check it.
+              </p>
+              {sheetError && <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>{sheetError}</p>}
+              {!sheetError && !sheetMenu && <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Loading the sheet...</p>}
+              {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).length === 0 && (
+                <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>Nothing is visible in the sheet right now, so customers see "Menu coming soon".</p>
               )}
+              {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).map(sec => (
+                <div key={sec.title} style={{ marginBottom: '14px' }}>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{sec.title}{sec.note ? ` · ${sec.note}` : ''}</p>
+                  {sec.items.map(item => (
+                    <p key={item.id} style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#333' }}>
+                      <strong style={{ color: '#1a441f' }}>{item.name}</strong>
+                      {item.sides ? <span style={{ color: '#999' }}> · {item.sides}</span> : null}
+                      {sec.type === 'addon' && Number.isFinite(item.price) ? <span style={{ color: '#999' }}> · ${(item.price / 100).toFixed(2)}</span> : null}
+                    </p>
+                  ))}
+                </div>
+              ))}
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '16px' }}>Export Menus by Date Range</h3>
+              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Ordering</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+                {menuLive
+                  ? <>Ordering is <strong style={{ color: '#1a441f' }}>open</strong> for delivery on {deliveryDate}. Customers see the sheet menu above.</>
+                  : <>Ordering is <strong style={{ color: '#1a441f' }}>closed</strong> for {deliveryDate}. Check the sheet above and the close time, then go live.</>}
+              </p>
+              <button
+                onClick={() => { if (window.confirm(menuLive ? 'Take ordering offline for ' + deliveryDate + '?' : 'Open ordering for delivery on ' + deliveryDate + '?')) toggleMenuLive() }}
+                style={{ padding: '12px 24px', background: menuLive ? '#D4A373' : '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}
+              >
+                {menuLive ? 'Take Offline' : 'Go Live'}
+              </button>
+            </div>
+
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Past Menus</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>Menus from before the sheet are still saved. Export any date range as a CSV.</p>
               <div className="admin-date-range">
                 <div>
                   <label htmlFor="exportFromDate" style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>From Date</label>
@@ -1121,36 +749,6 @@ export default function AdminApp({ onLogout }) {
               </button>
             </div>
 
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '16px' }}>CSV Upload</h3>
-              <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
-                Upload a CSV file to replace this week's entire menu.
-              </p>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleCSVUpload}
-                className="admin-input admin-file-input"
-              />
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={async () => {
-                  await saveWeeklyMenu()
-                  alert('✓ Menu saved for ' + new Date(deliveryDate).toLocaleDateString())
-                }}
-                style={{ padding: '12px 24px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
-              >
-                Save Menu
-              </button>
-              <button
-                onClick={() => setShowPreview(true)}
-                style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
-              >
-                Preview & Go Live
-              </button>
-            </div>
           </div>
         )}
 
@@ -1330,40 +928,6 @@ export default function AdminApp({ onLogout }) {
           <DocumentGenerationDashboard />
         )}
 
-        {showPreview && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}>
-            <div style={{ background: 'white', padding: '30px', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}>
-              <h2 style={{ color: '#1a441f' }}>Menu Preview</h2>
-              <p>Ready to go live? Click the button below.</p>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  onClick={() => setShowPreview(false)}
-                  style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
-                >
-                  Close
-                </button>
-                <button
-                  onClick={toggleMenuLive}
-                  style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
-                >
-                  Go Live
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {editingCustomer && (
           <CustomerEditModal
             customer={editingCustomer}
@@ -1373,15 +937,6 @@ export default function AdminApp({ onLogout }) {
           />
         )}
 
-        {showItemForm && (
-          <ItemFormModal
-            item={editingItem}
-            onClose={() => {
-              setEditingItem(null)
-              setShowItemForm(false)
-            }}
-            onSave={handleSaveItem}
-          />
         )}
       </div>
     </div>
