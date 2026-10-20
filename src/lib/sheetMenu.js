@@ -72,7 +72,7 @@ export function parseReheat(text) {
 // "Entrées" -> entree, "Add-Ons" -> addon, "Salads" -> salad
 const toKey = (s) => (s || '').toLowerCase().replace(/é/g, 'e').replace(/[^a-z]/g, '').replace(/s$/, '')
 
-// Returns { intro: [text], sections: [{ title, note, type, items }] }, visible rows only,
+// Returns { weeks, weekOf, intro: [text], sections: [{ title, note, type, items }] }, visible rows only,
 // each list sorted by sort_order. A section heading named after a dish type (e.g. "Entrées")
 // holds those dishes; dish types without a heading get a default one at the end.
 // Every sheet row as { column: trimmed value }
@@ -123,7 +123,14 @@ export function menuFromCsv(text) {
     }
   })
 
+  // Which sheet weeks the visible dishes come from (more than one means last week wasn't hidden)
+  const weekRows = rowsFromCsv(text).filter(row => (row.visible || '').toUpperCase() === 'TRUE' && DISH_TYPES.includes(toKey(row.type)))
+  const weeks = [...new Set(weekRows.map(row => Number(row.week)).filter(Number.isFinite))].sort((a, b) => a - b)
+  const weekOf = weekRows.map(row => row.week_of).find(Boolean) || ''
+
   return {
+    weeks,
+    weekOf,
     intro: ofType('intro').map(row => row.description || row.name).filter(Boolean),
     // Same ids as in sections, flat by type, for the cart, review screen and order rows
     entrees: dishes.entree,

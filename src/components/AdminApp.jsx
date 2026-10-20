@@ -199,63 +199,6 @@ export default function AdminApp({ onLogout }) {
     await fetchOrderClose(deliveryDate)
   }
 
-  const exportMenusByDateRange = async (fromDate, toDate) => {
-    const { data } = await supabase
-      .from('weekly_menu')
-      .select('*')
-      .gte('delivery_date', fromDate)
-      .lte('delivery_date', toDate)
-      .order('delivery_date')
-    
-    if (!data || data.length === 0) {
-      alert('No menus found for this date range')
-      return
-    }
-
-    const csv = [['Delivery Date', 'Item Type', 'Item Name', 'Description', 'Price', 'Components', 'Chef Notes']]
-    
-    for (const row of data) {
-      let itemName = ''
-      let description = ''
-      let price = ''
-      let components = ''
-      let chefNotes = ''
-      
-      const table = row.item_type === 'entree' ? 'entrees' : row.item_type === 'salad' ? 'salads' : 'add_ons'
-      const { data: item } = await supabase
-        .from(table)
-        .select('*')
-        .eq('id', row.item_id)
-        .single()
-      
-      if (item) {
-        itemName = item.name
-        description = item.description
-        price = item.price ? (item.price / 100).toFixed(2) : ''
-        components = item.components ? item.components.map(c => `${c.name}|${c.instruction}|${c.quantity || 1}`).join(';') : ''
-        chefNotes = item.chef_notes || ''
-      }
-      
-      csv.push([
-        row.delivery_date,
-        row.item_type,
-        itemName,
-        description,
-        price,
-        components,
-        chefNotes
-      ])
-    }
-
-    const csvContent = csv.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `menus-${fromDate}-to-${toDate}.csv`
-    a.click()
-  }
-
   // The function only emails the first time an order is delivered, so re-marking is safe.
   // resend: true sends it again on purpose (the Resend Reheat Email button).
   const sendReheatEmail = async (orderId, { resend = false } = {}) => {
@@ -688,6 +631,14 @@ export default function AdminApp({ onLogout }) {
               </p>
               {sheetError && <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>{sheetError}</p>}
               {!sheetError && !sheetMenu && <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Loading the sheet...</p>}
+              {sheetMenu && sheetMenu.weeks.length > 1 && (
+                <p style={{ margin: '0 0 14px 0', padding: '12px 14px', background: '#fdf3f2', border: '1px solid #e8b4ae', color: '#c62828', fontSize: '13px', lineHeight: 1.6 }}>
+                  <strong>Rows from weeks {sheetMenu.weeks.join(' and ')} are all visible.</strong> Customers would see both menus. In the sheet, set last week's rows to FALSE, then refresh.
+                </p>
+              )}
+              {sheetMenu && sheetMenu.weeks.length === 1 && (
+                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#1a441f' }}>Showing week {sheetMenu.weeks[0]}{sheetMenu.weekOf ? `, week of ${sheetMenu.weekOf}` : ''}.</p>
+              )}
               {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).length === 0 && (
                 <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>Nothing is visible in the sheet right now, so customers see "Menu coming soon".</p>
               )}
@@ -713,41 +664,16 @@ export default function AdminApp({ onLogout }) {
                   : <>Ordering is <strong style={{ color: '#1a441f' }}>closed</strong> for {deliveryDate}. Check the sheet above and the close time, then go live.</>}
               </p>
               <button
-                onClick={() => { if (window.confirm(menuLive ? 'Take ordering offline for ' + deliveryDate + '?' : 'Open ordering for delivery on ' + deliveryDate + '?')) toggleMenuLive() }}
+                onClick={() => {
+                  const warn = !menuLive && sheetMenu?.weeks.length > 1 ? `Weeks ${sheetMenu.weeks.join(' and ')} are both visible in the sheet. Hide last week first?\n\nPress OK to go live anyway, or Cancel to fix the sheet.\n\n` : ''
+                  if (window.confirm(warn + (menuLive ? 'Take ordering offline for ' + deliveryDate + '?' : 'Open ordering for delivery on ' + deliveryDate + '?'))) toggleMenuLive()
+                }}
                 style={{ padding: '12px 24px', background: menuLive ? '#D4A373' : '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}
               >
                 {menuLive ? 'Take Offline' : 'Go Live'}
               </button>
             </div>
 
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Past Menus</h3>
-              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>Menus from before the sheet are still saved. Export any date range as a CSV.</p>
-              <div className="admin-date-range">
-                <div>
-                  <label htmlFor="exportFromDate" style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>From Date</label>
-                  <input type="date" id="exportFromDate" className="admin-input" />
-                </div>
-                <div>
-                  <label htmlFor="exportToDate" style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: '#1a441f' }}>To Date</label>
-                  <input type="date" id="exportToDate" className="admin-input" />
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  const fromDate = document.getElementById('exportFromDate').value
-                  const toDate = document.getElementById('exportToDate').value
-                  if (!fromDate || !toDate) {
-                    alert('Please select both dates')
-                    return
-                  }
-                  exportMenusByDateRange(fromDate, toDate)
-                }}
-                style={{ width: '100%', padding: '10px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
-              >
-                Export Selected Weeks
-              </button>
-            </div>
 
           </div>
         )}
