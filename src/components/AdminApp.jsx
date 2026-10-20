@@ -75,12 +75,22 @@ export default function AdminApp({ onLogout }) {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
   }
 
+  // Default close time: 11:00 PM on the Thursday before the delivery date (local time)
+  const defaultCloseLocal = (date) => {
+    const [y, m, d] = String(date).split('-').map(Number)
+    if (!y || !m || !d) return ''
+    const dt = new Date(y, m - 1, d)
+    do { dt.setDate(dt.getDate() - 1) } while (dt.getDay() !== 4)
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T23:00`
+  }
+
   const fetchOrderClose = async (date) => {
     const { data } = await supabase
       .from('delivery_settings')
       .select('*')
       .eq('delivery_date', date)
-    setOrderCloseLocal(toLocalInput(data?.[0]?.order_close_datetime))
+    setOrderCloseLocal(data?.[0]?.order_close_datetime ? toLocalInput(data[0].order_close_datetime) : defaultCloseLocal(date))
     setMenuLive(data?.[0]?.is_live === true)
     setMenuEmailSentAt(data?.[0]?.menu_email_sent_at || null)
   }
@@ -907,7 +917,7 @@ export default function AdminApp({ onLogout }) {
                   Save Close Time
                 </button>
               </div>
-              <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#999' }}>Customers can't order after this time, even while the menu is live.</p>
+              <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#999' }}>Customers can't order after this time, even while the menu is live. Starts at 11:00 PM on the Thursday before delivery until you save a different time.</p>
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
