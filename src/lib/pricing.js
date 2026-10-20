@@ -4,8 +4,10 @@ export const BASE_ENTREES = 3
 export const BASE_SALADS = 2
 export const EXTRA_ENTREE_PRICE = 40
 export const EXTRA_SALAD_PRICE = 15
+// Uber messenger for customers outside the walking range, passed through at cost
+export const MESSENGER_FEE = 12
 
-export function priceOrder({ entreeCount, saladCount, addOnsCost = 0 }) {
+export function priceOrder({ entreeCount, saladCount, addOnsCost = 0, messengerFee = 0 }) {
   const extraEntrees = Math.max(0, entreeCount - BASE_ENTREES)
   const extraSalads = Math.max(0, saladCount - BASE_SALADS)
   const entreeUpcharge = extraEntrees * EXTRA_ENTREE_PRICE
@@ -16,6 +18,7 @@ export function priceOrder({ entreeCount, saladCount, addOnsCost = 0 }) {
     entreeUpcharge,
     saladUpcharge,
     addOnsCost,
-    total: BASE_PRICE + entreeUpcharge + saladUpcharge + addOnsCost
+    messengerFee,
+    total: BASE_PRICE + entreeUpcharge + saladUpcharge + addOnsCost + messengerFee
   }
 }

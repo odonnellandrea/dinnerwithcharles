@@ -339,6 +339,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           {step === 2 && (
             <div>
               <input type="text" placeholder="Household composition (e.g., 2 adults, 1 kid)" value={formData.household} onChange={(e) => updateField('household', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
+                We deliver on foot in NoMad, Gramercy, Kips Bay, Murray Hill and nearby Chelsea. Farther out, your order comes by Uber messenger (about $12), passed through at cost.
+              </p>
               <input type="text" placeholder="Delivery address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="tel" placeholder="Phone number" value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Delivery time preferences" value={formData.timeSlots} onChange={(e) => updateField('timeSlots', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />

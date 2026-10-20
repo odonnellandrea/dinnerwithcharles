@@ -47,7 +47,7 @@ export default async (req) => {
   if (type === 'approved') {
     if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
     if (!userId) return json(400, { error: 'user_id is required' })
-    const { data: profile, error: profileError } = await supabase.from('users').select('email, name, first_name, approval_status').eq('id', userId).single()
+    const { data: profile, error: profileError } = await supabase.from('users').select('*').eq('id', userId).single()
     if (profileError || !profile) return json(404, { error: 'Customer not found' })
     if (profile.approval_status !== 'approved') return json(409, { error: 'Customer is not approved' })
     const { id, error } = await deliver(profile.email, approvedEmail({ profile, siteUrl }))
@@ -66,7 +66,9 @@ export default async (req) => {
   let message
   if (type === 'order_confirmation') {
     if (customerEmail.toLowerCase() !== user.email.toLowerCase()) return json(403, { error: 'Not your order' })
-    message = orderConfirmationEmail({ rows, siteUrl })
+    // Customers outside the walking range pay the messenger fee; their own row, so RLS allows it
+    const { data: profile } = await supabase.from('users').select('messenger_delivery').eq('id', user.id).maybeSingle()
+    message = orderConfirmationEmail({ rows, siteUrl, messengerDelivery: profile?.messenger_delivery === true })
   } else if (type === 'reheat_link') {
     if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
     if (!('reheat_email_sent_at' in rows[0])) {

@@ -7,6 +7,7 @@ import '../styles/admin.css'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 import CustomerEditModal from './CustomerEditModal'
+import { MESSENGER_FEE } from '../lib/pricing'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -736,6 +737,22 @@ export default function AdminApp({ onLogout }) {
                           </p>
                           <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
                           <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong></p>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0 0 0', fontSize: '12px', color: '#1a441f', cursor: 'pointer' }}>
+                            <input
+                              type="checkbox"
+                              checked={customer.messenger_delivery === true}
+                              onChange={async (e) => {
+                                const checked = e.target.checked
+                                // Flip it on screen right away; the refetch below settles it
+                                setPendingCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, messenger_delivery: checked } : c))
+                                const { error } = await supabase.from('users').update({ messenger_delivery: checked }).eq('id', customer.id)
+                                if (error) alert('Failed to save: ' + error.message + (/messenger_delivery/.test(error.message) ? '\n\nRun supabase/migrations/20261020_messenger_delivery.sql in the Supabase SQL editor first.' : ''))
+                                else fetchPendingCustomers()
+                              }}
+                              style={{ cursor: 'pointer' }}
+                            />
+                            Messenger delivery (outside walking range, +${MESSENGER_FEE} per order)
+                          </label>
                           {customer.resubmitted_at && (
                             <p style={{ margin: '8px 0 0 0', display: 'inline-block', padding: '3px 8px', background: '#faf8f3', border: '1px solid #D4A373', color: '#1a441f', fontSize: '12px', fontWeight: '600' }}>
                               Resubmitted {new Date(customer.resubmitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}

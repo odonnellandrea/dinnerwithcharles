@@ -7,7 +7,7 @@ import ProfileDetails from './ProfileDetails'
 import GuestHeader from './GuestHeader'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
-import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE } from '../lib/pricing'
+import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, MESSENGER_FEE } from '../lib/pricing'
 import { fetchSheetMenu } from '../lib/sheetMenu'
 
 const supabase = createClient(
@@ -64,6 +64,8 @@ export default function GuestApp({ user, onLogout }) {
   const [prefsPrompt, setPrefsPrompt] = useState(null) // null | { phone, smsOptIn }
   // From the users profile; the sign-in account itself carries no name
   const [profileName, setProfileName] = useState('')
+  // Outside the walking range: orders come by Uber messenger and the fee is added
+  const [messengerDelivery, setMessengerDelivery] = useState(false)
 
   useEffect(() => {
     fetchLiveMenu()
@@ -121,10 +123,11 @@ export default function GuestApp({ user, onLogout }) {
   const checkNotificationPrefs = async () => {
     const { data, error } = await supabase
       .from('users')
-      .select('name, notification_prefs_set_at, sms_opt_in, phone_number, delivery_phone')
+      .select('*')
       .eq('id', user.id)
       .single()
     if (data?.name) setProfileName(data.name)
+    setMessengerDelivery(data?.messenger_delivery === true)
     if (!error && data && !data.notification_prefs_set_at) {
       setPrefsPrompt({ phone: data.phone_number || data.delivery_phone || '', smsOptIn: data.sms_opt_in === true })
     }
@@ -664,7 +667,7 @@ export default function GuestApp({ user, onLogout }) {
                 const totalEntrees = Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0)
                 const totalSalads = Object.values(selectedSalads).reduce((sum, q) => sum + q, 0)
                 const addOnsCost = menuItems.addOns?.filter(item => selectedAddOns[item.id]).reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0) || 0
-                const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost })
+                const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, messengerFee, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost, messengerFee: messengerDelivery ? MESSENGER_FEE : 0 })
 
                 return (
                   <div>
@@ -677,6 +680,9 @@ export default function GuestApp({ user, onLogout }) {
                     )}
                     {addOnsCost > 0 && (
                       <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsCost.toFixed(2)}</p>
+                    )}
+                    {messengerFee > 0 && (
+                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (at cost): ${messengerFee.toFixed(2)}</p>
                     )}
                     <div style={{ paddingTop: '8px', borderTop: '2px solid #D4A373' }}>
                       <p style={{ margin: '0', fontSize: '16px', fontWeight: '700', color: '#D4A373' }}>Total: ${grandTotal.toFixed(2)}</p>
