@@ -136,7 +136,7 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0 }) {
       ${price.entreeUpcharge > 0 ? priceRow(`Extra entrées (${price.extraEntrees})`, price.entreeUpcharge) : ''}
       ${price.saladUpcharge > 0 ? priceRow(`Extra salads (${price.extraSalads})`, price.saladUpcharge) : ''}
       ${price.addOnsCost > 0 ? priceRow('Add-ons', price.addOnsCost) : ''}
-      ${price.messengerFee > 0 ? priceRow('Messenger delivery (at cost)', price.messengerFee) : ''}
+      ${price.messengerFee > 0 ? priceRow('Messenger delivery (estimate, at cost)', price.messengerFee) : ''}
       <tr>
         <td style="padding:20px 0 0 0;border-top:2px solid ${GOLD};font-size:16px;font-weight:700;color:${GREEN};">Total</td>
         <td align="right" style="padding:20px 0 0 0;border-top:2px solid ${GOLD};font-size:16px;font-weight:700;color:${GREEN};">${money(price.total)}</td>
@@ -167,17 +167,17 @@ export function approvedEmail({ profile, siteUrl }) {
   const body = `
     ${eyebrow('Approved')}
     <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Welcome to the table', name)}</h1>
-    <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Your request to join is approved. When each week's menu opens, pick your entrées and salads, choose the delivery windows that suit you, and we'll take care of the rest.</p>
+    <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're in. Every week a new menu goes up on the site. Pick your entrées and salads, choose the delivery windows that suit you, and we'll take care of the rest.</p>
     ${String(profile.delivery_option || '').split(',').includes('pickup') ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Picking up in NoMad? We'll let you know when your order is ready and where to find us.</p>` : ''}
-    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're a little outside our walking range, so your orders will come by Uber messenger, typically ${MESSENGER_FEE_RANGE} within Manhattan, passed through at cost and shown on each order. Prefer to collect it yourself? Pickup in NoMad is always an option; just reply and let us know.</p>` : ''}
+    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Since you're a little outside our walking range, your orders will come by Uber messenger. We pass the cost through as is, usually ${MESSENGER_FEE_RANGE} in Manhattan, and you'll see an estimate on each order since the exact price can change from day to day. If you'd rather pick up in NoMad, just reply and let us know. And as more of your neighbors join, we hope to bring our own delivery to your area.</p>` : ''}
     <div style="margin:40px 0 0 0;">
       ${button(siteUrl, 'Sign in and order')}
     </div>
-    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Sign in with the email and password you chose when you requested to join.</p>`
+    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Use the email and password you signed up with.</p>`
 
   return {
     subject: 'Welcome to Dinner with Charles',
-    html: layout({ siteUrl, preheader: 'Your request to join is approved. The weekly menu is waiting.', body })
+    html: layout({ siteUrl, preheader: 'You\'re in. The weekly menu is waiting.', body })
   }
 }
 

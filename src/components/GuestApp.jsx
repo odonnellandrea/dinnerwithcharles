@@ -688,7 +688,7 @@ export default function GuestApp({ user, onLogout }) {
                       <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsCost.toFixed(2)}</p>
                     )}
                     {messengerFee > 0 && (
-                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (at cost): ${messengerFee.toFixed(2)}</p>
+                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>
                     )}
                     <div style={{ paddingTop: '8px', borderTop: '2px solid #D4A373' }}>
                       <p style={{ margin: '0', fontSize: '16px', fontWeight: '700', color: '#D4A373' }}>Total: ${grandTotal.toFixed(2)}</p>
