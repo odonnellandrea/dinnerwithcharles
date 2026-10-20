@@ -354,7 +354,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
 
           {step === 4 && (
             <div>
-              <input type="text" placeholder="Protein preferences" value={formData.proteinPreferences} onChange={(e) => updateField('proteinPreferences', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Favorite proteins" value={formData.proteinPreferences} onChange={(e) => updateField('proteinPreferences', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Cuisines enjoyed" value={formData.cuisines} onChange={(e) => updateField('cuisines', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Flavor tolerance (spicy, mild, adventurous)" value={formData.flavorTolerance} onChange={(e) => updateField('flavorTolerance', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="text" placeholder="Do kids eat with you? (yes/no)" value={formData.kidsEating} onChange={(e) => updateField('kidsEating', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />

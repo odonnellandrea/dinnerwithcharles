@@ -471,7 +471,7 @@ export default function AdminApp({ onLogout }) {
     ['Allergies', 'allergies'],
     ['Health restrictions', 'health_restrictions'],
     ['Preference restrictions', 'preference_restrictions'],
-    ['Protein preferences', 'protein_preferences'],
+    ['Favorite proteins', 'protein_preferences'],
     ['Cuisines enjoyed', 'cuisines_enjoyed'],
     ['Flavor tolerance', 'flavor_tolerance'],
     ['Kids eating', 'kids_eating'],
