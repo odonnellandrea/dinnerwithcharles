@@ -184,7 +184,7 @@ export function approvedEmail({ profile, siteUrl }) {
       </tr>`).join('')}
     </table>
     ${String(profile.delivery_option || '').split(',').includes('pickup') ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Picking up in NoMad? We'll let you know when your order is ready and where to find us.</p>` : ''}
-    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Since you're outside our walking range, your orders will come by Uber messenger. We pass the Uber cost through exactly as we're charged, usually ${MESSENGER_FEE_RANGE} in Manhattan depending on delivery conditions. The amount on your order is an estimate, and the final charge is whatever Uber bills us, which may be a little more or less. If you'd rather pick up in NoMad, or have us deliver to an office or a friend's place within our range, just reply and let us know. As more of your neighbors join, we hope to bring our own delivery to your area.</p>` : ''}
+    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Since you're outside our walking range, your orders come by Uber messenger. We pass the cost through as charged, usually ${MESSENGER_FEE_RANGE} in Manhattan depending on delivery conditions, so the amount on your order is an estimate and may land a little higher or lower. If you'd rather pick up in NoMad, or have us deliver to an office or a friend's place within our range, just let us know. As more of your neighbors join, we hope to bring our own delivery to your area for a flat fee.</p>` : ''}
     <div style="margin:40px 0 0 0;">
       ${button(siteUrl, 'Sign in and order')}
     </div>
