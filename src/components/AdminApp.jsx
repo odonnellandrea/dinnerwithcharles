@@ -524,9 +524,62 @@ export default function AdminApp({ onLogout }) {
 
         {screen === 'menu' && (
           <div>
-            <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Weekly Menu Setup</h2>
+            <h2 style={{ color: '#1a441f', marginBottom: '6px' }}>This Week</h2>
+            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#666' }}>Edit the menu in the sheet, then work down this page.</p>
             
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 1 · Check the sheet</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px 16px', marginBottom: '6px' }}>
+                <h3 style={{ color: '#1a441f', margin: 0 }}>This Week's Menu</h3>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <a href={MENU_SHEET_EDIT_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#1a441f', fontWeight: '600' }}>Open the menu sheet ↗</a>
+                  <button onClick={loadSheetMenu} style={{ padding: '6px 12px', background: 'none', border: '1px solid #e0dbd1', color: '#1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
+                </div>
+              </div>
+              <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+                Exactly what customers see: every row in the sheet with visible set to TRUE. Edit the sheet, then refresh here to check it.
+              </p>
+              {sheetError && <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>{sheetError}</p>}
+              {!sheetError && !sheetMenu && <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Loading the sheet...</p>}
+              {sheetMenu && sheetMenu.weeks.length > 1 && (
+                <p style={{ margin: '0 0 14px 0', padding: '12px 14px', background: '#fdf3f2', border: '1px solid #e8b4ae', color: '#c62828', fontSize: '13px', lineHeight: 1.6 }}>
+                  <strong>Rows from weeks {sheetMenu.weeks.join(' and ')} are all visible.</strong> Customers would see both menus. In the sheet, set last week's rows to FALSE, then refresh.
+                </p>
+              )}
+              {sheetMenu && sheetMenu.weeks.length === 1 && (
+                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#1a441f' }}>Showing week {sheetMenu.weeks[0]}{sheetMenu.weekOf ? `, week of ${sheetMenu.weekOf}` : ''}.</p>
+              )}
+              {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).length === 0 && (
+                <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>Nothing is visible in the sheet right now, so customers see "Menu coming soon".</p>
+              )}
+              {sheetMenu && sheetMenu.intro.map((text, i) => (
+                <p key={i} style={{ margin: '0 0 14px 0', fontSize: '14px', color: '#555', lineHeight: 1.6, fontStyle: 'italic' }}>{text}</p>
+              ))}
+              {sheetMenu && sheetMenu.intro.length === 0 && sheetMenu.sections.some(sec => sec.items.length) && (
+                <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#c62828' }}>No intro text this week. Add an "intro" row to the sheet if you want the welcome paragraph.</p>
+              )}
+              {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).map(sec => (
+                <div key={sec.title} style={{ marginBottom: '14px' }}>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{sec.title}{sec.note ? ` · ${sec.note}` : ''}</p>
+                  {sec.items.map(item => (
+                    <div key={item.id} style={{ margin: '0 0 10px 0' }}>
+                      <p style={{ margin: 0, fontSize: '14px', color: '#333' }}>
+                        <strong style={{ color: '#1a441f' }}>{item.name}</strong>
+                        {item.sides ? <span style={{ color: '#999' }}> · {item.sides}</span> : null}
+                        {sec.type === 'addon' && Number.isFinite(item.price) ? <span style={{ color: '#999' }}> · ${(item.price / 100).toFixed(2)}</span> : null}
+                        {item.note ? <span style={{ color: '#999' }}> · {item.note}</span> : null}
+                      </p>
+                      {item.description
+                        ? <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>{item.description}</p>
+                        : <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#c62828' }}>No description in the sheet</p>}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 2 · Set the dates</p>
               <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>Delivery Date</label>
               <input
                 type="date"
@@ -554,25 +607,7 @@ export default function AdminApp({ onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Menu Email</h3>
-              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
-                Tells every approved customer who opted in to menu emails that the menu is up, with the delivery date and close time, and sends them to the site
-                {menuEmailRecipients != null && <> ({menuEmailRecipients} right now)</>}.
-                {' '}{menuLive ? '' : 'Go live first, then send.'}
-              </p>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <button
-                  onClick={sendMenuEmail}
-                  disabled={!menuLive || sendingMenuEmail}
-                  style={{ padding: '8px 20px', background: menuEmailSentAt ? '#D4A373' : '#1a441f', color: '#faf8f3', border: 'none', cursor: !menuLive || sendingMenuEmail ? 'not-allowed' : 'pointer', fontSize: '14px', fontFamily: 'inherit', opacity: !menuLive || sendingMenuEmail ? 0.6 : 1 }}
-                >
-                  {sendingMenuEmail ? 'Sending...' : menuEmailSentAt ? 'Resend Menu Email' : 'Send Menu Email'}
-                </button>
-                {menuEmailSentAt && <span style={{ fontSize: '13px', color: '#1a441f' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
-              </div>
-            </div>
-
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 3 · Ask a question</p>
               <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '12px' }}>Customer Survey Question</h3>
               <div style={{ marginBottom: '12px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#1a441f' }}>Question</label>
@@ -619,44 +654,7 @@ export default function AdminApp({ onLogout }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px 16px', marginBottom: '6px' }}>
-                <h3 style={{ color: '#1a441f', margin: 0 }}>This Week's Menu</h3>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <a href={MENU_SHEET_EDIT_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#1a441f', fontWeight: '600' }}>Open the menu sheet ↗</a>
-                  <button onClick={loadSheetMenu} style={{ padding: '6px 12px', background: 'none', border: '1px solid #e0dbd1', color: '#1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
-                </div>
-              </div>
-              <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
-                Exactly what customers see: every row in the sheet with visible set to TRUE. Edit the sheet, then refresh here to check it.
-              </p>
-              {sheetError && <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>{sheetError}</p>}
-              {!sheetError && !sheetMenu && <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Loading the sheet...</p>}
-              {sheetMenu && sheetMenu.weeks.length > 1 && (
-                <p style={{ margin: '0 0 14px 0', padding: '12px 14px', background: '#fdf3f2', border: '1px solid #e8b4ae', color: '#c62828', fontSize: '13px', lineHeight: 1.6 }}>
-                  <strong>Rows from weeks {sheetMenu.weeks.join(' and ')} are all visible.</strong> Customers would see both menus. In the sheet, set last week's rows to FALSE, then refresh.
-                </p>
-              )}
-              {sheetMenu && sheetMenu.weeks.length === 1 && (
-                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#1a441f' }}>Showing week {sheetMenu.weeks[0]}{sheetMenu.weekOf ? `, week of ${sheetMenu.weekOf}` : ''}.</p>
-              )}
-              {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).length === 0 && (
-                <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>Nothing is visible in the sheet right now, so customers see "Menu coming soon".</p>
-              )}
-              {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).map(sec => (
-                <div key={sec.title} style={{ marginBottom: '14px' }}>
-                  <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{sec.title}{sec.note ? ` · ${sec.note}` : ''}</p>
-                  {sec.items.map(item => (
-                    <p key={item.id} style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#333' }}>
-                      <strong style={{ color: '#1a441f' }}>{item.name}</strong>
-                      {item.sides ? <span style={{ color: '#999' }}> · {item.sides}</span> : null}
-                      {sec.type === 'addon' && Number.isFinite(item.price) ? <span style={{ color: '#999' }}> · ${(item.price / 100).toFixed(2)}</span> : null}
-                    </p>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 4 · Go live</p>
               <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Ordering</h3>
               <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
                 {menuLive
@@ -674,6 +672,26 @@ export default function AdminApp({ onLogout }) {
               </button>
             </div>
 
+
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 5 · Tell customers</p>
+              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Menu Email</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+                Tells every approved customer who opted in to menu emails that the menu is up, with the delivery date and close time, and sends them to the site
+                {menuEmailRecipients != null && <> ({menuEmailRecipients} right now)</>}.
+                {' '}{menuLive ? '' : 'Go live first, then send.'}
+              </p>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={sendMenuEmail}
+                  disabled={!menuLive || sendingMenuEmail}
+                  style={{ padding: '8px 20px', background: menuEmailSentAt ? '#D4A373' : '#1a441f', color: '#faf8f3', border: 'none', cursor: !menuLive || sendingMenuEmail ? 'not-allowed' : 'pointer', fontSize: '14px', fontFamily: 'inherit', opacity: !menuLive || sendingMenuEmail ? 0.6 : 1 }}
+                >
+                  {sendingMenuEmail ? 'Sending...' : menuEmailSentAt ? 'Resend Menu Email' : 'Send Menu Email'}
+                </button>
+                {menuEmailSentAt && <span style={{ fontSize: '13px', color: '#1a441f' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
+              </div>
+            </div>
 
           </div>
         )}
@@ -861,8 +879,6 @@ export default function AdminApp({ onLogout }) {
             onClose={() => setEditingCustomer(null)}
             onSaved={() => { setEditingCustomer(null); fetchPendingCustomers() }}
           />
-        )}
-
         )}
       </div>
     </div>
