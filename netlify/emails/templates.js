@@ -168,7 +168,7 @@ export function approvedEmail({ profile, siteUrl }) {
     ${eyebrow('Approved')}
     <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Welcome to the table', name)}</h1>
     <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">Your request to join is approved. When each week's menu opens, pick your entrées and salads, choose the delivery windows that suit you, and we'll take care of the rest.</p>
-    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're a little outside our walking range, so your orders will come by Uber messenger. The delivery cost, about ${money(MESSENGER_FEE)}, is passed through at cost and shows on each order.</p>` : ''}
+    ${profile.messenger_delivery ? `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're a little outside our walking range, so your orders will come by Uber messenger, about ${money(MESSENGER_FEE)} passed through at cost, which shows on each order. Prefer to collect it yourself? Pickup in NoMad is always an option; just reply and let us know.</p>` : ''}
     <div style="margin:40px 0 0 0;">
       ${button(siteUrl, 'Sign in and order')}
     </div>

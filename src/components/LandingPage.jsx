@@ -126,11 +126,10 @@ export default function LandingPage({ onSignIn, onJoin }) {
                 <li><span>Extra entrée</span><span>${EXTRA_ENTREE_PRICE} each</span></li>
                 <li><span>Extra salad</span><span>${EXTRA_SALAD_PRICE} each</span></li>
                 <li><span>Optional add-ons</span><span>Priced weekly</span></li>
-                <li><span>Messenger delivery outside our walking range</span><span>About ${MESSENGER_FEE}, at cost</span></li>
+                <li><span>Outside our walking range</span><span>Pickup in NoMad, or messenger at cost (about ${MESSENGER_FEE})</span></li>
               </ul>
               <p className="landing-price-note">
-                We deliver on foot in NoMad, Gramercy, Kips Bay, Murray Hill and nearby Chelsea. Farther out, your order
-                comes by Uber messenger and we pass the delivery cost through as is.
+                Currently serving NoMad, Gramercy, Kips Bay, Murray Hill and some parts of Chelsea. For all other locations, we offer pickup in NoMad or Uber messenger delivery as a pass-through cost.
               </p>
             </div>
           </div>

@@ -366,6 +366,13 @@ export default function GuestApp({ user, onLogout }) {
   const placedOrder = orderHistory.find(o => o.delivery_date === deliveryDate && o.status !== 'cancelled')
 
   const menuClosed = noLiveMenu || (orderCloseDatetime && new Date() > new Date(orderCloseDatetime))
+  // Once that delivery day has passed, the closed menu is old news: point people at the next one
+  const deliveryPassed = (() => {
+    if (!deliveryDate) return false
+    const [y, m, d] = String(deliveryDate).split('-').map(Number)
+    return new Date() >= new Date(y, m - 1, d + 1)
+  })()
+  const betweenMenus = noLiveMenu || deliveryPassed
   const menuEmpty = !menuItems.entrees?.length && !menuItems.salads?.length
 
   const deliveryBanner = (
@@ -549,13 +556,12 @@ export default function GuestApp({ user, onLogout }) {
 
         {!loading && !error && !placedOrder && menuClosed && (
           <div style={{ background: 'white', padding: '56px 40px', border: '1px solid #e0dbd1', textAlign: 'center' }}>
-            <p style={{ margin: '0 0 12px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Ordering closed</p>
-            <h2 style={{ color: '#1a441f', margin: '0 0 16px 0', fontSize: '26px' }}>This week's menu is closed</h2>
+            <p style={{ margin: '0 0 12px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{betweenMenus ? 'Coming soon' : 'Ordering closed'}</p>
+            <h2 style={{ color: '#1a441f', margin: '0 0 16px 0', fontSize: '26px' }}>{betweenMenus ? "Next week's menu is on its way" : "This week's menu is closed"}</h2>
             <p style={{ color: '#666', margin: '0 auto 32px', maxWidth: '460px', lineHeight: '1.7', fontSize: '15px' }}>
-              {noLiveMenu
-                ? "The next menu isn't up yet. Check back soon."
-                : `Orders for ${formatDeliveryDate(deliveryDate)} closed ${formatCloseDatetime(orderCloseDatetime)}.`}
-              {' '}Hoping to squeeze in an order for next week? Send us a message and we'll see what we can do.
+              {betweenMenus
+                ? "We're putting the finishing touches on next week's menu. Stay tuned; we'll let you know the moment ordering opens."
+                : `Orders for ${formatDeliveryDate(deliveryDate)} closed ${formatCloseDatetime(orderCloseDatetime)}. Hoping to squeeze one in? Send us a message and we'll see what we can do.`}
             </p>
             <a
               href={INSTAGRAM_DM_URL}

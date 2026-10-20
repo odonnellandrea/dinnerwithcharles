@@ -184,7 +184,7 @@
   border-bottom: 1px solid var(--border);
   font-size: 15px;
 }
-.landing-price-list span:last-child { color: var(--green); font-weight: 600; white-space: nowrap; }
+.landing-price-list span:last-child { color: var(--green); font-weight: 600; text-align: right; max-width: 55%; }
 
 /* About */
 .landing-about {
