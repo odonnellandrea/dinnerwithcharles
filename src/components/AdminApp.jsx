@@ -6,6 +6,7 @@ import '../styles/admin.css'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 import CustomerEditModal from './CustomerEditModal'
+import SurveyResponses from './SurveyResponses'
 import { MESSENGER_FEE } from '../lib/pricing'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
 import { orderNumber } from '../lib/orderNumber'
@@ -43,6 +44,7 @@ export default function AdminApp({ onLogout }) {
   const [sheetError, setSheetError] = useState('')
   const [surveyQuestion, setSurveyQuestion] = useState('')
   const [isSurveyActive, setIsSurveyActive] = useState(false)
+  const [surveySavedAt, setSurveySavedAt] = useState(0)
   const [waitingCount, setWaitingCount] = useState(0) // requests to join waiting for approval
 
   // Badge on the Approvals tab, refreshed whenever the admin changes tabs
@@ -676,6 +678,7 @@ export default function AdminApp({ onLogout }) {
                   if (error) {
                     alert('Error saving survey: ' + error.message)
                   } else {
+                    setSurveySavedAt(Date.now())
                     alert('✓ Survey question saved!')
                   }
                 }}
@@ -683,6 +686,7 @@ export default function AdminApp({ onLogout }) {
               >
                 Save Survey Question
               </button>
+              <SurveyResponses deliveryDate={deliveryDate} refreshKey={surveySavedAt} />
             </div>
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
