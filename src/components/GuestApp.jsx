@@ -614,6 +614,32 @@ export default function GuestApp({ user, onLogout }) {
               </button>
             </div>
 
+            {survey?.question && (
+              <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#1a441f' }}>Quick Feedback</p>
+                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666' }}>{survey.question}</p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={surveyResponse}
+                    onChange={(e) => setSurveyResponse(e.target.value)}
+                    placeholder="Your response..."
+                    style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #e0dbd1', fontSize: '13px' }}
+                  />
+                  <button
+                    onClick={handleSurveySubmit}
+                    disabled={!surveyResponse.trim()}
+                    style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+                  >
+                    Send
+                  </button>
+                </div>
+                {surveySubmitted && (
+                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#1a441f', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
+                )}
+              </div>
+            )}
+
             {menuItems.intro?.map((text, idx) => (
               <p key={idx} style={{ color: '#444', fontSize: '15px', lineHeight: '1.7', margin: '0 auto 28px', maxWidth: '560px', textAlign: 'center', whiteSpace: 'pre-line' }}>{text}</p>
             ))}
@@ -736,32 +762,6 @@ export default function GuestApp({ user, onLogout }) {
                 )
               })()}
             </div>
-
-            {survey?.question && (
-              <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-                <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#1a441f' }}>Quick Feedback</p>
-                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666' }}>{survey.question}</p>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={surveyResponse}
-                    onChange={(e) => setSurveyResponse(e.target.value)}
-                    placeholder="Your response..."
-                    style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #e0dbd1', fontSize: '13px' }}
-                  />
-                  <button
-                    onClick={handleSurveySubmit}
-                    disabled={!surveyResponse.trim()}
-                    style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
-                  >
-                    Send
-                  </button>
-                </div>
-                {surveySubmitted && (
-                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#1a441f', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
-                )}
-              </div>
-            )}
 
             <button
               onClick={handleCheckout}
