@@ -358,14 +358,21 @@ export default function GuestApp({ user, onLogout }) {
             delivery_date: deliveryDate,
             delivery_time_slot: serializeWindows(deliveryTimeSlot),
             special_notes: specialNotes,
-            total_order_price: (item.price / 100).toFixed(2),
+            total_order_price: item.price / 100, // a number; the old text value ("20.00") is refused by a whole-number column
             status: 'pending',
             created_at: orderDate
           })
         }
       })
 
-      const { error } = await supabase.from('Orders').insert(orders)
+      let { error } = await supabase.from('Orders').insert(orders)
+      // While Orders.total_order_price is still a whole-number column, a price with cents
+      // (like $12.50) is refused. Nothing was saved, so retry in whole dollars rather than
+      // lose the order; 20261021_order_price_numeric.sql makes the column exact.
+      if (error && /bigint/i.test(error.message || '')) {
+        console.warn('Orders.total_order_price is a whole-number column; saving whole dollars:', error.message)
+        ;({ error } = await supabase.from('Orders').insert(orders.map(o => ({ ...o, total_order_price: Math.round(Number(o.total_order_price)) }))))
+      }
 
       if (error) {
         alert('Error confirming order: ' + error.message)
