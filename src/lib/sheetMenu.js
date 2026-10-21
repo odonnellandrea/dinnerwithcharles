@@ -1,3 +1,5 @@
+import { BASE_ENTREES, BASE_SALADS } from './pricing.js'
+
 // The guest menu lives in a public Google Sheet so it can be edited without the admin.
 // Columns: week, visible, week_of, type, sort_order, name, sides, description, price, note, reheat
 // Types: intro (welcome text), section (a heading; note is its label, like "Pick 3"),
@@ -75,16 +77,26 @@ const toKey = (s) => (s || '').toLowerCase().replace(/é/g, 'e').replace(/[^a-z]
 // Returns { weeks, weekOf, intro: [text], sections: [{ title, note, type, items }] }, visible rows only,
 // each list sorted by sort_order. A section heading named after a dish type (e.g. "Entrées")
 // holds those dishes; dish types without a heading get a default one at the end.
+// A cell Sheets couldn't calculate comes through as text like "#ERROR!" (typing a note that
+// starts with "+" or "=" does it). Treat those as empty so customers never see them.
+const SHEET_ERROR = /^#(ERROR!|REF!|N\/A|VALUE!|NAME\?|DIV\/0!|NUM!|NULL!)/
+
 // Every sheet row as { column: trimmed value }
 function rowsFromCsv(text) {
   const [header = [], ...rows] = parseCsv(text)
   const columns = header.map(h => h.trim().toLowerCase())
   return rows.map(cells => {
     const row = {}
-    columns.forEach((col, i) => { row[col] = (cells[i] || '').trim() })
+    columns.forEach((col, i) => {
+      const value = (cells[i] || '').trim()
+      row[col] = SHEET_ERROR.test(value) ? '' : value
+    })
     return row
   })
 }
+
+// How many to pick, when the sheet's heading row has no note: the base package is fixed
+const defaultNote = (type) => type === 'entree' ? `Pick ${BASE_ENTREES}` : type === 'salad' ? `Pick ${BASE_SALADS}` : ''
 
 export function menuFromCsv(text) {
   const visible = rowsFromCsv(text)
@@ -115,11 +127,11 @@ export function menuFromCsv(text) {
 
   const sections = ofType('section').map(row => {
     const type = DISH_TYPES.includes(toKey(row.name)) ? toKey(row.name) : null
-    return { title: row.name, note: row.note, type, items: type ? dishes[type] : [] }
+    return { title: row.name, note: row.note || defaultNote(type), type, items: type ? dishes[type] : [] }
   })
   DISH_TYPES.forEach(type => {
     if (dishes[type].length > 0 && !sections.some(s => s.type === type)) {
-      sections.push({ title: DEFAULT_TITLES[type], note: '', type, items: dishes[type] })
+      sections.push({ title: DEFAULT_TITLES[type], note: defaultNote(type), type, items: dishes[type] })
     }
   })
 
