@@ -76,8 +76,10 @@ function App() {
     setScreen('landing')
   }
 
+  const loadingScreen = <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>
+
   if (loading) {
-    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>
+    return loadingScreen
   }
 
   // Opened a password reset link: choose a new password before anything else
@@ -107,6 +109,11 @@ function App() {
 
   // Logged in but not admin
   if (user) {
+    // Signed in, but we haven't heard yet whether they're approved. Wait, rather than
+    // flashing the "under review" screen at someone who is approved.
+    if (approvalStatus === null) {
+      return loadingScreen
+    }
     if (approvalStatus === 'approved') {
       return <GuestApp user={user} onLogout={handleLogout} />
     } else if (approvalStatus === 'rejected') {
