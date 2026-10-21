@@ -367,16 +367,17 @@ export default function GuestApp({ user, onLogout }) {
     }
   }
 
-  const placedOrder = orderHistory.find(o => o.delivery_date === deliveryDate && o.status !== 'cancelled')
-
-  const menuClosed = noLiveMenu || (orderCloseDatetime && new Date() > new Date(orderCloseDatetime))
-  // Once that delivery day has passed, the closed menu is old news: point people at the next one
+  // Once that delivery day has passed, the old menu (and an order for it) is old news:
+  // point people at the next one, even if last week's menu was never taken offline
   const deliveryPassed = (() => {
     if (!deliveryDate) return false
     const [y, m, d] = String(deliveryDate).split('-').map(Number)
     return new Date() >= new Date(y, m - 1, d + 1)
   })()
   const betweenMenus = noLiveMenu || deliveryPassed
+  const menuClosed = betweenMenus || (orderCloseDatetime && new Date() > new Date(orderCloseDatetime))
+  // "You're all set" only for an order on a delivery that hasn't happened yet
+  const placedOrder = betweenMenus ? undefined : orderHistory.find(o => o.delivery_date === deliveryDate && o.status !== 'cancelled')
   const menuEmpty = !menuItems.entrees?.length && !menuItems.salads?.length
 
   const deliveryBanner = (
