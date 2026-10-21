@@ -5,7 +5,7 @@ import { json, pdfResponse } from '../pdf/toolkit.js'
 
 // Admin only. GET /.netlify/functions/ops-pdf?date=YYYY-MM-DD&doc=packing|chef|info
 //   &family=a@x.com,b@x.com   Andrea and her parents: no packing page, not counted for the chef (shown as :) instead)
-//   Everyone else, Rob and Sonny included, is a normal customer.
+//   &rob=c@x.com              only adds a "Rob delivers" note to that family's packing page; they are a normal customer otherwise
 // doc=info returns who ordered and which dishes still have a guessed container list, as JSON.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_KEY
@@ -34,6 +34,7 @@ export default async (req) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json(400, { error: 'Pick a delivery date' })
   if (!['packing', 'chef', 'info'].includes(doc)) return json(400, { error: 'Unknown document' })
   const family = emailList(url.searchParams.get('family'))
+  const rob = emailList(url.searchParams.get('rob'))
 
   const { data: orders, error: ordersError } = await supabase.from('Orders').select('*').eq('delivery_date', date).neq('status', 'cancelled')
   if (ordersError) return json(502, { error: 'Could not read the orders: ' + ordersError.message })
@@ -82,7 +83,7 @@ export default async (req) => {
       return {
         name: customer.name,
         address: addressOf[customer.email] || '',
-        delivery: slots(first.delivery_time_slot),
+        delivery: [slots(first.delivery_time_slot), rob.has(customer.email) ? 'Rob delivers' : ''].filter(Boolean).join(' · '),
         entrees: groups.entree,
         salads: groups.salad,
         addons: groups.addon,

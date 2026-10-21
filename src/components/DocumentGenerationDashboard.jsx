@@ -14,7 +14,8 @@ const DOCUMENTS = [
 
 const ROLES = [
   { value: '', label: 'Customer' },
-  { value: 'family', label: 'Andrea / parents' }
+  { value: 'family', label: 'Andrea / parents' },
+  { value: 'rob', label: 'Rob delivers (note)' }
 ]
 const ROLES_KEY = 'dwc-doc-roles'
 
@@ -40,7 +41,7 @@ export default function DocumentGenerationDashboard() {
 
   const query = (doc) => {
     const withRole = (role) => Object.entries(roles).filter(([email, r]) => r === role && customers.some(c => c.email === email)).map(([email]) => email).join(',')
-    return `/.netlify/functions/ops-pdf?doc=${doc}&date=${deliveryDate}&family=${encodeURIComponent(withRole('family'))}`
+    return `/.netlify/functions/ops-pdf?doc=${doc}&date=${deliveryDate}&family=${encodeURIComponent(withRole('family'))}&rob=${encodeURIComponent(withRole('rob'))}`
   }
 
   // Who ordered for this date, and which dishes still need their containers confirmed
@@ -107,7 +108,7 @@ export default function DocumentGenerationDashboard() {
         <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
           <h3 style={{ color: '#1a441f', margin: '0 0 6px 0', fontSize: '15px' }}>Who ordered</h3>
           <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
-            Andrea and her parents get no packing page and are not counted for the chef (a :) shows instead). Everyone else is a normal customer. Remembered on this device.
+            Andrea and her parents get no packing page and are not counted for the chef (a :) shows instead). "Rob delivers" only adds that note to the family's packing page. Everyone else is a normal customer. Remembered on this device.
           </p>
           {customers.map(customer => (
             <div key={customer.email} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '8px 0', borderTop: '1px solid #f0ece3' }}>
