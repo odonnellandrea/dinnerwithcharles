@@ -169,6 +169,40 @@ export function reheatFromCsv(text) {
   return steps
 }
 
+// What the kitchen documents (packing lists, chef reference) need to know about each dish, by
+// name (lowercased), from every dish row whether visible or not. A name used in more than one
+// week takes the highest week. `containers` is the optional sheet column of that name: one
+// container per line, e.g. "Chicken\nFarro with roasted root vegetables\nLemon-rosemary sauce".
+// `guessed` is true when the sheet has none yet, so the list is made up from the reheat step
+// names, or else the sides, and needs a check.
+export function dishInfoFromCsv(text) {
+  const lines = (value) => (value || '').split('\n').map(line => line.trim()).filter(Boolean)
+  const best = {}
+  rowsFromCsv(text)
+    .filter(row => DISH_TYPES.includes(toKey(row.type)) && row.name)
+    .forEach((row, index) => {
+      const key = row.name.toLowerCase()
+      const week = Number(row.week) || 0
+      if (best[key] && week < best[key].week) return
+      const type = toKey(row.type)
+      const sides = (row.sides || '').split('·').map(part => part.trim()).filter(Boolean)
+      const fromSheet = lines(row.containers)
+      const reheatNames = type === 'addon' ? [] : parseReheat(row.reheat).map(step => step.name).filter(Boolean)
+      const guess = reheatNames.length ? reheatNames : type === 'entree' ? [row.name, ...sides] : [row.name]
+      best[key] = {
+        week,
+        index,
+        type,
+        name: row.name,
+        sides,
+        description: row.description || '',
+        containers: fromSheet.length ? fromSheet : guess,
+        guessed: fromSheet.length === 0
+      }
+    })
+  return best
+}
+
 // The last copy of the sheet is kept in the browser, so a repeat visit can show the menu
 // at once while the fresh copy downloads. Server code has no localStorage; this just no-ops there.
 const CACHE_KEY = 'dwc-menu-sheet'
@@ -221,4 +255,8 @@ export function prefetchSheetMenu() {
 
 export async function fetchSheetReheat() {
   return reheatFromCsv(await fetchSheetCsv())
+}
+
+export async function fetchSheetDishInfo() {
+  return dishInfoFromCsv(await fetchSheetCsv())
 }

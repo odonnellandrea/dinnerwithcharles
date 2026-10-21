@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { downloadPdf } from '../lib/downloadPdf'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -7,253 +8,160 @@ const supabase = createClient(
 )
 
 const DOCUMENTS = [
-  {
-    id: 'customer-menu',
-    title: 'Customer Menu',
-    description: 'Weekly menu PDF for customers (PDF)',
-    icon: '📋'
-  },
-  {
-    id: 'reheat-master',
-    title: 'Master Reheat Guide',
-    description: 'Full reheat reference for all items (PDF)',
-    icon: '🔥'
-  },
-  {
-    id: 'chef-reference',
-    title: 'Chef Reference',
-    description: 'Internal 4x6 thermal print, B&W only (PDF)',
-    icon: '👨‍🍳'
-  },
-  {
-    id: 'order-grid',
-    title: 'Order Grid',
-    description: 'Who-ordered-what chart, 6x4 thermal (PDF)',
-    icon: '📊'
-  },
-  {
-    id: 'packing-list',
-    title: 'Packing Lists',
-    description: 'Per-client kitchen checklist (multi-PDF)',
-    icon: '📦'
-  },
-  {
-    id: 'delivery-labels',
-    title: 'Delivery Labels',
-    description: 'Circular address labels, half-moon pairs (PDF)',
-    icon: '🏷️'
-  },
-  {
-    id: 'reheat-stickers',
-    title: 'Reheat Stickers',
-    description: 'Per-item reheat instruction stickers (PDF)',
-    icon: '🏷️'
-  }
+  { id: 'packing', title: 'Packing Lists', icon: '📦', description: '4x6 black and white. One page per family with a checkbox for every container and their special instructions.' },
+  { id: 'chef', title: 'Chef Reference', icon: '👨‍🍳', description: '4x6 black and white. How many of each dish to cook, with containers and packaging.' }
 ]
 
+const ROLES = [
+  { value: '', label: 'Customer' },
+  { value: 'family', label: 'Andrea / parents' },
+  { value: 'rob', label: 'Rob delivers' }
+]
+const ROLES_KEY = 'dwc-doc-roles'
+
+const nextMonday = () => {
+  const today = new Date()
+  const monday = new Date(today)
+  monday.setDate(today.getDate() + ((1 - today.getDay() + 7) % 7 || 7))
+  return monday.toISOString().split('T')[0]
+}
+
+const readRoles = () => {
+  try { return JSON.parse(localStorage.getItem(ROLES_KEY) || '{}') || {} } catch { return {} }
+}
+
 export default function DocumentGenerationDashboard() {
-  const [deliveryDate, setDeliveryDate] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [generating, setGenerating] = useState({})
+  const [deliveryDate, setDeliveryDate] = useState(nextMonday)
+  const [customers, setCustomers] = useState([])
+  const [guessed, setGuessed] = useState([])
+  const [roles, setRoles] = useState(readRoles)
+  const [status, setStatus] = useState('')
+  const [busy, setBusy] = useState('')
   const [message, setMessage] = useState('')
-  const [includeCancelled, setIncludeCancelled] = useState(false)
 
+  const query = (doc) => {
+    const withRole = (role) => Object.entries(roles).filter(([email, r]) => r === role && customers.some(c => c.email === email)).map(([email]) => email).join(',')
+    return `/.netlify/functions/ops-pdf?doc=${doc}&date=${deliveryDate}&family=${encodeURIComponent(withRole('family'))}&rob=${encodeURIComponent(withRole('rob'))}`
+  }
+
+  // Who ordered for this date, and which dishes still need their containers confirmed
   useEffect(() => {
-    const today = new Date()
-    const nextMonday = new Date(today)
-    nextMonday.setDate(today.getDate() + ((1 - today.getDay() + 7) % 7 || 7))
-    setDeliveryDate(nextMonday.toISOString().split('T')[0])
-  }, [])
-
-  const handleGenerateDocument = async (docId) => {
-    if (!deliveryDate) {
-      alert('Please select a delivery date')
-      return
-    }
-
-    setGenerating({ ...generating, [docId]: true })
-    setMessage('')
-
-    try {
-      // Fetch delivery data
-      const { data: deliverySettings } = await supabase
-        .from('delivery_settings')
-        .select('*')
-        .eq('delivery_date', deliveryDate)
-        .single()
-
-      if (!deliverySettings) {
-        throw new Error('No delivery settings found for this date')
+    let cancelled = false
+    setStatus('Checking orders...')
+    setCustomers([])
+    setGuessed([])
+    ;(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch(`/.netlify/functions/ops-pdf?doc=info&date=${deliveryDate}`, { headers: { Authorization: `Bearer ${session?.access_token}` } })
+        const body = await res.json().catch(() => ({}))
+        if (cancelled) return
+        if (!res.ok) { setStatus(body.error || `Could not check the orders (${res.status})`); return }
+        setCustomers(body.customers)
+        setGuessed(body.guessed)
+        setStatus('')
+      } catch (err) {
+        if (!cancelled) setStatus('Could not check the orders: ' + err.message)
       }
+    })()
+    return () => { cancelled = true }
+  }, [deliveryDate])
 
-      // Fetch orders for this delivery; cancelled orders aren't cooked or packed unless asked for
-      let ordersQuery = supabase
-        .from('Orders')
-        .select('*')
-        .eq('delivery_date', deliveryDate)
-      if (!includeCancelled) ordersQuery = ordersQuery.neq('status', 'cancelled')
-      const { data: orders } = await ordersQuery
-
-      // Fetch menu items
-      const { data: weeklyMenu } = await supabase
-        .from('weekly_menu')
-        .select('*')
-        .eq('delivery_date', deliveryDate)
-
-      // In a real implementation, you would:
-      // 1. Process the data according to toolkit rules
-      // 2. Generate PDF using a library like pdfkit or jsPDF
-      // 3. Save to Google Drive via Google Drive API
-      // 4. Return a download link
-
-      // For now, we'll simulate success and log the data
-      console.log(`Generating ${docId} for ${deliveryDate}`)
-      console.log('Orders:', orders)
-      console.log('Menu:', weeklyMenu)
-
-      // Simulate generation time
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      setMessage(`✓ ${DOCUMENTS.find(d => d.id === docId)?.title} generated successfully! (Simulated - actual generation requires PDF library integration)`)
-
-      // Reset message after 3 seconds
-      setTimeout(() => setMessage(''), 3000)
-    } catch (err) {
-      setMessage(`✗ Failed to generate document: ${err.message}`)
-    } finally {
-      setGenerating({ ...generating, [docId]: false })
-    }
+  const setRole = (email, role) => {
+    const next = { ...roles, [email]: role }
+    if (!role) delete next[email]
+    setRoles(next)
+    try { localStorage.setItem(ROLES_KEY, JSON.stringify(next)) } catch { /* per-visit only */ }
   }
 
-  const handleGenerateAll = async () => {
-    if (!deliveryDate) {
-      alert('Please select a delivery date')
-      return
-    }
-
+  const generate = async (doc) => {
+    setBusy(doc.id)
     setMessage('')
-    
-    for (const doc of DOCUMENTS) {
-      await handleGenerateDocument(doc.id)
-      // Small delay between each to avoid overwhelming the system
-      await new Promise(resolve => setTimeout(resolve, 500))
+    try {
+      await downloadPdf(query(doc.id), `${doc.title} - ${deliveryDate}.pdf`)
+    } catch (err) {
+      setMessage(`✗ ${doc.title} failed: ${err.message}`)
     }
-
-    setMessage(`✓ All 7 documents generated successfully for ${getDeliveryDateDisplay()}!`)
-    setTimeout(() => setMessage(''), 4000)
+    setBusy('')
   }
 
-  const isGeneratingAny = Object.values(generating).some(v => v)
-
-  const getDeliveryDateDisplay = () => {
-    if (!deliveryDate) return ''
-    const date = new Date(deliveryDate)
-    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
-  }
+  const dateLabel = deliveryDate ? new Date(`${deliveryDate}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : ''
+  const hasOrders = customers.length > 0
 
   return (
     <div>
-      <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Document Generation</h2>
+      <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Documents</h2>
 
-      {/* Date selector */}
-      <div style={{ background: 'white', padding: '20px', marginBottom: '24px', border: '1px solid #e0dbd1' }}>
-        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>
-          Select Delivery Date
-        </label>
+      <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>Delivery Date</label>
         <input
           type="date"
           value={deliveryDate}
           onChange={(e) => setDeliveryDate(e.target.value)}
-          style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px', fontSize: '14px' }}
+          style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px', fontSize: '14px', boxSizing: 'border-box' }}
         />
-        <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#666' }}>
-          <strong>{getDeliveryDateDisplay()}</strong>
-        </p>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '13px', color: '#666', cursor: 'pointer' }}>
-          <input type="checkbox" checked={includeCancelled} onChange={(e) => setIncludeCancelled(e.target.checked)} />
-          Include cancelled orders
-        </label>
+        <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#666' }}><strong>{dateLabel}</strong></p>
+        {status && <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#666' }}>{status}</p>}
       </div>
 
-      {/* Generate All button */}
-      <div style={{ marginBottom: '20px' }}>
-        <button
-          onClick={handleGenerateAll}
-          disabled={isGeneratingAny || !deliveryDate}
-          style={{
-            padding: '12px 24px',
-            background: '#1a441f',
-            color: '#faf8f3',
-            border: 'none',
-            cursor: isGeneratingAny || !deliveryDate ? 'not-allowed' : 'pointer',
-            fontSize: '14px',
-            fontWeight: '600',
-            opacity: isGeneratingAny || !deliveryDate ? 0.6 : 1
-          }}
-        >
-          {isGeneratingAny ? 'Generating All...' : 'Generate All Documents'}
-        </button>
-      </div>
-
-      {message && (
-        <div
-          style={{
-            padding: '12px 16px',
-            marginBottom: '20px',
-            fontSize: '13px',
-            background: message.startsWith('✓') ? '#faf8f3' : '#ffebee',
-            color: message.startsWith('✓') ? '#1a441f' : '#c62828',
-            border: `1px solid ${message.startsWith('✓') ? '#e0dbd1' : '#ffcdd2'}`
-          }}
-        >
-          {message}
+      {hasOrders && (
+        <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+          <h3 style={{ color: '#1a441f', margin: '0 0 6px 0', fontSize: '15px' }}>Who ordered</h3>
+          <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+            Andrea and her parents get no packing page and are not counted for the chef (a :) shows instead). Families Rob delivers get no packing page but are counted. Remembered on this device.
+          </p>
+          {customers.map(customer => (
+            <div key={customer.email} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '8px 0', borderTop: '1px solid #f0ece3' }}>
+              <span style={{ fontSize: '14px', color: '#333' }}>{customer.name}</span>
+              <select
+                aria-label={`Role for ${customer.name}`}
+                value={roles[customer.email] || ''}
+                onChange={(e) => setRole(customer.email, e.target.value)}
+                style={{ padding: '6px 8px', border: '1px solid #e0dbd1', fontSize: '13px', background: 'white', fontFamily: 'inherit' }}
+              >
+                {ROLES.map(role => <option key={role.value} value={role.value}>{role.label}</option>)}
+              </select>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Document grid */}
+      {guessed.length > 0 && (
+        <div style={{ background: '#faf8f3', padding: '16px', marginBottom: '20px', border: '1px solid #D4A373' }}>
+          <h4 style={{ margin: '0 0 8px 0', color: '#1a441f', fontSize: '14px' }}>Check the containers for these dishes</h4>
+          <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#1a441f', lineHeight: 1.6 }}>
+            The menu sheet has no packing info for them yet, so the lists use a guess made from the reheat steps or the sides. To set it, add a <strong>containers</strong> column to the sheet and put one container per line in each dish's cell.
+          </p>
+          <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#1a441f', lineHeight: 1.6 }}>
+            {guessed.map(name => <li key={name}>{name}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {message && (
+        <div style={{ padding: '12px 16px', marginBottom: '20px', fontSize: '13px', background: '#ffebee', color: '#c62828', border: '1px solid #ffcdd2' }}>{message}</div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
         {DOCUMENTS.map(doc => (
           <div key={doc.id} style={{ background: 'white', padding: '20px', border: '1px solid #e0dbd1', display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>{doc.icon}</div>
-            <h3 style={{ color: '#1a441f', margin: '0 0 6px 0', fontSize: '15px', fontWeight: '600' }}>
-              {doc.title}
-            </h3>
-            <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#666', lineHeight: '1.4', flexGrow: 1 }}>
-              {doc.description}
-            </p>
+            <h3 style={{ color: '#1a441f', margin: '0 0 6px 0', fontSize: '15px', fontWeight: '600' }}>{doc.title}</h3>
+            <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#666', lineHeight: '1.4', flexGrow: 1 }}>{doc.description}</p>
             <button
-              onClick={() => handleGenerateDocument(doc.id)}
-              disabled={generating[doc.id] || !deliveryDate}
-              style={{
-                padding: '10px 16px',
-                background: '#1a441f',
-                color: '#faf8f3',
-                border: 'none',
-                cursor: generating[doc.id] || !deliveryDate ? 'not-allowed' : 'pointer',
-                fontSize: '13px',
-                fontWeight: '600',
-                opacity: generating[doc.id] || !deliveryDate ? 0.6 : 1
-              }}
+              onClick={() => generate(doc)}
+              disabled={!!busy || !hasOrders}
+              style={{ padding: '10px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: busy || !hasOrders ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit', opacity: busy || !hasOrders ? 0.6 : 1 }}
             >
-              {generating[doc.id] ? 'Generating...' : 'Generate'}
+              {busy === doc.id ? 'Preparing...' : 'Download PDF'}
             </button>
           </div>
         ))}
       </div>
 
-      {/* Implementation notes */}
-      <div style={{ background: '#faf8f3', padding: '16px', marginTop: '24px', border: '1px solid #D4A373' }}>
-        <h4 style={{ margin: '0 0 12px 0', color: '#1a441f', fontSize: '14px', fontWeight: '600' }}>Implementation Notes</h4>
-        <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '12px', color: '#1a441f', lineHeight: '1.6' }}>
-          <li><strong>PDF Generation:</strong> Uses jsPDF/pdfkit in browser (no server needed, zero cost)</li>
-          <li><strong>Storage:</strong> PDFs saved to Google Drive (free, unlimited) in weekly folders</li>
-          <li><strong>Parent Ordering:</strong> Included in some docs, excluded from others, always sorted last</li>
-          <li><strong>Duplicate Collapse:</strong> "Dish × 2" format for multiple orders of same item</li>
-          <li><strong>Zero Items Hidden:</strong> Items with no orders disappear from chef-facing docs</li>
-          <li><strong>Thermal Docs:</strong> Pure black/white only (chef reference, order grid)</li>
-          <li><strong>Auto Pagination:</strong> Content length matched exactly to draw calls</li>
-        </ul>
-      </div>
+      <p style={{ margin: '20px 0 0 0', fontSize: '12px', color: '#999', lineHeight: 1.6 }}>
+        Cancelled orders are left out. The order grid, delivery labels and reheat stickers are not built into the admin yet; keep making those with the toolkit.
+      </p>
     </div>
   )
 }

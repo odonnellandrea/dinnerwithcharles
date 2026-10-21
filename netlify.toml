@@ -16,3 +16,6 @@ external_node_modules = ["pdfkit"]
 
 [functions."menu-pdf"]
 external_node_modules = ["pdfkit"]
+
+[functions."ops-pdf"]
+external_node_modules = ["pdfkit"]
