@@ -98,6 +98,12 @@ function rowsFromCsv(text) {
 // How many to pick, when the sheet's heading row has no note: the base package is fixed
 const defaultNote = (type) => type === 'entree' ? `Pick ${BASE_ENTREES}` : type === 'salad' ? `Pick ${BASE_SALADS}` : ''
 
+// "+ $5 jar deposit" -> 500; 0 when the note doesn't promise a deposit
+export function depositFromNote(note) {
+  const match = /\+\s*\$\s*(\d+(?:\.\d{1,2})?)[^,;]*deposit/i.exec(note || '')
+  return match ? Math.round(parseFloat(match[1]) * 100) : 0
+}
+
 export function menuFromCsv(text) {
   const visible = rowsFromCsv(text)
     .filter(row => (row.visible || '').toUpperCase() === 'TRUE')
@@ -109,7 +115,9 @@ export function menuFromCsv(text) {
       description: row.description || '',
       note: row.note || '',
       // Stored in cents to match how the order form already prices add-ons
-      price: Math.round(parseFloat((row.price || '').replace(/[$,]/g, '')) * 100)
+      price: Math.round(parseFloat((row.price || '').replace(/[$,]/g, '')) * 100),
+      // A note like "+ $5 jar deposit" is charged automatically, once per add-on ordered, in cents
+      deposit: depositFromNote(row.note)
     }))
     .sort((a, b) => (a.sortOrder - b.sortOrder) || 0)
 

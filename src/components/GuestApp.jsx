@@ -358,7 +358,8 @@ export default function GuestApp({ user, onLogout }) {
             delivery_date: deliveryDate,
             delivery_time_slot: serializeWindows(deliveryTimeSlot),
             special_notes: specialNotes,
-            total_order_price: item.price / 100, // a number; the old text value ("20.00") is refused by a whole-number column
+            // price plus any jar deposit, so the emails and admin totals include it. A number; the old text value ("20.00") is refused by a whole-number column
+            total_order_price: (item.price + (item.deposit || 0)) / 100,
             status: 'pending',
             created_at: orderDate
           })
@@ -426,8 +427,10 @@ export default function GuestApp({ user, onLogout }) {
   const renderOrderTotals = () => {
     const totalEntrees = Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0)
     const totalSalads = Object.values(selectedSalads).reduce((sum, q) => sum + q, 0)
-    const addOnsCost = menuItems.addOns?.filter(item => selectedAddOns[item.id]).reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0) || 0
-    const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost, messengerFee })
+    const chosenAddOns = menuItems.addOns?.filter(item => selectedAddOns[item.id]) || []
+    const addOnsBase = chosenAddOns.reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0)
+    const depositCost = chosenAddOns.reduce((sum, item) => sum + ((item.deposit || 0) / 100) * selectedAddOns[item.id], 0)
+    const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost: addOnsBase + depositCost, messengerFee })
 
     return (
       <div>
@@ -438,8 +441,11 @@ export default function GuestApp({ user, onLogout }) {
         {saladUpcharge > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Salads ({extraSalads}): ${saladUpcharge.toFixed(2)} @ ${EXTRA_SALAD_PRICE} each</p>
         )}
-        {addOnsCost > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsCost.toFixed(2)}</p>
+        {addOnsBase > 0 && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsBase.toFixed(2)}</p>
+        )}
+        {depositCost > 0 && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Jar deposit: ${depositCost.toFixed(2)}</p>
         )}
         {messengerFee > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>
@@ -574,7 +580,7 @@ export default function GuestApp({ user, onLogout }) {
                   const item = menuItems.addOns.find(a => a.id === itemId)
                   return item ? (
                     <p key={itemId} style={{ margin: '8px 0', color: '#666' }}>
-                      {qty}x {item.name} — ${((item.price / 100) * qty).toFixed(2)}
+                      {qty}x {item.name} — ${(((item.price + (item.deposit || 0)) / 100) * qty).toFixed(2)}{item.deposit > 0 && ` (includes $${((item.deposit / 100) * qty).toFixed(2)} jar deposit)`}
                     </p>
                   ) : null
                 })}
