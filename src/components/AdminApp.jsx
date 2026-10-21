@@ -8,6 +8,7 @@ import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 import CustomerEditModal from './CustomerEditModal'
 import { MESSENGER_FEE } from '../lib/pricing'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
+import { orderNumber } from '../lib/orderNumber'
 import { fetchSheetMenu, MENU_SHEET_URL } from '../lib/sheetMenu'
 
 // The sheet itself, for editing (the URL above is its CSV export)
@@ -385,7 +386,8 @@ export default function AdminApp({ onLogout }) {
     return status === orderStatusFilter
   }
 
-  const searchTerm = orderSearch.trim().toLowerCase()
+  // "#000123" (as shown in the emails) finds the order the same as "000123"
+  const searchTerm = orderSearch.trim().toLowerCase().replace(/^#/, '')
   const visibleOrders = groupedOrders.filter(order =>
     matchesStatusFilter(order.status) &&
     (orderDateFilter === 'all' || order.delivery_date === orderDateFilter) &&
@@ -809,7 +811,10 @@ export default function AdminApp({ onLogout }) {
                   <tbody>
                     {visibleOrders.map(order => (
                         <tr key={order.order_id} style={{ borderBottom: '1px solid #e0dbd1' }}>
-                          <td data-label="Order ID" style={{ padding: '12px', fontSize: '14px' }}>{order.order_id}</td>
+                          <td data-label="Order ID" style={{ padding: '12px', fontSize: '14px' }}>
+                            <strong style={{ color: '#1a441f' }}>{orderNumber(order.order_id)}</strong>
+                            <div style={{ fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>{order.order_id}</div>
+                          </td>
                           <td data-label="Customer" style={{ padding: '12px', fontSize: '14px' }}>
                             {order.customer_name}
                             {formatWindows(order.delivery_time_slot) && (

@@ -1,6 +1,7 @@
 import { priceOrder, BASE_PRICE, MESSENGER_FEE_RANGE } from '../../src/lib/pricing.js'
 import { formatWindows } from '../../src/lib/deliveryWindows.js'
 import { deliveryOptionLabel } from '../../src/lib/deliveryOptions.js'
+import { orderNumber } from '../../src/lib/orderNumber.js'
 
 const GREEN = '#1a441f'
 const GOLD = '#D4A373'
@@ -109,6 +110,7 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0 }) {
     ${eyebrow('Order confirmed')}
     <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Thank you', name)}</h1>
     <p style="margin:0;font-size:16px;line-height:1.7;">Your order is in. Here's what's coming your way.</p>
+    ${orderNumber(first.order_id) ? `<p style="margin:12px 0 0 0;font-size:13px;color:${MUTED};">Order ${orderNumber(first.order_id)}</p>` : ''}
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:40px 0 0 0;background:${CREAM};border:1px solid ${BORDER};">
       <tr>
@@ -326,6 +328,7 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, siteUrl
     <p style="margin:0 0 28px 0;font-size:16px;line-height:1.7;">${money(price.total)} for delivery ${escapeHtml(deliveryDate)}.</p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${BORDER};">
+      ${detail('Order number', orderNumber(first.order_id))}
       ${detail('Delivery', deliveryDate)}
       ${detail('Windows', formatWindows(first.delivery_time_slot))}
       ${detail('Email', first.email)}
@@ -357,6 +360,6 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, siteUrl
 
   return {
     subject: `New order: ${name}, ${money(price.total)} for ${deliveryDate}`,
-    html: layout({ siteUrl, preheader: `${name} · ${count('entree')} entrées, ${count('salad')} salads`, body })
+    html: layout({ siteUrl, preheader: `${orderNumber(first.order_id)} · ${name} · ${count('entree')} entrées, ${count('salad')} salads`, body })
   }
 }
