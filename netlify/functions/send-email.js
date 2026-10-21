@@ -117,6 +117,25 @@ export default async (req) => {
     return json(200, { sent: recipients.length - failed.length, failed })
   }
 
+  // Admin-only check: sends a sample "new order" email to the admin address, then asks Resend
+  // what became of it, so a problem shows up on screen instead of silently.
+  if (type === 'test_notice') {
+    if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+    const sampleBase = { order_id: 'test@example.com-1792580000000', email: 'test@example.com', customer_name: 'Test Customer', delivery_date: new Date().toISOString().slice(0, 10), delivery_time_slot: '["9:00 AM - 11:00 AM"]', special_notes: 'This is a test, no real order was placed.', status: 'pending' }
+    const sampleRows = [
+      ...['Chicken Parmesan', 'Coconut Lemongrass Salmon', 'Macanese Meatballs'].map(n => ({ ...sampleBase, item_type: 'entree', item_name: n, quantity: 1, total_order_price: 0 })),
+      ...['Roasted Carrot Salad', 'Market Salad'].map(n => ({ ...sampleBase, item_type: 'salad', item_name: n, quantity: 1, total_order_price: 0 }))
+    ]
+    const notice = orderNoticeEmail({ rows: sampleRows, profile: { first_name: 'Test', last_name: 'Customer', delivery_phone: '(555) 123-4567', delivery_address: '1 Example St, New York', delivery_option: 'home', payment_method: 'Venmo' }, siteUrl })
+    const { data: sentTest, error: testError } = await sendWithRetry({ from: EMAIL_FROM, to: ADMIN_NOTIFY_EMAIL, subject: `[Test] ${notice.subject}`, html: notice.html })
+    if (testError) return json(502, { to: ADMIN_NOTIFY_EMAIL, error: testError.message || String(testError.name || 'Resend refused the email') })
+    // Give Resend a moment to try delivering, then ask what happened
+    await new Promise(resolve => setTimeout(resolve, Number(process.env.TEST_NOTICE_WAIT_MS ?? 4000)))
+    let status = 'unknown'
+    try { status = (await resend.emails.get(sentTest.id)).data?.last_event || 'unknown' } catch (err) { console.error('Could not look up the test email:', err) }
+    return json(200, { to: ADMIN_NOTIFY_EMAIL, id: sentTest.id, status })
+  }
+
   if (!orderId) return json(400, { error: 'order_id is required' })
 
   const { data: rows, error: ordersError } = await supabase.from('Orders').select('*').eq('order_id', orderId)
@@ -163,6 +182,7 @@ export default async (req) => {
     try {
       // Once per order. If the claim function isn't installed yet (or can't be reached), send anyway.
       const { data: firstTime, error: claimError } = await supabase.rpc('claim_order_notice', { oid: orderId })
+      console.log('claim_order_notice:', claimError ? `error: ${claimError.message}` : firstTime)
       if (claimError || firstTime === true) {
         const notice = orderNoticeEmail({ ...adminNotice, siteUrl })
         const { error: noticeError } = await sendWithRetry({ from: EMAIL_FROM, replyTo: customerEmail, to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, html: notice.html })

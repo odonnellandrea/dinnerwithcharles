@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { PREFS_SET_COLUMN, isMissingPrefsColumn } from '../lib/notificationConsent'
+import AdminEmailCheck from './AdminEmailCheck'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -119,6 +120,8 @@ export default function NotificationsDashboard() {
   return (
     <div>
       <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Menu Notifications</h2>
+
+      <AdminEmailCheck />
 
       <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
         <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>
