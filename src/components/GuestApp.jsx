@@ -384,6 +384,35 @@ export default function GuestApp({ user, onLogout }) {
   const placedOrder = betweenMenus ? undefined : orderHistory.find(o => o.delivery_date === deliveryDate && o.status !== 'cancelled')
   const menuEmpty = !menuItems.entrees?.length && !menuItems.salads?.length
 
+  // Price lines and the total, shared by the order summary on the menu and the review screen
+  const renderOrderTotals = () => {
+    const totalEntrees = Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0)
+    const totalSalads = Object.values(selectedSalads).reduce((sum, q) => sum + q, 0)
+    const addOnsCost = menuItems.addOns?.filter(item => selectedAddOns[item.id]).reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0) || 0
+    const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost, messengerFee })
+
+    return (
+      <div>
+        <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 salads): ${BASE_PRICE.toFixed(2)}</p>
+        {entreeUpcharge > 0 && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Entrées ({extraEntrees}): ${entreeUpcharge.toFixed(2)} @ ${EXTRA_ENTREE_PRICE} each</p>
+        )}
+        {saladUpcharge > 0 && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Salads ({extraSalads}): ${saladUpcharge.toFixed(2)} @ ${EXTRA_SALAD_PRICE} each</p>
+        )}
+        {addOnsCost > 0 && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsCost.toFixed(2)}</p>
+        )}
+        {messengerFee > 0 && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>
+        )}
+        <div style={{ paddingTop: '8px', borderTop: '2px solid #D4A373' }}>
+          <p style={{ margin: '0', fontSize: '16px', fontWeight: '700', color: '#D4A373' }}>Total: ${grandTotal.toFixed(2)}</p>
+        </div>
+      </div>
+    )
+  }
+
   const deliveryBanner = (
     <div style={{ background: '#1a441f', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
       <div>
@@ -522,6 +551,11 @@ export default function GuestApp({ user, onLogout }) {
                 <strong>Special Requests:</strong> {specialNotes}
               </p>
             )}
+          </div>
+
+          <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+            <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '16px' }}>Order Total</h3>
+            {renderOrderTotals()}
           </div>
 
           <div style={{ display: 'flex', gap: '12px' }}>
@@ -734,33 +768,7 @@ export default function GuestApp({ user, onLogout }) {
 
             <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '16px' }}>Order Summary</h3>
-              {(() => {
-                const totalEntrees = Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0)
-                const totalSalads = Object.values(selectedSalads).reduce((sum, q) => sum + q, 0)
-                const addOnsCost = menuItems.addOns?.filter(item => selectedAddOns[item.id]).reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0) || 0
-                const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost, messengerFee })
-
-                return (
-                  <div>
-                    <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 salads): ${BASE_PRICE.toFixed(2)}</p>
-                    {entreeUpcharge > 0 && (
-                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Entrées ({extraEntrees}): ${entreeUpcharge.toFixed(2)} @ ${EXTRA_ENTREE_PRICE} each</p>
-                    )}
-                    {saladUpcharge > 0 && (
-                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Salads ({extraSalads}): ${saladUpcharge.toFixed(2)} @ ${EXTRA_SALAD_PRICE} each</p>
-                    )}
-                    {addOnsCost > 0 && (
-                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsCost.toFixed(2)}</p>
-                    )}
-                    {messengerFee > 0 && (
-                      <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>
-                    )}
-                    <div style={{ paddingTop: '8px', borderTop: '2px solid #D4A373' }}>
-                      <p style={{ margin: '0', fontSize: '16px', fontWeight: '700', color: '#D4A373' }}>Total: ${grandTotal.toFixed(2)}</p>
-                    </div>
-                  </div>
-                )
-              })()}
+              {renderOrderTotals()}
             </div>
 
             <button
