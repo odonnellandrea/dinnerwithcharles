@@ -36,6 +36,16 @@ const ANSWER_COLUMNS = {
   anythingElse: 'anything_else'
 }
 
+// Tells the admin by email that a request is waiting. Best effort: the request is already
+// saved and shows in the admin Approvals tab even if this fails.
+const notifyAdmin = (userId) => {
+  fetch('/.netlify/functions/notify-request', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId })
+  }).catch(err => console.error('Could not send the new-request email:', err))
+}
+
 const answerColumns = (formData) =>
   Object.fromEntries(Object.entries(ANSWER_COLUMNS).map(([field, column]) => [column, formData[field]]))
 
@@ -227,6 +237,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           ({ error: updateError } = await supabase.from('users').update(withoutNameColumns(changes)).eq('id', resubmitFor.id))
         }
         if (updateError) throw updateError
+        notifyAdmin(resubmitFor.id)
         onResubmitted()
       } catch (err) {
         setError("Something went wrong resubmitting your request. Please try again, or message us on Instagram at @dinnerwithcharles.")
@@ -274,6 +285,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           ;({ error: insertError } = await supabase.from('users').insert([rest]))
         }
         if (insertError) throw insertError
+        notifyAdmin(authData.user.id)
         setSuccessScreen(true)
       }
     } catch (err) {

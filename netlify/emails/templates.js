@@ -1,5 +1,6 @@
 import { priceOrder, BASE_PRICE, MESSENGER_FEE_RANGE } from '../../src/lib/pricing.js'
 import { formatWindows } from '../../src/lib/deliveryWindows.js'
+import { deliveryOptionLabel } from '../../src/lib/deliveryOptions.js'
 
 const GREEN = '#1a441f'
 const GOLD = '#D4A373'
@@ -250,5 +251,43 @@ export function menuLiveEmail({ profile, settings, siteUrl }) {
   return {
     subject: `This week's menu is live`,
     html: layout({ siteUrl, preheader: `Delivery ${deliveryDate}. Order${closes ? ` by ${closes}` : ' now'}.`, body })
+  }
+}
+
+// To the admin when someone requests to join (or resubmits). request: the users row.
+const REQUEST_FIELDS = [
+  ['Household', 'household_composition'],
+  ['Delivery address', 'delivery_address'],
+  ['Delivery options', 'delivery_option'],
+  ['Phone', 'delivery_phone'],
+  ['Allergies', 'allergies'],
+  ['Health restrictions', 'health_restrictions'],
+  ['Anything else', 'anything_else']
+]
+
+export function joinRequestEmail({ request, siteUrl }) {
+  const name = [request.first_name, request.last_name].filter(Boolean).join(' ') || request.name || request.email
+  const rows = REQUEST_FIELDS
+    .map(([label, column]) => [label, column === 'delivery_option' ? deliveryOptionLabel(request[column]) : request[column]])
+    .filter(([, value]) => value && String(value).trim())
+    .map(([label, value]) => `
+      <tr>
+        <td style="padding:10px 16px 10px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:13px;color:${MUTED};vertical-align:top;white-space:nowrap;">${label}</td>
+        <td style="padding:10px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:14px;line-height:1.6;color:#333333;">${escapeHtml(value)}</td>
+      </tr>`).join('')
+
+  const body = `
+    ${eyebrow('Waiting for approval')}
+    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${escapeHtml(name)} wants to join.</h1>
+    <p style="margin:0 0 24px 0;font-size:16px;line-height:1.7;">${escapeHtml(request.email)}</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${BORDER};">${rows}</table>
+    <div style="margin:32px 0 0 0;">
+      ${button(`${siteUrl}`, 'Review and approve')}
+    </div>
+    <p style="margin:32px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Sign in as admin and open the Approvals tab. Their full answers are on their card.</p>`
+
+  return {
+    subject: `New request to join: ${name}`,
+    html: layout({ siteUrl, preheader: `${request.email} is waiting for approval.`, body })
   }
 }

@@ -42,6 +42,13 @@ export default function AdminApp({ onLogout }) {
   const [sheetError, setSheetError] = useState('')
   const [surveyQuestion, setSurveyQuestion] = useState('')
   const [isSurveyActive, setIsSurveyActive] = useState(false)
+  const [waitingCount, setWaitingCount] = useState(0) // requests to join waiting for approval
+
+  // Badge on the Approvals tab, refreshed whenever the admin changes tabs
+  useEffect(() => {
+    supabase.from('users').select('id', { count: 'exact', head: true }).eq('approval_status', 'pending')
+      .then(({ count }) => setWaitingCount(count || 0))
+  }, [screen, pendingCustomers])
 
   useEffect(() => {
     if (screen === 'orders') {
@@ -398,6 +405,9 @@ export default function AdminApp({ onLogout }) {
               className={`admin-tab${screen === key ? ' is-active' : ''}`}
             >
               {label}
+              {key === 'approvals' && waitingCount > 0 && (
+                <span style={{ marginLeft: '8px', background: '#c62828', color: 'white', borderRadius: '10px', padding: '1px 7px', fontSize: '11px', fontWeight: '700' }}>{waitingCount}</span>
+              )}
             </button>
           ))}
         </nav>
