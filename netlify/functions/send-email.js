@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { orderConfirmationEmail, orderNoticeEmail, reheatGuideEmail, approvedEmail, menuLiveEmail } from '../emails/templates.js'
 import { MESSENGER_FEE } from '../../src/lib/pricing.js'
+import { PREFS_SET_COLUMN, isMissingPrefsColumn } from '../../src/lib/notificationConsent.js'
 
 // Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM and EMAIL_REPLY_TO (optional).
 // Supabase URL/key reuse the VITE_ vars the site is built with.
@@ -77,7 +78,16 @@ export default async (req) => {
     if (!claimed?.length) return json(200, { skipped: 'already sent' })
     const undoClaim = () => supabase.from('delivery_settings').update({ menu_email_sent_at: settings.menu_email_sent_at ?? null }).eq('delivery_date', deliveryDate)
 
-    const { data: recipients, error: usersError } = await supabase.from('users').select('email, first_name, name').eq('approval_status', 'approved').eq('email_opt_in', true)
+    // Only people who made an explicit choice: rows with no notification_prefs_set_at still hold
+    // the old column default, which was never consent. (Falls back to the plain flag until
+    // that column's migration has been run, like the Notifications tab.)
+    const optedIn = (confirmedOnly) => {
+      let query = supabase.from('users').select('email, first_name, name').eq('approval_status', 'approved').eq('email_opt_in', true)
+      if (confirmedOnly) query = query.not(PREFS_SET_COLUMN, 'is', null)
+      return query
+    }
+    let { data: recipients, error: usersError } = await optedIn(true)
+    if (isMissingPrefsColumn(usersError)) ({ data: recipients, error: usersError } = await optedIn(false))
     if (usersError) { await undoClaim(); return json(500, { error: usersError.message }) }
     if (!recipients?.length) { await undoClaim(); return json(409, { error: 'No approved customers have opted in to menu emails' }) }
 

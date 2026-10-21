@@ -100,12 +100,15 @@ export default function AdminApp({ onLogout }) {
   }
 
   const fetchMenuEmailRecipients = async () => {
-    const { count } = await supabase
-      .from('users')
-      .select('id', { count: 'exact', head: true })
-      .eq('approval_status', 'approved')
-      .eq('email_opt_in', true)
-    setMenuEmailRecipients(count ?? 0)
+    // Same rule as the send: an explicit choice only (notification_prefs_set_at filled in)
+    const count = async (confirmedOnly) => {
+      let query = supabase.from('users').select('id', { count: 'exact', head: true }).eq('approval_status', 'approved').eq('email_opt_in', true)
+      if (confirmedOnly) query = query.not('notification_prefs_set_at', 'is', null)
+      return query
+    }
+    let result = await count(true)
+    if (result.error && String(result.error.message || '').includes('notification_prefs_set_at')) result = await count(false)
+    setMenuEmailRecipients(result.count ?? 0)
   }
 
   // Emails this week's menu to every approved customer who opted in. The function refuses
