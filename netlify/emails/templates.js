@@ -291,3 +291,72 @@ export function joinRequestEmail({ request, siteUrl }) {
     html: layout({ siteUrl, preheader: `${request.email} is waiting for approval.`, body })
   }
 }
+
+// To the admin when a customer places an order. rows: the Orders rows for that order_id;
+// profile: the customer's users row (for address, phone and how they'd like to receive it).
+export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, siteUrl }) {
+  const first = rows[0]
+  const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || (first.customer_name && !first.customer_name.includes('@') ? first.customer_name : '') || first.email
+  const deliveryDate = formatDeliveryDate(first.delivery_date)
+
+  const count = (type) => rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
+  const addOnsCost = rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
+  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0 })
+
+  const groups = ITEM_GROUPS.map(({ type, label }) => {
+    const items = rows.filter(r => r.item_type === type)
+    if (items.length === 0) return ''
+    return `
+      <p style="margin:28px 0 10px 0;font-size:13px;font-weight:600;color:${GREEN};letter-spacing:0.04em;">${label}</p>
+      ${items.map(r => `
+        <p style="margin:0 0 6px 0;font-size:15px;line-height:1.6;color:#333333;">
+          <span style="display:inline-block;min-width:28px;color:${GOLD};font-weight:600;">${Number(r.quantity)}&times;</span>${escapeHtml(r.item_name)}
+        </p>`).join('')}`
+  }).join('')
+
+  const detail = (label, value) => value && String(value).trim() ? `
+      <tr>
+        <td style="padding:9px 16px 9px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:13px;color:${MUTED};vertical-align:top;white-space:nowrap;">${label}</td>
+        <td style="padding:9px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:14px;line-height:1.6;color:#333333;">${escapeHtml(value)}</td>
+      </tr>` : ''
+
+  const body = `
+    ${eyebrow('New order')}
+    <h1 style="margin:0 0 8px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${escapeHtml(name)} placed an order.</h1>
+    <p style="margin:0 0 28px 0;font-size:16px;line-height:1.7;">${money(price.total)} for delivery ${escapeHtml(deliveryDate)}.</p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${BORDER};">
+      ${detail('Delivery', deliveryDate)}
+      ${detail('Windows', formatWindows(first.delivery_time_slot))}
+      ${detail('Email', first.email)}
+      ${detail('Phone', profile.delivery_phone)}
+      ${detail('Address', profile.delivery_address)}
+      ${detail('Gets it by', profile.delivery_option ? deliveryOptionLabel(profile.delivery_option) : '')}
+      ${detail('Pays by', profile.payment_method)}
+      ${detail('Special requests', first.special_notes)}
+    </table>
+
+    ${groups}
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0;border-top:1px solid ${BORDER};">
+      <tr><td colspan="2" style="padding-top:12px;"></td></tr>
+      <tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Base package</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(BASE_PRICE)}</td></tr>
+      ${price.entreeUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra entrées (${price.extraEntrees})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.entreeUpcharge)}</td></tr>` : ''}
+      ${price.saladUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra salads (${price.extraSalads})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.saladUpcharge)}</td></tr>` : ''}
+      ${price.addOnsCost > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Add-ons</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.addOnsCost)}</td></tr>` : ''}
+      ${price.messengerFee > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Messenger delivery (estimate)</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.messengerFee)}</td></tr>` : ''}
+      <tr>
+        <td style="padding:14px 0 0 0;border-top:2px solid ${GOLD};font-size:16px;font-weight:700;color:${GREEN};">Total</td>
+        <td align="right" style="padding:14px 0 0 0;border-top:2px solid ${GOLD};font-size:16px;font-weight:700;color:${GREEN};">${money(price.total)}</td>
+      </tr>
+    </table>
+
+    <div style="margin:36px 0 0 0;">
+      ${button(siteUrl, 'Open orders')}
+    </div>`
+
+  return {
+    subject: `New order: ${name}, ${money(price.total)} for ${deliveryDate}`,
+    html: layout({ siteUrl, preheader: `${name} · ${count('entree')} entrées, ${count('salad')} salads`, body })
+  }
+}

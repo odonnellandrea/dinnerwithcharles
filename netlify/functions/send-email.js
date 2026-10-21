@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
-import { orderConfirmationEmail, reheatGuideEmail, approvedEmail, menuLiveEmail } from '../emails/templates.js'
+import { orderConfirmationEmail, orderNoticeEmail, reheatGuideEmail, approvedEmail, menuLiveEmail } from '../emails/templates.js'
 import { MESSENGER_FEE } from '../../src/lib/pricing.js'
 
 // Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM and EMAIL_REPLY_TO (optional).
@@ -11,6 +11,8 @@ const ADMIN_EMAIL = 'admin@dinnerwithcharles.com'
 const EMAIL_FROM = process.env.EMAIL_FROM || 'Dinner with Charles <onboarding@resend.dev>'
 // Customer replies go here; info@ forwards to the Dinner with Charles Gmail
 const EMAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || 'info@dinnerwithcharles.com'
+// New-order and new-request notices for the admin go here
+const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || 'info@dinnerwithcharles.com'
 
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
 
@@ -102,12 +104,14 @@ export default async (req) => {
   const customerEmail = rows[0].email
 
   let message
+  let adminNotice = null // set for a new order: the admin hears about it too
   if (type === 'order_confirmation') {
     if (customerEmail.toLowerCase() !== user.email.toLowerCase()) return json(403, { error: 'Not your order' })
     // Customers outside the walking range pay the messenger fee; their own row, so RLS allows it
-    const { data: profile } = await supabase.from('users').select('messenger_delivery, messenger_fee').eq('id', user.id).maybeSingle()
+    const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).maybeSingle()
     const messengerFee = profile?.messenger_delivery === true ? (Number(profile.messenger_fee) || MESSENGER_FEE) : 0
     message = orderConfirmationEmail({ rows, siteUrl, messengerFee })
+    adminNotice = { rows, profile: profile || {}, messengerFee }
   } else if (type === 'reheat_link') {
     if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
     if (!('reheat_email_sent_at' in rows[0])) {
@@ -130,6 +134,23 @@ export default async (req) => {
   }
 
   const { id, error } = await deliver(customerEmail, message)
+
+  // Tell the admin about a new order. Best effort: it never changes what the customer gets,
+  // and it goes out even if the customer's own email failed, since the order is real.
+  if (adminNotice) {
+    try {
+      // Once per order. If the claim function isn't installed yet (or can't be reached), send anyway.
+      const { data: firstTime, error: claimError } = await supabase.rpc('claim_order_notice', { oid: orderId })
+      if (claimError || firstTime === true) {
+        const notice = orderNoticeEmail({ ...adminNotice, siteUrl })
+        const { error: noticeError } = await resend.emails.send({ from: EMAIL_FROM, replyTo: customerEmail, to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, html: notice.html })
+        if (noticeError) console.error('Admin order notice failed:', noticeError)
+      }
+    } catch (err) {
+      console.error('Admin order notice failed:', err)
+    }
+  }
+
   if (error) {
     // Undo the claim: empty again for a first send so marking delivered can retry, or the earlier send's time for a resend
     if (type === 'reheat_link') await supabase.from('Orders').update({ reheat_email_sent_at: rows[0].reheat_email_sent_at ?? null }).eq('order_id', orderId)
