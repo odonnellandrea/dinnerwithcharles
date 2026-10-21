@@ -157,14 +157,54 @@ export function reheatFromCsv(text) {
   return steps
 }
 
-async function fetchSheetCsv() {
-  const res = await fetch(MENU_SHEET_URL, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`Menu sheet returned ${res.status}`)
-  return res.text()
+// The last copy of the sheet is kept in the browser, so a repeat visit can show the menu
+// at once while the fresh copy downloads. Server code has no localStorage; this just no-ops there.
+const CACHE_KEY = 'dwc-menu-sheet'
+const CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000
+const SHARE_WINDOW_MS = 15 * 1000
+
+function readCachedCsv() {
+  try {
+    const { at, csv } = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null') || {}
+    return typeof csv === 'string' && Date.now() - at < CACHE_MAX_AGE_MS ? csv : null
+  } catch { return null }
 }
 
-export async function fetchSheetMenu() {
-  return menuFromCsv(await fetchSheetCsv())
+function writeCachedCsv(csv) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), csv })) } catch { /* private mode or full: skip */ }
+}
+
+// One download shared by everything that asks within a few seconds (the early prefetch,
+// the menu page, the reheat guide). force: true always downloads again.
+let inflight = null
+function fetchSheetCsv({ force = false } = {}) {
+  if (!force && inflight && Date.now() - inflight.at < SHARE_WINDOW_MS) return inflight.promise
+  const promise = (async () => {
+    const res = await fetch(MENU_SHEET_URL, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`Menu sheet returned ${res.status}`)
+    const csv = await res.text()
+    writeCachedCsv(csv)
+    return csv
+  })()
+  inflight = { at: Date.now(), promise }
+  promise.catch(() => { if (inflight?.promise === promise) inflight = null })
+  return promise
+}
+
+export async function fetchSheetMenu(options) {
+  return menuFromCsv(await fetchSheetCsv(options))
+}
+
+// The menu from the last visit, or null if there isn't a recent one
+export function getCachedSheetMenu() {
+  const csv = readCachedCsv()
+  if (!csv) return null
+  try { return menuFromCsv(csv) } catch { return null }
+}
+
+// Start the download without waiting for it, so it runs while the page loads
+export function prefetchSheetMenu() {
+  fetchSheetCsv().catch(() => {})
 }
 
 export async function fetchSheetReheat() {

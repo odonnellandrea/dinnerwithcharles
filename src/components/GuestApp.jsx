@@ -9,7 +9,7 @@ import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
 import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, MESSENGER_FEE } from '../lib/pricing'
 import { downloadPdf } from '../lib/downloadPdf'
-import { fetchSheetMenu } from '../lib/sheetMenu'
+import { fetchSheetMenu, getCachedSheetMenu } from '../lib/sheetMenu'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -89,9 +89,27 @@ export default function GuestApp({ user, onLogout }) {
     }
   }, [deliveryDate])
 
+  // Drop anything in the cart that isn't on the menu any more (the menu changed since the
+  // copy we showed first), so the total never counts a dish the customer can't see
+  const pruneSelections = (menu) => {
+    const keep = (items) => (selected) => {
+      const ids = new Set((items || []).map(item => item.id))
+      const kept = Object.entries(selected).filter(([id]) => ids.has(id))
+      return kept.length === Object.keys(selected).length ? selected : Object.fromEntries(kept)
+    }
+    setSelectedEntrees(keep(menu.entrees))
+    setSelectedSalads(keep(menu.salads))
+    setSelectedAddOns(keep(menu.addOns))
+  }
+
   const fetchLiveMenu = async () => {
     setLoading(true)
     setError('')
+
+    // Download the menu sheet now, alongside the live-date lookup, instead of after it.
+    // The catch only stops a failure being reported twice when we leave early below.
+    const freshMenu = fetchSheetMenu()
+    freshMenu.catch(() => {})
 
     try {
       // Normally exactly one date is live. If more than one ever is, use the latest rather than failing.
@@ -114,8 +132,21 @@ export default function GuestApp({ user, onLogout }) {
       setDeliveryDate(liveDate)
       setOrderCloseDatetime(deliverySettings.order_close_datetime)
 
-      // The menu itself comes from the Google Sheet
-      setMenuItems(await fetchSheetMenu())
+      // The menu itself comes from the Google Sheet. Show the copy from the last visit straight
+      // away if there is one, then swap in the fresh copy when it arrives.
+      const cached = getCachedSheetMenu()
+      if (cached) {
+        setMenuItems(cached)
+        setLoading(false)
+      }
+      try {
+        const fresh = await freshMenu
+        setMenuItems(fresh)
+        if (cached) pruneSelections(fresh)
+      } catch (err) {
+        if (!cached) throw err
+        console.error('Could not refresh the menu, showing the last copy:', err)
+      }
     } catch (err) {
       setError("We couldn't load this week's menu. Please refresh the page.")
       console.error('Failed to load menu:', err)

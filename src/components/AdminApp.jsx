@@ -163,7 +163,7 @@ export default function AdminApp({ onLogout }) {
   const loadSheetMenu = async () => {
     setSheetError('')
     try {
-      setSheetMenu(await fetchSheetMenu())
+      setSheetMenu(await fetchSheetMenu({ force: true }))
     } catch (err) {
       setSheetMenu(null)
       setSheetError("Couldn't read the menu sheet. Check that it's shared as \"Anyone with the link can view\".")
