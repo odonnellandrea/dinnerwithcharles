@@ -7,7 +7,7 @@ import * as pdf from '../pdf/toolkit.js'
 // weekly menu PDF, so a family can pass it around.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_KEY
-const { json, L, R, CW, TX, TW, GREEN, GOLD, INK, TAG } = pdf
+const { json, L, R, CW, TX, TW, GREEN, GOLD, INK, MUTED } = pdf
 
 const money = (cents) => `$${Number.isInteger(cents / 100) ? cents / 100 : (cents / 100).toFixed(2)}`
 
@@ -27,15 +27,15 @@ function draw(doc, { menu, deliveryDate, badge }) {
       section.items.forEach((item, i) => {
         if (i > 0) { pdf.rule(doc, y); y += 13 }
         const price = Number.isFinite(item.price) ? money(item.price) : ''
-        doc.font('Times-Bold').fontSize(11.5).fillColor(GOLD).text(price, L, y, { width: CW, align: 'right' })
+        doc.font('Helvetica-Bold').fontSize(10.5).fillColor(GOLD).text(price, L, y, { width: CW, align: 'right' })
         const nameW = CW - (price ? doc.widthOfString(price) + 12 : 0)
         doc.font('Times-BoldItalic').fontSize(11.5).fillColor(GREEN)
         y = pdf.wrapped(doc, item.name, L, y, nameW, { lineGap: 4 }) + 1.75
         if (item.note) {
-          doc.font('Courier').fontSize(7.5).fillColor(GOLD).text(item.note.toUpperCase(), L, y, { width: CW, lineBreak: false })
+          doc.font('Courier').fontSize(7.6).fillColor(MUTED).text(item.note.toUpperCase(), L, y, { width: CW, lineBreak: false })
           y += 9.5
         }
-        if (item.description) y = pdf.paragraph(doc, y, item.description, { x: L, width: CW - 30, size: 8.5, lineGap: 4.1 })
+        if (item.description) y = pdf.paragraph(doc, y, item.description, { x: L, width: 230.5, size: 8.7, lineGap: 3.9 })
         y += 9.5
       })
       y += 3

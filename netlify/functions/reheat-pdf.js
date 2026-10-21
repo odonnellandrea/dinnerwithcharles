@@ -35,10 +35,11 @@ function draw(doc, { dishes, deliveryDate, customerName, badge }) {
         doc.font('Helvetica').fontSize(9).fillColor(MUTED).text('Nothing to reheat. Serve as is.', TX, y, { width: TW })
         y += 13
       }
+      y += 0.7
       dish.components.forEach((comp, ci) => {
         if (comp.name) {
-          doc.font('Helvetica-BoldOblique').fontSize(8.5).fillColor(GREEN).text(`${comp.name} —`, TX, y, { width: TW })
-          y += doc.currentLineHeight() + 3.5
+          doc.font('Helvetica-BoldOblique').fontSize(8.2).fillColor(pdf.SOFT).text(`${comp.name} —`, TX, y, { width: TW })
+          y += doc.currentLineHeight() + 3.8
         }
         y = pdf.paragraph(doc, y, comp.instruction || '') + (ci < dish.components.length - 1 ? 6.5 : 0)
       })
