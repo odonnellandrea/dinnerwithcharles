@@ -42,8 +42,20 @@ export default async (req) => {
   const { type, order_id: orderId, user_id: userId, delivery_date: deliveryDate, resend: isResend = false } = payload || {}
   const siteUrl = process.env.URL || new URL(req.url).origin
   const resend = new Resend(process.env.RESEND_API_KEY)
+  // Resend allows about two requests a second, and an order sends two emails back to back.
+  // If it says "slow down", wait a moment and try again instead of dropping the email.
+  const sendWithRetry = async (payload) => {
+    let result
+    for (let attempt = 0; attempt < 3; attempt++) {
+      result = await resend.emails.send(payload)
+      const e = result.error
+      if (!e || !(e.statusCode === 429 || /rate.?limit|too many/i.test(`${e.name} ${e.message}`))) break
+      await new Promise(resolve => setTimeout(resolve, 1200))
+    }
+    return result
+  }
   const deliver = async (to, message) => {
-    const { data, error } = await resend.emails.send({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to, subject: message.subject, html: message.html })
+    const { data, error } = await sendWithRetry({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to, subject: message.subject, html: message.html })
     return { id: data?.id, error }
   }
 
@@ -153,8 +165,9 @@ export default async (req) => {
       const { data: firstTime, error: claimError } = await supabase.rpc('claim_order_notice', { oid: orderId })
       if (claimError || firstTime === true) {
         const notice = orderNoticeEmail({ ...adminNotice, siteUrl })
-        const { error: noticeError } = await resend.emails.send({ from: EMAIL_FROM, replyTo: customerEmail, to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, html: notice.html })
+        const { error: noticeError } = await sendWithRetry({ from: EMAIL_FROM, replyTo: customerEmail, to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, html: notice.html })
         if (noticeError) console.error('Admin order notice failed:', noticeError)
+        else console.log('Admin order notice sent to', ADMIN_NOTIFY_EMAIL)
       }
     } catch (err) {
       console.error('Admin order notice failed:', err)
