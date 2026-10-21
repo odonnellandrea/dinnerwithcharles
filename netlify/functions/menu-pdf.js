@@ -69,7 +69,9 @@ export default async (req) => {
   const { data: { user } = {}, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) return json(401, { error: 'Invalid session' })
 
-  const { data: settings } = await supabase.from('delivery_settings').select('delivery_date').eq('is_live', true).maybeSingle()
+  // Same rule as the ordering page: if more than one date is ever live, use the latest
+  const { data: liveRows } = await supabase.from('delivery_settings').select('delivery_date').eq('is_live', true).order('delivery_date', { ascending: false }).limit(1)
+  const settings = liveRows?.[0]
   if (!settings) return json(409, { error: 'No menu is live right now' })
 
   let menu

@@ -182,27 +182,44 @@ export default function AdminApp({ onLogout }) {
       return
     }
 
-    const { data } = await supabase
+    const failed = (what, error, note = 'Nothing else was changed.') => alert(`Couldn't ${what}: ${error.message}\n\n${note} Please try again.`)
+
+    const { data, error: readError } = await supabase
       .from('delivery_settings')
       .select('*')
       .eq('delivery_date', deliveryDate)
-    
-    if (data?.length > 0) {
-      await supabase
+    if (readError) return failed('check this delivery date', readError)
+
+    const existing = data?.length > 0 ? data[0] : null
+    const turningOn = !existing || !existing.is_live
+
+    // Only one delivery date is ever live. Switch every other date off first, so if the
+    // next step fails the result is "nothing live" rather than two live menus.
+    if (turningOn) {
+      const { error: othersError } = await supabase
         .from('delivery_settings')
-        .update({ is_live: !data[0].is_live })
-        .eq('delivery_date', deliveryDate)
-    } else {
-      await supabase
-        .from('delivery_settings')
-        .insert({
-          delivery_date: deliveryDate,
-          order_open_datetime: new Date().toISOString(),
-          order_close_datetime: new Date(orderCloseLocal).toISOString(),
-          is_live: true
-        })
+        .update({ is_live: false })
+        .neq('delivery_date', deliveryDate)
+      if (othersError) return failed('switch the other dates off', othersError)
     }
-    
+
+    const { error: saveError } = existing
+      ? await supabase
+          .from('delivery_settings')
+          .update({ is_live: turningOn })
+          .eq('delivery_date', deliveryDate)
+      : await supabase
+          .from('delivery_settings')
+          .insert({
+            delivery_date: deliveryDate,
+            order_open_datetime: new Date().toISOString(),
+            order_close_datetime: new Date(orderCloseLocal).toISOString(),
+            is_live: true
+          })
+    if (saveError) {
+      failed(turningOn ? 'go live' : 'take ordering offline', saveError, turningOn ? 'The other dates were switched off, so nothing is live right now.' : 'Ordering is still open.')
+    }
+
     await fetchOrderClose(deliveryDate)
   }
 

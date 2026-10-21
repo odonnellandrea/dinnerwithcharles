@@ -94,11 +94,15 @@ export default function GuestApp({ user, onLogout }) {
     setError('')
 
     try {
-      const { data: deliverySettings } = await supabase
+      // Normally exactly one date is live. If more than one ever is, use the latest rather than failing.
+      const { data: liveRows, error: liveError } = await supabase
         .from('delivery_settings')
         .select('delivery_date, order_close_datetime')
         .eq('is_live', true)
-        .single()
+        .order('delivery_date', { ascending: false })
+        .limit(1)
+      if (liveError) throw liveError
+      const deliverySettings = liveRows?.[0]
 
       if (!deliverySettings) {
         setNoLiveMenu(true)
