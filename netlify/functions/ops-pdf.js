@@ -5,7 +5,7 @@ import { json, pdfResponse } from '../pdf/toolkit.js'
 
 // Admin only. GET /.netlify/functions/ops-pdf?date=YYYY-MM-DD&doc=packing|chef|info
 //   &family=a@x.com,b@x.com   Andrea and her parents: no packing page, not counted for the chef (shown as :) instead)
-//   &rob=c@x.com              families Rob delivers: no packing page, but counted for the chef
+//   Everyone else, Rob and Sonny included, is a normal customer.
 // doc=info returns who ordered and which dishes still have a guessed container list, as JSON.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_KEY
@@ -34,7 +34,6 @@ export default async (req) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json(400, { error: 'Pick a delivery date' })
   if (!['packing', 'chef', 'info'].includes(doc)) return json(400, { error: 'Unknown document' })
   const family = emailList(url.searchParams.get('family'))
-  const rob = emailList(url.searchParams.get('rob'))
 
   const { data: orders, error: ordersError } = await supabase.from('Orders').select('*').eq('delivery_date', date).neq('status', 'cancelled')
   if (ordersError) return json(502, { error: 'Could not read the orders: ' + ordersError.message })
@@ -62,8 +61,8 @@ export default async (req) => {
   const weekLabel = `Delivery ${shortDate(date)}`
 
   if (doc === 'packing') {
-    const packed = customers.filter(c => !family.has(c.email) && !rob.has(c.email))
-    if (!packed.length) return json(409, { error: 'Everyone who ordered is marked as family or delivered by Rob, so there is nothing to pack' })
+    const packed = customers.filter(c => !family.has(c.email))
+    if (!packed.length) return json(409, { error: 'Everyone who ordered is marked as Andrea / parents, so there is nothing to pack' })
     const emails = packed.map(c => c.email)
     const { data: profiles } = await supabase.from('users').select('email, delivery_address').in('email', emails)
     const addressOf = Object.fromEntries((profiles || []).map(p => [String(p.email).toLowerCase(), p.delivery_address]))
@@ -94,7 +93,7 @@ export default async (req) => {
     return pdfResponse(file, `Packing List - ${date}.pdf`)
   }
 
-  // Chef reference: count real customer orders (families Rob delivers included) per dish
+  // Chef reference: count real customer orders per dish
   const dishes = new Map()
   for (const customer of customers) {
     for (const row of customer.rows) {
