@@ -3,7 +3,7 @@
 
 export const EMAIL_CONSENT_TEXT = 'Email me weekly menu announcements and news from Dinner with Charles.'
 
-export const SMS_CONSENT_TEXT = 'Text me when the menu opens and with order updates from Dinner with Charles. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of joining or ordering.'
+export const SMS_CONSENT_TEXT = "Text me when the menu opens and with order updates from Dinner with Charles. We're not texting yet. We plan to start as we grow, and you'll only get texts once we do. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of joining or ordering."
 
 export const TRANSACTIONAL_NOTE = "Order confirmations and delivery emails are always sent, whatever you choose here."
 
