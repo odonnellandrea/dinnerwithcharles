@@ -5,6 +5,7 @@ import { formatUsPhone } from '../lib/notificationConsent'
 import '../styles/admin.css'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
+import ReferralCodesDashboard from './ReferralCodesDashboard'
 import CustomerEditModal from './CustomerEditModal'
 import SurveyResponses from './SurveyResponses'
 import { MESSENGER_FEE } from '../lib/pricing'
@@ -422,6 +423,7 @@ export default function AdminApp({ onLogout }) {
             ['menu', 'Menu'],
             ['orders', 'Orders'],
             ['notifications', 'Notifications'],
+            ['codes', 'Codes'],
             ['documents', 'Documents']
           ].map(([key, label]) => (
             <button
@@ -906,6 +908,10 @@ export default function AdminApp({ onLogout }) {
 
         {screen === 'notifications' && (
           <NotificationsDashboard />
+        )}
+
+        {screen === 'codes' && (
+          <ReferralCodesDashboard />
         )}
 
         {screen === 'documents' && (

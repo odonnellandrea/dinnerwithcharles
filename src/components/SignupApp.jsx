@@ -172,6 +172,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         const status = await checkCode(formData.referralCode)
         setCheckingEmail(false)
         if (status && !status.valid) {
+          setCodeStatus(null)
           setError("We don't recognise that code. Check it, or clear the box to continue without one.")
           return
         }
