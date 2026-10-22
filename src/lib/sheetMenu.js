@@ -199,6 +199,7 @@ export function dishInfoFromCsv(text) {
       const guess = reheatNames.length ? reheatNames : type === 'entree' ? [row.name, ...sides] : [row.name]
       best[key] = {
         week,
+        weekOf: row.week_of || '',
         index,
         type,
         name: row.name,

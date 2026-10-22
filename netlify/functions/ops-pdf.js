@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { fetchSheetDishInfo } from '../../src/lib/sheetMenu.js'
-import { makePackingList, makeChefReference } from '../pdf/ops.js'
+import { makePackingList, makeChefReference, makeOrderGrid } from '../pdf/ops.js'
 import { json, pdfResponse } from '../pdf/toolkit.js'
 
-// Admin only. GET /.netlify/functions/ops-pdf?date=YYYY-MM-DD&doc=packing|chef|info
-//   &family=a@x.com,b@x.com   Andrea and her parents: no packing page, not counted for the chef (shown as :) instead)
+// Admin only. GET /.netlify/functions/ops-pdf?date=YYYY-MM-DD&doc=packing|chef|grid|info
+//   &family=a@x.com,b@x.com   Andrea and her parents: no packing page, not counted for the chef (shown as :) instead), dots on the order grid
 //   &rob=c@x.com              only adds a "Rob delivers" note to that family's packing page; they are a normal customer otherwise
 // doc=info returns who ordered and which dishes still have a guessed container list, as JSON.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
@@ -32,7 +32,7 @@ export default async (req) => {
   const date = url.searchParams.get('date') || ''
   const doc = url.searchParams.get('doc')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json(400, { error: 'Pick a delivery date' })
-  if (!['packing', 'chef', 'info'].includes(doc)) return json(400, { error: 'Unknown document' })
+  if (!['packing', 'chef', 'grid', 'info'].includes(doc)) return json(400, { error: 'Unknown document' })
   const family = emailList(url.searchParams.get('family'))
   const rob = emailList(url.searchParams.get('rob'))
 
@@ -92,6 +92,29 @@ export default async (req) => {
     })
     const file = await makePackingList(clients, weekLabel)
     return pdfResponse(file, `Packing List - ${date}.pdf`)
+  }
+
+  if (doc === 'grid') {
+    // Every dish on that week's menu gets a row, ordered or not; plus any add-on someone ordered
+    const ordered = new Map(orders.map(row => [dishInfo(row).name, dishInfo(row)]))
+    const onMenu = Object.values(info).filter(d => d.weekOf === date && (d.type !== 'addon' || ordered.has(d.name)))
+    const dishes = (onMenu.length ? onMenu : [...ordered.values()])
+    const order = { entree: 0, salad: 1, addon: 2 }
+    dishes.sort((a, b) => (order[a.type] - order[b.type]) || (a.index - b.index))
+    // Dishes that were ordered but are no longer on the sheet's menu still get a row
+    for (const dish of ordered.values()) if (!dishes.some(d => d.name === dish.name)) dishes.push(dish)
+    const sections = { entree: 'ENTRÉES', salad: 'SALADS', addon: 'ADD-ONS' }
+
+    const firstNames = customers.map(cust => String(cust.name).trim().split(/\s+/)[0])
+    const gridCustomers = customers.map((cust, i) => {
+      // Two customers with the same first name get a last initial
+      const last = String(cust.name).trim().split(/\s+/).slice(1).join(' ')
+      const label = firstNames.filter(n => n === firstNames[i]).length > 1 && last ? `${firstNames[i]} ${last[0]}.` : firstNames[i]
+      const values = dishes.map(dish => cust.rows.filter(row => dishInfo(row).name === dish.name).reduce((n, row) => n + Math.max(1, Number(row.quantity) || 1), 0))
+      return { name: label, values, dots: family.has(cust.email) }
+    })
+    const file = await makeOrderGrid({ weekLabel: `${weekLabel} Order Grid`, dishes: dishes.map(d => ({ section: sections[d.type] || 'OTHER', name: d.name })), customers: gridCustomers })
+    return pdfResponse(file, `Order Grid - ${date}.pdf`)
   }
 
   // Chef reference: count real customer orders per dish

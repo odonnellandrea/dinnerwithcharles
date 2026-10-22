@@ -8,6 +8,7 @@ const supabase = createClient(
 )
 
 const DOCUMENTS = [
+  { id: 'grid', title: 'Order Grid', icon: '📊', description: '6x4 landscape, black and white. Who ordered what for the week, with totals. Andrea and her parents show as dots.' },
   { id: 'packing', title: 'Packing Lists', icon: '📦', description: '4x6 black and white. One page per family with a checkbox for every container and their special instructions.' },
   { id: 'chef', title: 'Chef Reference', icon: '👨‍🍳', description: '4x6 black and white. How many of each dish to cook, with containers and packaging.' }
 ]
@@ -160,7 +161,7 @@ export default function DocumentGenerationDashboard() {
       </div>
 
       <p style={{ margin: '20px 0 0 0', fontSize: '12px', color: '#999', lineHeight: 1.6 }}>
-        Cancelled orders are left out. The order grid, delivery labels and reheat stickers are not built into the admin yet; keep making those with the toolkit.
+        Cancelled orders are left out. Delivery labels and reheat stickers are not built into the admin yet; keep making those with the toolkit.
       </p>
     </div>
   )
