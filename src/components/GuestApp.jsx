@@ -57,6 +57,7 @@ export default function GuestApp({ user, onLogout }) {
   const [survey, setSurvey] = useState(null)
   const [surveyResponse, setSurveyResponse] = useState('')
   const [surveySubmitted, setSurveySubmitted] = useState(false)
+  const [surveyError, setSurveyError] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [orderHistory, setOrderHistory] = useState([])
@@ -396,17 +397,21 @@ export default function GuestApp({ user, onLogout }) {
 
   const handleSurveySubmit = async () => {
     if (!surveyResponse.trim() || !survey) return
+    setSurveyError('')
     try {
-      await supabase.from('survey_responses').insert({
+      // supabase-js returns failures instead of throwing them, so check, or a refused answer looks saved
+      const { error } = await supabase.from('survey_responses').insert({
         survey_id: survey.id,
         user_email: user.email,
         response: surveyResponse
       })
+      if (error) throw error
       setSurveySubmitted(true)
       setSurveyResponse('')
       setTimeout(() => setSurveySubmitted(false), 3000)
     } catch (err) {
       console.error('Error submitting survey:', err)
+      setSurveyError("Sorry, we couldn't save your answer. Please try again.")
     }
   }
 
@@ -712,6 +717,9 @@ export default function GuestApp({ user, onLogout }) {
                     Send
                   </button>
                 </div>
+                {surveyError && (
+                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#c62828' }}>{surveyError}</p>
+                )}
                 {surveySubmitted && (
                   <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#1a441f', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
                 )}
