@@ -10,7 +10,7 @@
 --   order_discounts    every discount taken off an order, so emails and totals can show it
 --   users.referral_code the code someone typed on the join form
 --
--- Customers never read these tables directly. They go through the three functions at the end.
+-- Customers never read these tables directly. They go through the functions below.
 
 begin;
 
@@ -116,7 +116,7 @@ declare
   credit integer := 0;
 begin
   if me = '' then
-    return jsonb_build_object('new_customer_cents', 0, 'credit_cents', 0);
+    return jsonb_build_object('new_customer_cents', 0, 'credit_cents', 0, 'has_code', false);
   end if;
   select referral_code into v_code from public.users where lower(email) = me limit 1;
   if coalesce(v_code, '') <> ''
@@ -126,11 +126,48 @@ begin
   end if;
   select coalesce(sum(amount_cents), 0) into credit
     from public.referral_credits where lower(owner_email) = me and spent_order_id is null;
-  return jsonb_build_object('new_customer_cents', coalesce(new_cents, 0), 'credit_cents', credit);
+  return jsonb_build_object('new_customer_cents', coalesce(new_cents, 0), 'credit_cents', credit, 'has_code', coalesce(v_code, '') <> '');
 end
 $$;
 revoke all on function public.my_pending_discount() from public;
 grant execute on function public.my_pending_discount() to authenticated;
+
+-- A signed-in customer who joined without a code can add one at checkout. One code per customer,
+-- and not their own. Returns { ok, discount_cents } or { ok: false, reason }.
+create or replace function public.attach_referral_code(c text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  me text := lower(coalesce(auth.jwt() ->> 'email', ''));
+  r public.referral_codes%rowtype;
+  used integer;
+  current_code text;
+begin
+  if me = '' then return jsonb_build_object('ok', false, 'reason', 'not_signed_in'); end if;
+  select referral_code into current_code from public.users where lower(email) = me limit 1;
+  if coalesce(current_code, '') <> '' or exists (select 1 from public.order_discounts where lower(email) = me and kind = 'new_customer') then
+    return jsonb_build_object('ok', false, 'reason', 'already_has_code');
+  end if;
+  select * into r from public.referral_codes where upper(code) = upper(trim(coalesce(c, '')));
+  if not found or not r.active or (r.expires_at is not null and r.expires_at < now()) then
+    return jsonb_build_object('ok', false, 'reason', 'invalid');
+  end if;
+  if r.owner_email is not null and lower(r.owner_email) = me then
+    return jsonb_build_object('ok', false, 'reason', 'own_code');
+  end if;
+  select count(*) into used from public.users where upper(referral_code) = upper(r.code);
+  if r.max_uses is not null and used >= r.max_uses then
+    return jsonb_build_object('ok', false, 'reason', 'invalid');
+  end if;
+  update public.users set referral_code = r.code where lower(email) = me;
+  return jsonb_build_object('ok', true, 'discount_cents', r.new_customer_discount_cents);
+end
+$$;
+revoke all on function public.attach_referral_code(text) from public;
+grant execute on function public.attach_referral_code(text) to authenticated;
 
 -- Takes the discounts off the order the customer just placed (subtotal_cents is what they owed
 -- before discounts) and returns the cents taken off. Safe to call twice for the same order.

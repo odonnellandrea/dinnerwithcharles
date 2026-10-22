@@ -8,6 +8,7 @@ import GuestHeader from './GuestHeader'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
 import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, MESSENGER_FEE } from '../lib/pricing'
+import { normalizeCode, formatCents } from '../lib/referral'
 import { downloadPdf } from '../lib/downloadPdf'
 import { fetchSheetMenu, getCachedSheetMenu } from '../lib/sheetMenu'
 
@@ -69,7 +70,10 @@ export default function GuestApp({ user, onLogout }) {
   // Outside the walking range: orders come by Uber messenger and the fee is added
   const [messengerFee, setMessengerFee] = useState(0)
   // From the referral_codes migration: { newCents, creditCents } this customer could take off an order
-  const [pendingDiscount, setPendingDiscount] = useState({ newCents: 0, creditCents: 0 })
+  const [pendingDiscount, setPendingDiscount] = useState({ newCents: 0, creditCents: 0, hasCode: false })
+  const [checkoutCode, setCheckoutCode] = useState('')
+  const [checkoutCodeNote, setCheckoutCodeNote] = useState(null) // { ok, text }
+  const [applyingCode, setApplyingCode] = useState(false)
   const [downloadingMenu, setDownloadingMenu] = useState(false)
 
   useEffect(() => {
@@ -162,8 +166,31 @@ export default function GuestApp({ user, onLogout }) {
   // What a referral code or earned credit would take off. If the migration isn't run, no discount.
   const fetchPendingDiscount = async () => {
     const { data, error } = await supabase.rpc('my_pending_discount')
-    if (error || !data) { setPendingDiscount({ newCents: 0, creditCents: 0 }); return }
-    setPendingDiscount({ newCents: Number(data.new_customer_cents) || 0, creditCents: Number(data.credit_cents) || 0 })
+    if (error || !data) { setPendingDiscount({ newCents: 0, creditCents: 0, hasCode: true }); return }
+    setPendingDiscount({ newCents: Number(data.new_customer_cents) || 0, creditCents: Number(data.credit_cents) || 0, hasCode: data.has_code === true })
+  }
+
+  // "Have a code?" at checkout, for someone who joined without one
+  const applyCheckoutCode = async () => {
+    const code = normalizeCode(checkoutCode)
+    if (!code) return
+    setApplyingCode(true)
+    setCheckoutCodeNote(null)
+    const { data, error } = await supabase.rpc('attach_referral_code', { c: code })
+    setApplyingCode(false)
+    if (error || !data) { setCheckoutCodeNote({ ok: false, text: "Sorry, we couldn't check that code. Please try again." }); return }
+    if (data.ok) {
+      setCheckoutCode('')
+      setCheckoutCodeNote({ ok: true, text: data.discount_cents > 0 ? `✓ Code applied: ${formatCents(data.discount_cents)} off this order.` : '✓ Code applied.' })
+      await fetchPendingDiscount()
+      return
+    }
+    const reasons = {
+      already_has_code: 'You already have a code on your account.',
+      own_code: "That's your own code. Share it with a friend instead.",
+      invalid: "We don't recognise that code, or it's no longer available."
+    }
+    setCheckoutCodeNote({ ok: false, text: reasons[data.reason] || "We couldn't use that code." })
   }
 
   // Ask once if they've never been asked. If the column doesn't exist yet
@@ -636,6 +663,35 @@ export default function GuestApp({ user, onLogout }) {
 
           <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
             <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '16px' }}>Order Total</h3>
+            {(!pendingDiscount.hasCode || checkoutCodeNote) && (
+              <div style={{ margin: '0 0 16px' }}>
+                {!pendingDiscount.hasCode && (
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      value={checkoutCode}
+                      onChange={(e) => { setCheckoutCode(e.target.value); setCheckoutCodeNote(null) }}
+                      placeholder="Have a code?"
+                      autoCapitalize="characters"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      style={{ flex: 1, minWidth: 0, padding: '10px 12px', border: '1px solid #e0dbd1', borderRadius: '6px', fontSize: '14px', textTransform: 'uppercase', boxSizing: 'border-box' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyCheckoutCode}
+                      disabled={applyingCode || !normalizeCode(checkoutCode)}
+                      style={{ padding: '10px 18px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: applyingCode ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', opacity: applyingCode || !normalizeCode(checkoutCode) ? 0.6 : 1 }}
+                    >
+                      {applyingCode ? 'Checking...' : 'Apply'}
+                    </button>
+                  </div>
+                )}
+                {checkoutCodeNote && (
+                  <p style={{ margin: '8px 0 0', fontSize: '13px', color: checkoutCodeNote.ok ? '#1a441f' : '#c62828' }}>{checkoutCodeNote.text}</p>
+                )}
+              </div>
+            )}
             {renderOrderTotals()}
           </div>
 
