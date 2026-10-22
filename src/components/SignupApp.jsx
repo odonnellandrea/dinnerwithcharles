@@ -4,6 +4,7 @@ import NotificationChoices from './NotificationChoices'
 import { normalizeUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
 import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
 import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions, hasDeliveryOption } from '../lib/deliveryOptions'
+import { normalizeCode, codeMessage } from '../lib/referral'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -62,6 +63,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
     email: '',
     password: '',
     confirmPassword: '',
+    referralCode: '',
     household: '',
     address: '',
     deliveryOption: '',
@@ -125,6 +127,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
   }, [])
 
   const [checkingEmail, setCheckingEmail] = useState(false)
+  // null = nothing typed yet or the check is not installed; otherwise { valid, message }
+  const [codeStatus, setCodeStatus] = useState(null)
+  const [referralInstalled, setReferralInstalled] = useState(true)
 
   const handleNext = async () => {
     if (step === 1) {
@@ -161,6 +166,15 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
       if (!checkError && taken === true) {
         setError('There is already an account for this email. Go back and sign in instead, or use "Forgot password?" if you need a new password.')
         return
+      }
+      if (normalizeCode(formData.referralCode)) {
+        setCheckingEmail(true)
+        const status = await checkCode(formData.referralCode)
+        setCheckingEmail(false)
+        if (status && !status.valid) {
+          setError("We don't recognise that code. Check it, or clear the box to continue without one.")
+          return
+        }
       }
     }
     
@@ -203,6 +217,19 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
       setStep(step - 1)
       setError('')
     }
+  }
+
+  // Asks the database whether a code is good. If the function isn't installed yet, the code
+  // is left out rather than blocking the request.
+  const checkCode = async (value) => {
+    const code = normalizeCode(value)
+    if (!code) { setCodeStatus(null); return null }
+    const { data, error: rpcError } = await supabase.rpc('check_referral_code', { c: code })
+    if (rpcError) { setReferralInstalled(false); setCodeStatus(null); return null }
+    setReferralInstalled(true)
+    const status = data?.valid ? { valid: true, message: codeMessage(data) } : { valid: false, message: "We don't recognise that code." }
+    setCodeStatus(status)
+    return status
   }
 
   const handleSubmit = async () => {
@@ -262,6 +289,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           ...nameColumns(formData.firstName, formData.lastName),
           email: formData.email,
           ...answerColumns(formData),
+          ...(referralInstalled && normalizeCode(formData.referralCode) ? { referral_code: normalizeCode(formData.referralCode) } : {}),
           // Always explicit so we never rely on the column default
           email_opt_in: formData.emailOptIn === true,
           sms_opt_in: formData.smsOptIn === true,
@@ -273,6 +301,11 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         }
 
         let { error: insertError } = await supabase.from('users').insert([profile])
+        // Until 20261022_referral_codes.sql is run there is no referral_code column
+        if (insertError && /referral_code/.test(insertError.message || '')) {
+          const { referral_code: _r, ...withoutCode } = profile
+          ;({ error: insertError } = await supabase.from('users').insert([withoutCode]))
+        }
         if (isMissingPrefsColumn(insertError)) {
           ({ error: insertError } = await supabase.from('users').insert([withoutPrefsColumn(profile)]))
         }
@@ -357,7 +390,21 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
               </div>
               <input type="email" placeholder="Email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input type="password" placeholder="Password" value={formData.password} onChange={(e) => updateField('password', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="password" placeholder="Confirm Password" value={formData.confirmPassword} onChange={(e) => updateField('confirmPassword', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="password" placeholder="Confirm Password" value={formData.confirmPassword} onChange={(e) => updateField('confirmPassword', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input
+                type="text"
+                placeholder="Referral or promo code (optional)"
+                autoCapitalize="characters"
+                autoCorrect="off"
+                spellCheck={false}
+                value={formData.referralCode}
+                onChange={(e) => { updateField('referralCode', e.target.value); setCodeStatus(null) }}
+                onBlur={() => checkCode(formData.referralCode)}
+                style={{ width: '100%', padding: '12px', marginBottom: codeStatus ? '8px' : '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }}
+              />
+              {codeStatus && (
+                <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: codeStatus.valid ? '#1a441f' : '#c62828' }}>{codeStatus.message}</p>
+              )}
             </div>
           )}
 

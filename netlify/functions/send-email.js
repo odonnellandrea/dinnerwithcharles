@@ -151,8 +151,13 @@ export default async (req) => {
     // Customers outside the walking range pay the messenger fee; their own row, so RLS allows it
     const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).maybeSingle()
     const messengerFee = profile?.messenger_delivery === true ? (Number(profile.messenger_fee) || MESSENGER_FEE) : 0
-    message = orderConfirmationEmail({ rows, siteUrl, messengerFee })
-    adminNotice = { rows, profile: profile || {}, messengerFee }
+    // Referral discounts taken off this order (redeem_discounts runs just before this email is sent).
+    // If the table isn't there yet, there is simply no discount to show.
+    const { data: discounts } = await supabase.from('order_discounts').select('amount_cents, code').eq('order_id', orderId)
+    const discount = (discounts || []).reduce((n, d) => n + Number(d.amount_cents || 0), 0) / 100
+    const discountCodes = [...new Set((discounts || []).map(d => d.code).filter(Boolean))]
+    message = orderConfirmationEmail({ rows, siteUrl, messengerFee, discount })
+    adminNotice = { rows, profile: profile || {}, messengerFee, discount, discountCodes }
   } else if (type === 'reheat_link') {
     if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
     if (!('reheat_email_sent_at' in rows[0])) {

@@ -9,11 +9,14 @@ export const EXTRA_SALAD_PRICE = 15
 export const MESSENGER_FEE = 12
 export const MESSENGER_FEE_RANGE = '$12–18'
 
-export function priceOrder({ entreeCount, saladCount, addOnsCost = 0, messengerFee = 0 }) {
+// discount (dollars) comes off the food only, never the messenger fee, and never below zero
+export function priceOrder({ entreeCount, saladCount, addOnsCost = 0, messengerFee = 0, discount = 0 }) {
   const extraEntrees = Math.max(0, entreeCount - BASE_ENTREES)
   const extraSalads = Math.max(0, saladCount - BASE_SALADS)
   const entreeUpcharge = extraEntrees * EXTRA_ENTREE_PRICE
   const saladUpcharge = extraSalads * EXTRA_SALAD_PRICE
+  const subtotal = BASE_PRICE + entreeUpcharge + saladUpcharge + addOnsCost
+  const discountTaken = Math.min(Math.max(Number(discount) || 0, 0), subtotal)
   return {
     extraEntrees,
     extraSalads,
@@ -21,6 +24,8 @@ export function priceOrder({ entreeCount, saladCount, addOnsCost = 0, messengerF
     saladUpcharge,
     addOnsCost,
     messengerFee,
-    total: BASE_PRICE + entreeUpcharge + saladUpcharge + addOnsCost + messengerFee
+    subtotal,
+    discount: discountTaken,
+    total: subtotal - discountTaken + messengerFee
   }
 }

@@ -68,12 +68,15 @@ export default function GuestApp({ user, onLogout }) {
   const [profileName, setProfileName] = useState('')
   // Outside the walking range: orders come by Uber messenger and the fee is added
   const [messengerFee, setMessengerFee] = useState(0)
+  // From the referral_codes migration: { newCents, creditCents } this customer could take off an order
+  const [pendingDiscount, setPendingDiscount] = useState({ newCents: 0, creditCents: 0 })
   const [downloadingMenu, setDownloadingMenu] = useState(false)
 
   useEffect(() => {
     fetchLiveMenu()
     fetchOrderHistory()
     checkNotificationPrefs()
+    fetchPendingDiscount()
 
     // Deep link from the delivered email: /?reheat=YYYY-MM-DD
     const reheat = new URLSearchParams(window.location.search).get('reheat')
@@ -154,6 +157,13 @@ export default function GuestApp({ user, onLogout }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  // What a referral code or earned credit would take off. If the migration isn't run, no discount.
+  const fetchPendingDiscount = async () => {
+    const { data, error } = await supabase.rpc('my_pending_discount')
+    if (error || !data) { setPendingDiscount({ newCents: 0, creditCents: 0 }); return }
+    setPendingDiscount({ newCents: Number(data.new_customer_cents) || 0, creditCents: Number(data.credit_cents) || 0 })
   }
 
   // Ask once if they've never been asked. If the column doesn't exist yet
@@ -379,6 +389,17 @@ export default function GuestApp({ user, onLogout }) {
       if (error) {
         alert('Error confirming order: ' + error.message)
       } else {
+        // Take the referral discount and credit off this order. The order stands either way; if
+        // this fails (migration not run, or a hiccup) the admin can still adjust it by hand.
+        const subtotalCents = Math.round(priceOrder({
+          entreeCount: Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0),
+          saladCount: Object.values(selectedSalads).reduce((sum, q) => sum + q, 0),
+          addOnsCost: menuItems.addOns.filter(a => selectedAddOns[a.id]).reduce((sum, a) => sum + ((a.price + (a.deposit || 0)) / 100) * selectedAddOns[a.id], 0)
+        }).subtotal * 100)
+        if (pendingDiscount.newCents + pendingDiscount.creditCents > 0) {
+          const { error: redeemError } = await supabase.rpc('redeem_discounts', { oid: orderId, subtotal_cents: subtotalCents })
+          if (redeemError) console.error('Could not apply the referral discount:', redeemError)
+        }
         sendConfirmationEmail(orderId)
         alert('✓ Order confirmed!')
         setSelectedEntrees({})
@@ -388,6 +409,7 @@ export default function GuestApp({ user, onLogout }) {
         setSpecialNotes('')
         setSurveyResponse('')
         await fetchOrderHistory()
+        fetchPendingDiscount()
         setScreen('history')
       }
     } catch (err) {
@@ -435,7 +457,11 @@ export default function GuestApp({ user, onLogout }) {
     const chosenAddOns = menuItems.addOns?.filter(item => selectedAddOns[item.id]) || []
     const addOnsBase = chosenAddOns.reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0)
     const depositCost = chosenAddOns.reduce((sum, item) => sum + ((item.deposit || 0) / 100) * selectedAddOns[item.id], 0)
-    const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost: addOnsBase + depositCost, messengerFee })
+    const foodOnly = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost: addOnsBase + depositCost })
+    // Code discount first, then credit, neither past what the food costs
+    const codeOff = Math.min(pendingDiscount.newCents / 100, foodOnly.subtotal)
+    const creditOff = Math.min(pendingDiscount.creditCents / 100, foodOnly.subtotal - codeOff)
+    const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost: addOnsBase + depositCost, messengerFee, discount: codeOff + creditOff })
 
     return (
       <div>
@@ -451,6 +477,12 @@ export default function GuestApp({ user, onLogout }) {
         )}
         {depositCost > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Jar deposit: ${depositCost.toFixed(2)}</p>
+        )}
+        {codeOff > 0 && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#1a441f' }}>Referral code: −${codeOff.toFixed(2)}</p>
+        )}
+        {creditOff > 0 && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#1a441f' }}>Credit: −${creditOff.toFixed(2)}</p>
         )}
         {messengerFee > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>

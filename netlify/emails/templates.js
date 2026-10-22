@@ -22,7 +22,7 @@ const firstName = (customerName) => {
 // "Dinner has arrived, Jiaqi." or just "Dinner has arrived."
 const greet = (text, name) => (name ? `${text}, ${escapeHtml(name)}.` : `${text}.`)
 
-const money = (n) => `$${Number(n).toFixed(2)}`
+const money = (n) => `${Number(n) < 0 ? "−" : ""}$${Math.abs(Number(n)).toFixed(2)}`
 
 // delivery_date is a plain YYYY-MM-DD; format it without letting a timezone shift the day
 export const formatDeliveryDate = (dateStr) => {
@@ -79,7 +79,7 @@ const ITEM_GROUPS = [
 ]
 
 // rows: the Orders rows for one order_id (one row per item)
-export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0 }) {
+export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discount = 0 }) {
   const first = rows[0]
   const name = firstName(first.customer_name)
   const deliveryDate = formatDeliveryDate(first.delivery_date)
@@ -87,7 +87,7 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0 }) {
   const count = (type) => rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
   // add-on rows store the unit price in dollars
   const addOnsCost = rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
-  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0 })
+  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0, discount: Number(discount) || 0 })
 
   const groups = ITEM_GROUPS.map(({ type, label }) => {
     const items = rows.filter(r => r.item_type === type)
@@ -139,6 +139,7 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0 }) {
       ${price.entreeUpcharge > 0 ? priceRow(`Extra entrées (${price.extraEntrees})`, price.entreeUpcharge) : ''}
       ${price.saladUpcharge > 0 ? priceRow(`Extra salads (${price.extraSalads})`, price.saladUpcharge) : ''}
       ${price.addOnsCost > 0 ? priceRow('Add-ons', price.addOnsCost) : ''}
+      ${price.discount > 0 ? priceRow('Referral discount', -price.discount) : ''}
       ${price.messengerFee > 0 ? priceRow('Messenger delivery (estimate, at cost)', price.messengerFee) : ''}
       <tr>
         <td style="padding:20px 0 0 0;border-top:2px solid ${GOLD};font-size:16px;font-weight:700;color:${GREEN};">Total</td>
@@ -258,6 +259,7 @@ export function menuLiveEmail({ profile, settings, siteUrl }) {
 
 // To the admin when someone requests to join (or resubmits). request: the users row.
 const REQUEST_FIELDS = [
+  ['Referral code', 'referral_code'],
   ['Household', 'household_composition'],
   ['Delivery address', 'delivery_address'],
   ['Delivery options', 'delivery_option'],
@@ -296,14 +298,14 @@ export function joinRequestEmail({ request, siteUrl }) {
 
 // To the admin when a customer places an order. rows: the Orders rows for that order_id;
 // profile: the customer's users row (for address, phone and how they'd like to receive it).
-export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, siteUrl }) {
+export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discount = 0, discountCodes = [], siteUrl }) {
   const first = rows[0]
   const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || (first.customer_name && !first.customer_name.includes('@') ? first.customer_name : '') || first.email
   const deliveryDate = formatDeliveryDate(first.delivery_date)
 
   const count = (type) => rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
   const addOnsCost = rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
-  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0 })
+  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0, discount: Number(discount) || 0 })
 
   const groups = ITEM_GROUPS.map(({ type, label }) => {
     const items = rows.filter(r => r.item_type === type)
@@ -347,6 +349,7 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, siteUrl
       ${price.entreeUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra entrées (${price.extraEntrees})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.entreeUpcharge)}</td></tr>` : ''}
       ${price.saladUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra salads (${price.extraSalads})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.saladUpcharge)}</td></tr>` : ''}
       ${price.addOnsCost > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Add-ons</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.addOnsCost)}</td></tr>` : ''}
+      ${price.discount > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Discount${discountCodes.length ? ` (${escapeHtml(discountCodes.join(', '))})` : ''}</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(-price.discount)}</td></tr>` : ''}
       ${price.messengerFee > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Messenger delivery (estimate)</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.messengerFee)}</td></tr>` : ''}
       <tr>
         <td style="padding:14px 0 0 0;border-top:2px solid ${GOLD};font-size:16px;font-weight:700;color:${GREEN};">Total</td>
