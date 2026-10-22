@@ -7,12 +7,16 @@ const supabase = createClient(
 )
 
 // The answers customers gave to the survey question for one delivery date
-export default function SurveyResponses({ deliveryDate, refreshKey }) {
+export default function SurveyResponses({ deliveryDate: currentDate, refreshKey }) {
+  // Starts on the delivery date being set up; change it to read another week's answers
+  const [deliveryDate, setDeliveryDate] = useState(currentDate)
+  useEffect(() => { setDeliveryDate(currentDate) }, [currentDate])
   const [question, setQuestion] = useState('')
   const [responses, setResponses] = useState([])
   const [status, setStatus] = useState('Loading...')
 
   const load = useCallback(async () => {
+    if (!deliveryDate) { setStatus('Pick a delivery date.'); return }
     setStatus('Loading...')
     const { data: survey, error: surveyError } = await supabase.from('surveys').select('id, question').eq('delivery_date', deliveryDate).maybeSingle()
     if (surveyError) { setStatus('Could not load the survey: ' + surveyError.message); return }
@@ -46,6 +50,13 @@ export default function SurveyResponses({ deliveryDate, refreshKey }) {
           Refresh
         </button>
       </div>
+      <label style={{ display: 'block', margin: '0 0 6px 0', fontSize: '12px', fontWeight: '600', color: '#1a441f' }}>Delivery date</label>
+      <input
+        type="date"
+        value={deliveryDate}
+        onChange={(e) => setDeliveryDate(e.target.value)}
+        style={{ padding: '6px 10px', border: '1px solid #e0dbd1', marginBottom: '12px', fontFamily: 'inherit' }}
+      />
       {status && <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>{status}</p>}
       {!status && question && <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666', fontStyle: 'italic' }}>"{question}"</p>}
       {!status && responses.length === 0 && <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>No responses yet.</p>}
