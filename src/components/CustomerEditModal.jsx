@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
-import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions } from '../lib/deliveryOptions'
+import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions, hasDeliveryOption } from '../lib/deliveryOptions'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -33,6 +33,10 @@ export default function CustomerEditModal({ customer, fields, onClose, onSaved }
     setSaving(true)
     const changes = { ...nameColumns(firstName, lastName) }
     fields.forEach(([, column]) => { changes[column] = answers[column].trim() || null })
+    // What is charged follows what was chosen here: messenger delivery adds the fee, anything else doesn't
+    if ('messenger_delivery' in customer && fields.some(([, column]) => column === 'delivery_option')) {
+      changes.messenger_delivery = hasDeliveryOption(answers.delivery_option, 'messenger')
+    }
     let { error: updateError } = await supabase.from('users').update(changes).eq('id', customer.id)
     if (isMissingNameColumns(updateError)) {
       ({ error: updateError } = await supabase.from('users').update(withoutNameColumns(changes)).eq('id', customer.id))

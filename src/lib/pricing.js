@@ -9,6 +9,14 @@ export const EXTRA_SALAD_PRICE = 15
 export const MESSENGER_FEE = 12
 export const MESSENGER_FEE_RANGE = '$12–18'
 
+// What messenger delivery adds to one customer's order. Zero is a real fee (waived), so only a
+// missing or invalid value falls back to the default.
+export function messengerFeeFor(profile) {
+  if (profile?.messenger_delivery !== true) return 0
+  const fee = profile.messenger_fee == null ? NaN : Number(profile.messenger_fee)
+  return Number.isFinite(fee) && fee >= 0 ? fee : MESSENGER_FEE
+}
+
 // discount (dollars) comes off the food only, never the messenger fee, and never below zero
 export function priceOrder({ entreeCount, saladCount, addOnsCost = 0, messengerFee = 0, discount = 0 }) {
   const extraEntrees = Math.max(0, entreeCount - BASE_ENTREES)

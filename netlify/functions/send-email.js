@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { orderConfirmationEmail, orderNoticeEmail, reheatGuideEmail, approvedEmail, menuLiveEmail } from '../emails/templates.js'
-import { MESSENGER_FEE } from '../../src/lib/pricing.js'
+import { messengerFeeFor } from '../../src/lib/pricing.js'
 import { PREFS_SET_COLUMN, isMissingPrefsColumn } from '../../src/lib/notificationConsent.js'
 
 // Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM and EMAIL_REPLY_TO (optional).
@@ -150,7 +150,7 @@ export default async (req) => {
     if (customerEmail.toLowerCase() !== user.email.toLowerCase()) return json(403, { error: 'Not your order' })
     // Customers outside the walking range pay the messenger fee; their own row, so RLS allows it
     const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).maybeSingle()
-    const messengerFee = profile?.messenger_delivery === true ? (Number(profile.messenger_fee) || MESSENGER_FEE) : 0
+    const messengerFee = messengerFeeFor(profile)
     // Referral discounts taken off this order (redeem_discounts runs just before this email is sent).
     // If the table isn't there yet, there is simply no discount to show.
     const { data: discounts } = await supabase.from('order_discounts').select('amount_cents, code').eq('order_id', orderId)

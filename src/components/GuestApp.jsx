@@ -7,7 +7,7 @@ import ProfileDetails from './ProfileDetails'
 import GuestHeader from './GuestHeader'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
-import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, MESSENGER_FEE } from '../lib/pricing'
+import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, messengerFeeFor } from '../lib/pricing'
 import { normalizeCode, formatCents } from '../lib/referral'
 import { downloadPdf } from '../lib/downloadPdf'
 import { fetchSheetMenu, getCachedSheetMenu } from '../lib/sheetMenu'
@@ -202,7 +202,7 @@ export default function GuestApp({ user, onLogout }) {
       .eq('id', user.id)
       .single()
     if (data?.name) setProfileName(data.name)
-    setMessengerFee(data?.messenger_delivery === true ? (Number(data.messenger_fee) || MESSENGER_FEE) : 0)
+    setMessengerFee(messengerFeeFor(data))
     // Ask once about email/text updates. Needs the notification_prefs_set_at column
     // (20261013_notification_prefs_set_at.sql); without it the prompt could never be dismissed.
     if (!error && data && 'notification_prefs_set_at' in data && !data.notification_prefs_set_at) {
@@ -300,6 +300,9 @@ export default function GuestApp({ user, onLogout }) {
       alert('Please select at least one delivery window')
       return
     }
+    // Pick up a messenger fee the admin changed since this page was opened
+    supabase.from('users').select('messenger_delivery, messenger_fee').eq('id', user.id).single()
+      .then(({ data }) => { if (data) setMessengerFee(messengerFeeFor(data)) })
     setScreen('review')
   }
 

@@ -8,7 +8,7 @@ import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 import ReferralCodesDashboard from './ReferralCodesDashboard'
 import CustomerEditModal from './CustomerEditModal'
 import SurveyResponses from './SurveyResponses'
-import { MESSENGER_FEE } from '../lib/pricing'
+import MessengerFeeEditor from './MessengerFeeEditor'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
 import { orderNumber } from '../lib/orderNumber'
 import { fetchSheetMenu, MENU_SHEET_URL } from '../lib/sheetMenu'
@@ -482,23 +482,7 @@ export default function AdminApp({ onLogout }) {
                             Messenger delivery (outside walking range, fee passed through per order)
                           </label>
                           {customer.messenger_delivery === true && (
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '6px 0 0 24px', fontSize: '12px', color: '#1a441f' }}>
-                              Messenger fee $
-                              <input
-                                type="number"
-                                min="0"
-                                step="0.5"
-                                defaultValue={Number(customer.messenger_fee) || MESSENGER_FEE}
-                                onBlur={async (e) => {
-                                  const fee = Number(e.target.value)
-                                  if (!Number.isFinite(fee) || fee < 0 || fee === Number(customer.messenger_fee)) return
-                                  const { error } = await supabase.from('users').update({ messenger_fee: fee }).eq('id', customer.id)
-                                  if (error) alert('Failed to save fee: ' + error.message)
-                                  else fetchPendingCustomers()
-                                }}
-                                style={{ width: '70px', padding: '4px 6px', border: '1px solid #e0dbd1', fontFamily: 'inherit', fontSize: '12px' }}
-                              />
-                            </label>
+                            <MessengerFeeEditor customer={customer} onSaved={(fee) => setPendingCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, messenger_fee: fee } : c))} />
                           )}
                           {customer.resubmitted_at && (
                             <p style={{ margin: '8px 0 0 0', display: 'inline-block', padding: '3px 8px', background: '#faf8f3', border: '1px solid #D4A373', color: '#1a441f', fontSize: '12px', fontWeight: '600' }}>
