@@ -27,6 +27,7 @@ export default function AdminApp({ onLogout }) {
   const [orders, setOrders] = useState([])
   const [includeCancelledInExport, setIncludeCancelledInExport] = useState(false)
   const [orderSearch, setOrderSearch] = useState('')
+  const [ordersError, setOrdersError] = useState('')
   const [orderDateFilter, setOrderDateFilter] = useState('all')
   const [orderStatusFilter, setOrderStatusFilter] = useState('all') // all | active | delivered | cancelled
   const [pendingCustomers, setPendingCustomers] = useState([])
@@ -254,11 +255,24 @@ export default function AdminApp({ onLogout }) {
 
   const fetchOrders = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('Orders')
-      .select('*')
-      .order('created_at', { ascending: false })
-    setOrders(data || [])
+    setOrdersError('')
+    // A dropped connection on a phone returns an error and no data, which used to look exactly
+    // like "No orders yet." Try once more, then say what went wrong.
+    let result
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        result = await supabase.from('Orders').select('*').order('created_at', { ascending: false })
+      } catch (err) {
+        result = { data: null, error: err }
+      }
+      if (!result.error) break
+      await new Promise(resolve => setTimeout(resolve, 700))
+    }
+    if (result.error) {
+      setOrdersError(result.error.message || 'The connection dropped')
+    } else {
+      setOrders(result.data || [])
+    }
     setLoading(false)
   }
 
@@ -772,6 +786,8 @@ export default function AdminApp({ onLogout }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px', fontSize: '13px', color: '#666' }}>
               <span>
                 Showing {visibleOrders.length} of {groupedOrders.length} orders
+                {' · '}
+                <button onClick={fetchOrders} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Refresh</button>
                 {visibleOrders.some(o => o.status === 'cancelled') && !includeCancelledInExport ? ' · cancelled orders won\'t be exported' : ''}
               </span>
               {filtersActive && (
@@ -786,6 +802,11 @@ export default function AdminApp({ onLogout }) {
 
             {loading ? (
               <p>Loading...</p>
+            ) : ordersError ? (
+              <div style={{ color: '#c62828', background: '#ffebee', border: '1px solid #ffcdd2', padding: '20px' }}>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px' }}>Couldn't load the orders: {ordersError}</p>
+                <button onClick={fetchOrders} style={{ padding: '8px 18px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>Try again</button>
+              </div>
             ) : visibleOrders.length === 0 ? (
               <p style={{ color: '#666', background: 'white', border: '1px solid #e0dbd1', padding: '20px' }}>
                 {groupedOrders.length === 0 ? 'No orders yet.' : 'No orders match these filters.'}
