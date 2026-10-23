@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { isAdminEmail } from '../../src/lib/admins.js'
 import { fetchSheetDishInfo } from '../../src/lib/sheetMenu.js'
 import { makePackingList, makeChefReference, makeOrderGrid } from '../pdf/ops.js'
 import { json, pdfResponse } from '../pdf/toolkit.js'
@@ -9,7 +10,6 @@ import { json, pdfResponse } from '../pdf/toolkit.js'
 // doc=info returns who ordered and which dishes still have a guessed container list, as JSON.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_KEY
-const ADMIN_EMAIL = 'admin@dinnerwithcharles.com'
 
 const emailList = (value) => new Set((value || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean))
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
@@ -27,7 +27,7 @@ export default async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { global: { headers: { Authorization: `Bearer ${token}` } }, auth: { persistSession: false } })
   const { data: { user } = {}, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) return json(401, { error: 'Invalid session' })
-  if ((user.email || '').toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+  if (!isAdminEmail(user.email)) return json(403, { error: 'Admin only' })
 
   const date = url.searchParams.get('date') || ''
   const doc = url.searchParams.get('doc')

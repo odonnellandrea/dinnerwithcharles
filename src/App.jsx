@@ -7,6 +7,7 @@ import PendingApprovalApp from './components/PendingApprovalApp'
 import RejectedApp from './components/RejectedApp'
 import LandingPage from './components/LandingPage'
 import PasswordForm from './components/PasswordForm'
+import { isAdminEmail } from './lib/admins'
 
 // Read the reset link's details now, before Supabase signs the user in and tidies up the URL
 const linkParams = new URLSearchParams(window.location.hash.slice(1))
@@ -20,6 +21,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [recovering, setRecovering] = useState(OPENED_RESET_LINK)
   const [resetLinkFailed, setResetLinkFailed] = useState(RESET_LINK_FAILED)
+  // An admin who is also a customer (Rob) can switch to the ordering side and back
+  const [adminView, setAdminView] = useState('admin') // 'admin' | 'customer'
 
   useEffect(() => {
     if (RESET_LINK_FAILED) window.history.replaceState(null, '', window.location.pathname)
@@ -97,9 +100,13 @@ function App() {
     )
   }
 
-  // Check if admin
-  if (user?.email === 'admin@dinnerwithcharles.com') {
-    return <AdminApp onLogout={handleLogout} />
+  // Admins get the dashboard. One with an approved customer profile can also order.
+  if (isAdminEmail(user?.email)) {
+    const canOrder = approvalStatus === 'approved'
+    if (canOrder && adminView === 'customer') {
+      return <GuestApp user={user} onLogout={handleLogout} onAdmin={() => setAdminView('admin')} />
+    }
+    return <AdminApp onLogout={handleLogout} onOrder={canOrder ? () => setAdminView('customer') : null} />
   }
 
   // Logged in but not admin

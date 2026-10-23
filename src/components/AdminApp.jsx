@@ -18,7 +18,7 @@ import { fetchSheetMenu, MENU_SHEET_URL } from '../lib/sheetMenu'
 const MENU_SHEET_EDIT_URL = MENU_SHEET_URL.replace(/\/gviz\/.*$/, '/edit')
 
 
-export default function AdminApp({ onLogout }) {
+export default function AdminApp({ onLogout, onOrder }) {
   const [screen, setScreen] = useState('approvals')
   const [orders, setOrders] = useState([])
   const [includeCancelledInExport, setIncludeCancelledInExport] = useState(false)
@@ -414,12 +414,22 @@ export default function AdminApp({ onLogout }) {
       <div className="admin-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '30px' }}>
           <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', width: '55%', height: 'auto' }} />
-          <button 
-            onClick={onLogout} 
-            style={{ padding: '10px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
-          >
-            Logout
-          </button>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {onOrder && (
+              <button
+                onClick={onOrder}
+                style={{ padding: '10px 16px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                Order food
+              </button>
+            )}
+            <button 
+              onClick={onLogout} 
+              style={{ padding: '10px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         <nav className="admin-tabs">

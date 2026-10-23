@@ -39,7 +39,7 @@ const formatCloseDatetime = (iso) => {
   return `${date} at ${time}`
 }
 
-export default function GuestApp({ user, onLogout }) {
+export default function GuestApp({ user, onLogout, onAdmin }) {
   const [screen, setScreen] = useState('menu')
   const [menuItems, setMenuItems] = useState([])
   const [selectedEntrees, setSelectedEntrees] = useState({})
@@ -537,7 +537,7 @@ export default function GuestApp({ user, onLogout }) {
   const page = (children, maxWidth = '900px') => (
     <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px' }}>
       <div style={{ maxWidth, margin: '0 auto' }}>
-        <GuestHeader screen={screen} onNavigate={setScreen} onLogout={onLogout} />
+        <GuestHeader screen={screen} onNavigate={setScreen} onLogout={onLogout} onAdmin={onAdmin} />
         {children}
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { isAdminEmail } from '../../src/lib/admins.js'
 import { createClient } from '@supabase/supabase-js'
 import { orderConfirmationEmail, orderNoticeEmail, reheatGuideEmail, approvedEmail, menuLiveEmail } from '../emails/templates.js'
 import { messengerFeeFor } from '../../src/lib/pricing.js'
@@ -8,7 +9,6 @@ import { PREFS_SET_COLUMN, isMissingPrefsColumn } from '../../src/lib/notificati
 // Supabase URL/key reuse the VITE_ vars the site is built with.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_KEY
-const ADMIN_EMAIL = 'admin@dinnerwithcharles.com'
 const EMAIL_FROM = process.env.EMAIL_FROM || 'Dinner with Charles <onboarding@resend.dev>'
 // Customer replies go here; info@ forwards to the Dinner with Charles Gmail
 const EMAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || 'info@dinnerwithcharles.com'
@@ -61,7 +61,7 @@ export default async (req) => {
 
   // Welcome email when the admin approves a request to join
   if (type === 'approved') {
-    if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+    if (!isAdminEmail(user.email)) return json(403, { error: 'Admin only' })
     if (!userId) return json(400, { error: 'user_id is required' })
     const { data: profile, error: profileError } = await supabase.from('users').select('*').eq('id', userId).single()
     if (profileError || !profile) return json(404, { error: 'Customer not found' })
@@ -73,7 +73,7 @@ export default async (req) => {
 
   // "The menu is live" to every approved customer who opted in to menu emails
   if (type === 'menu_live') {
-    if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+    if (!isAdminEmail(user.email)) return json(403, { error: 'Admin only' })
     if (!deliveryDate) return json(400, { error: 'delivery_date is required' })
     const { data: settings, error: settingsError } = await supabase.from('delivery_settings').select('*').eq('delivery_date', deliveryDate).maybeSingle()
     if (settingsError) return json(500, { error: settingsError.message })
@@ -120,7 +120,7 @@ export default async (req) => {
   // Admin-only check: sends a sample "new order" email to the admin address, then asks Resend
   // what became of it, so a problem shows up on screen instead of silently.
   if (type === 'test_notice') {
-    if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+    if (!isAdminEmail(user.email)) return json(403, { error: 'Admin only' })
     const sampleBase = { order_id: 'test@example.com-1792580000000', email: 'test@example.com', customer_name: 'Test Customer', delivery_date: new Date().toISOString().slice(0, 10), delivery_time_slot: '["9:00 AM - 11:00 AM"]', special_notes: 'This is a test, no real order was placed.', status: 'pending' }
     const sampleRows = [
       ...['Chicken Parmesan', 'Coconut Lemongrass Salmon', 'Macanese Meatballs'].map(n => ({ ...sampleBase, item_type: 'entree', item_name: n, quantity: 1, total_order_price: 0 })),
@@ -159,7 +159,7 @@ export default async (req) => {
     message = orderConfirmationEmail({ rows, siteUrl, messengerFee, discount })
     adminNotice = { rows, profile: profile || {}, messengerFee, discount, discountCodes }
   } else if (type === 'reheat_link') {
-    if (user.email.toLowerCase() !== ADMIN_EMAIL) return json(403, { error: 'Admin only' })
+    if (!isAdminEmail(user.email)) return json(403, { error: 'Admin only' })
     if (!('reheat_email_sent_at' in rows[0])) {
       return json(500, { error: 'Orders.reheat_email_sent_at is missing; run supabase/migrations/20261012_reheat_email_sent_at.sql' })
     }

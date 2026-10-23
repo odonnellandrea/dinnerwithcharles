@@ -15,7 +15,7 @@ const linkStyle = {
   fontFamily: 'inherit'
 }
 
-export default function GuestHeader({ screen, onNavigate, onLogout }) {
+export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const go = (target) => {
@@ -61,6 +61,14 @@ export default function GuestHeader({ screen, onNavigate, onLogout }) {
                 {item.label}
               </button>
             ))}
+            {onAdmin && (
+              <button
+                onClick={() => { setMenuOpen(false); onAdmin() }}
+                style={{ ...linkStyle, borderLeft: '3px solid transparent', color: '#1a441f' }}
+              >
+                Admin dashboard
+              </button>
+            )}
             <button
               onClick={() => { setMenuOpen(false); onLogout() }}
               style={{ ...linkStyle, borderBottom: 'none', borderLeft: '3px solid transparent', color: '#666' }}
