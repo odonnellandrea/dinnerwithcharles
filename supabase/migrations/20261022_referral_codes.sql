@@ -130,6 +130,7 @@ begin
 end
 $$;
 revoke all on function public.my_pending_discount() from public;
+revoke execute on function public.my_pending_discount() from anon;
 grant execute on function public.my_pending_discount() to authenticated;
 
 -- A signed-in customer who joined without a code can add one at checkout. One code per customer,
@@ -167,6 +168,7 @@ begin
 end
 $$;
 revoke all on function public.attach_referral_code(text) from public;
+revoke execute on function public.attach_referral_code(text) from anon;
 grant execute on function public.attach_referral_code(text) to authenticated;
 
 -- Takes the discounts off the order the customer just placed (subtotal_cents is what they owed
@@ -238,6 +240,7 @@ begin
 end
 $$;
 revoke all on function public.redeem_discounts(text, integer) from public;
+revoke execute on function public.redeem_discounts(text, integer) from anon;
 grant execute on function public.redeem_discounts(text, integer) to authenticated;
 
 commit;
