@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { messengerFeeFor } from '../lib/pricing'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 // The messenger fee on a customer's card, with a Save button so it's clear when it has been
 // saved. It applies to that customer's next order; orders already placed keep what they were.

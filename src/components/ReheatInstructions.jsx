@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { fetchSheetReheat } from '../lib/sheetMenu'
 import { buildReheatGuide, LIBRARY_TABLE } from '../lib/reheatGuide'
 import { downloadPdf } from '../lib/downloadPdf'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 export default function ReheatInstructions({ user, deliveryDate, onClose, embedded = false }) {
   const [instructions, setInstructions] = useState([])

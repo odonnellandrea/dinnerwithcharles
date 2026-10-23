@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { formatWindows } from '../lib/deliveryWindows'
 import { formatUsPhone } from '../lib/notificationConsent'
 import '../styles/admin.css'
@@ -15,11 +15,6 @@ import { fetchSheetMenu, MENU_SHEET_URL } from '../lib/sheetMenu'
 
 // The sheet itself, for editing (the URL above is its CSV export)
 const MENU_SHEET_EDIT_URL = MENU_SHEET_URL.replace(/\/gviz\/.*$/, '/edit')
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 
 export default function AdminApp({ onLogout }) {

@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { downloadPdf } from '../lib/downloadPdf'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 const DOCUMENTS = [
   { id: 'grid', title: 'Order Grid', icon: '📊', description: '6x4 landscape, black and white. Who ordered what for the week, with totals. Andrea and her parents show as dots.' },

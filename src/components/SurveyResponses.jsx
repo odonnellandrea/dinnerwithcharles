@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
+import { supabase } from '../lib/supabase'
 
 // The answers customers gave to the survey question for one delivery date
 export default function SurveyResponses({ deliveryDate: currentDate, refreshKey }) {

@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { PREFS_SET_COLUMN, isMissingPrefsColumn } from '../lib/notificationConsent'
 import AdminEmailCheck from './AdminEmailCheck'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 export default function NotificationsDashboard() {
   const [deliveryDate, setDeliveryDate] = useState('')

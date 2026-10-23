@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import ReheatInstructions from './ReheatInstructions'
 import NotificationSettings from './NotificationSettings'
 import PasswordForm from './PasswordForm'
@@ -11,11 +11,6 @@ import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, messenge
 import { normalizeCode, formatCents } from '../lib/referral'
 import { downloadPdf } from '../lib/downloadPdf'
 import { fetchSheetMenu, getCachedSheetMenu } from '../lib/sheetMenu'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 const INSTAGRAM_DM_URL = 'https://ig.me/m/dinnerwithcharles'
 

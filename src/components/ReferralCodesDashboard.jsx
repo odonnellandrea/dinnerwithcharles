@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { normalizeCode, formatCents } from '../lib/referral'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 const KINDS = {
   referral: { label: 'Referral', hint: 'A customer shares it. A friend gets money off, and the customer earns credit.', newDollars: 10, ownerDollars: 10 },

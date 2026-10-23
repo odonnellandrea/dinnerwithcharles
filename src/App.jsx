@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from './lib/supabase'
 import GuestApp from './components/GuestApp'
 import AdminApp from './components/AdminApp'
 import SignupApp from './components/SignupApp'
@@ -7,11 +7,6 @@ import PendingApprovalApp from './components/PendingApprovalApp'
 import RejectedApp from './components/RejectedApp'
 import LandingPage from './components/LandingPage'
 import PasswordForm from './components/PasswordForm'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 // Read the reset link's details now, before Supabase signs the user in and tidies up the URL
 const linkParams = new URLSearchParams(window.location.hash.slice(1))

@@ -1,10 +1,5 @@
 import React, { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
+import { supabase } from '../lib/supabase'
 
 // What each thing Resend can say about an email means, in plain words
 const explain = (to, status) => {

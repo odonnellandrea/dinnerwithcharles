@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import NotificationChoices from './NotificationChoices'
 import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
 
 // Asked exactly once, for customers who joined before the opt-ins existed. It's marked as
 // asked as soon as it appears, so saving, skipping or just leaving all end it for good;
