@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { PREFS_SET_COLUMN, isMissingPrefsColumn } from '../lib/notificationConsent'
 import AdminEmailCheck from './AdminEmailCheck'
+import { nextMonday } from '../lib/deliveryDate'
 
 export default function NotificationsDashboard() {
   const [deliveryDate, setDeliveryDate] = useState('')
@@ -13,9 +14,7 @@ export default function NotificationsDashboard() {
 
   useEffect(() => {
     const today = new Date()
-    const nextMonday = new Date(today)
-    nextMonday.setDate(today.getDate() + ((1 - today.getDay() + 7) % 7 || 7))
-    setDeliveryDate(nextMonday.toISOString().split('T')[0])
+    setDeliveryDate(nextMonday(today))
   }, [])
 
   useEffect(() => {

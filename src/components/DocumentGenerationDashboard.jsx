@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { downloadPdf } from '../lib/downloadPdf'
+import { nextMonday } from '../lib/deliveryDate'
 
 const DOCUMENTS = [
   { id: 'grid', title: 'Order Grid', icon: '📊', description: '6x4 landscape, black and white. Who ordered what for the week, with totals. Andrea and her parents show as dots.' },
@@ -14,13 +15,6 @@ const ROLES = [
   { value: 'rob', label: 'Rob delivers (note)' }
 ]
 const ROLES_KEY = 'dwc-doc-roles'
-
-const nextMonday = () => {
-  const today = new Date()
-  const monday = new Date(today)
-  monday.setDate(today.getDate() + ((1 - today.getDay() + 7) % 7 || 7))
-  return monday.toISOString().split('T')[0]
-}
 
 const readRoles = () => {
   try { return JSON.parse(localStorage.getItem(ROLES_KEY) || '{}') || {} } catch { return {} }

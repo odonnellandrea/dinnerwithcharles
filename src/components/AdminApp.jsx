@@ -11,6 +11,7 @@ import SurveyResponses from './SurveyResponses'
 import MessengerFeeEditor from './MessengerFeeEditor'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
 import { orderNumber } from '../lib/orderNumber'
+import { nextMonday } from '../lib/deliveryDate'
 import { fetchSheetMenu, MENU_SHEET_URL } from '../lib/sheetMenu'
 
 // The sheet itself, for editing (the URL above is its CSV export)
@@ -155,12 +156,7 @@ export default function AdminApp({ onLogout }) {
     alert(error ? 'Error saving close time: ' + error.message : '✓ Orders close ' + new Date(closeIso).toLocaleString())
   }
 
-  const getNextDeliveryDate = () => {
-    const today = new Date()
-    let nextMonday = new Date(today)
-    nextMonday.setDate(today.getDate() + ((1 - today.getDay() + 7) % 7 || 7))
-    return nextMonday.toISOString().split('T')[0]
-  }
+  const getNextDeliveryDate = () => nextMonday()
 
 
   const loadSheetMenu = async () => {
