@@ -103,7 +103,7 @@ export default async (req) => {
     dishes.sort((a, b) => (order[a.type] - order[b.type]) || (a.index - b.index))
     // Dishes that were ordered but are no longer on the sheet's menu still get a row
     for (const dish of ordered.values()) if (!dishes.some(d => d.name === dish.name)) dishes.push(dish)
-    const sections = { entree: 'ENTRÉES', salad: 'SIDE DISHES', addon: 'ADD-ONS' }
+    const sections = { entree: 'ENTRÉES', salad: 'SIDES', addon: 'ADD-ONS' }
 
     const firstNames = customers.map(cust => String(cust.name).trim().split(/\s+/)[0])
     const gridCustomers = customers.map((cust, i) => {

@@ -118,7 +118,7 @@ export default function ArchivedItems({ onBack }) {
             fontWeight: '500'
           }}
         >
-          Side Dishes ({archivedItems.filter(i => i.type === 'salad').length})
+          Sides ({archivedItems.filter(i => i.type === 'salad').length})
         </button>
         <button
           onClick={() => setFilter('addon')}
@@ -148,7 +148,7 @@ export default function ArchivedItems({ onBack }) {
                 <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#1a441f' }}>
                   {item.name}
                   <span style={{ marginLeft: '8px', fontSize: '12px', color: '#999', fontWeight: '400' }}>
-                    ({item.type === 'entree' ? 'Entrée' : item.type === 'salad' ? 'Side dish' : 'Add-on'})
+                    ({item.type === 'entree' ? 'Entrée' : item.type === 'salad' ? 'Side' : 'Add-on'})
                   </span>
                 </p>
                 <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>{item.description}</p>

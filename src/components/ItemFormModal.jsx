@@ -113,7 +113,7 @@ export default function ItemFormModal({ item, onClose, onSave }) {
             style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1' }}
           >
             <option value="entree">Entrée</option>
-            <option value="salad">Side dish</option>
+            <option value="salad">Side</option>
             <option value="addon">Add-on</option>
           </select>
         </div>
