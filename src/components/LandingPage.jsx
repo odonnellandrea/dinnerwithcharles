@@ -7,11 +7,11 @@ const INSTAGRAM_URL = 'https://www.instagram.com/dinnerwithcharles/'
 const STEPS = [
   {
     title: 'A new menu each week',
-    body: 'Every week we write a fresh menu of entrées, salads and extras, built around what’s in season.'
+    body: 'Every week we write a fresh menu of entrées, side dishes and extras, built around what’s in season.'
   },
   {
     title: 'Choose what you love',
-    body: `Pick ${BASE_ENTREES} entrées and ${BASE_SALADS} salads for your household. Want more? Add extra dishes or an add-on to round out the week.`
+    body: `Pick ${BASE_ENTREES} entrées and ${BASE_SALADS} side dishes for your household. Want more? Add extra dishes or an add-on to round out the week.`
   },
   {
     title: 'We cook from scratch',
@@ -42,7 +42,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <p className="landing-eyebrow">Weekly Kitchen</p>
             <h1>Your own private chef, cooking for your family the way we cook for ours.</h1>
             <p>
-              Each week we cook a fresh menu of entrées and salads from scratch and deliver it to your door,
+              Each week we cook a fresh menu of entrées and side dishes from scratch and deliver it to your door,
               ready to reheat and enjoy. Weeknight dinners, taken care of.
             </p>
             <div className="landing-hero-actions">
@@ -120,11 +120,11 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <p className="landing-eyebrow">Your week</p>
             <div className="landing-price-card">
               <p className="landing-price">${BASE_PRICE}</p>
-              <p className="landing-price-sub">{BASE_ENTREES} entrées + {BASE_SALADS} salads, cooked and delivered</p>
+              <p className="landing-price-sub">{BASE_ENTREES} entrées + {BASE_SALADS} side dishes, cooked and delivered</p>
               <p className="landing-price-serves">Each dish serves two to three, depending on the dish and the appetites at your table.</p>
               <ul className="landing-price-list">
                 <li><span>Extra entrée</span><span>${EXTRA_ENTREE_PRICE} each</span></li>
-                <li><span>Extra salad</span><span>${EXTRA_SALAD_PRICE} each</span></li>
+                <li><span>Extra side dish</span><span>${EXTRA_SALAD_PRICE} each</span></li>
                 <li><span>Optional add-ons</span><span>Priced weekly</span></li>
                 <li><span>Outside our walking range</span><span>Pickup in NoMad, or messenger at cost ({MESSENGER_FEE_RANGE})</span></li>
               </ul>

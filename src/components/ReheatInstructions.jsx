@@ -118,7 +118,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
             {instructions.map((dish, dishIdx) => (
               <div key={dishIdx} style={{ background: 'white', border: '1px solid #e0dbd1', padding: '22px 24px', marginBottom: '16px' }}>
                 <p style={{ margin: '0 0 4px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>
-                  {dish.type === 'salad' ? 'Salad' : dish.type === 'addon' ? 'Add-on' : 'Entrée'}
+                  {dish.type === 'salad' ? 'Side dish' : dish.type === 'addon' ? 'Add-on' : 'Entrée'}
                 </p>
                 <h2 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: '500', color: '#1a441f', lineHeight: 1.3 }}>
                   {dish.name}

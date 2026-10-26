@@ -490,12 +490,12 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
 
     return (
       <div>
-        <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 salads): ${BASE_PRICE.toFixed(2)}</p>
+        <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 side dishes): ${BASE_PRICE.toFixed(2)}</p>
         {entreeUpcharge > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Entrées ({extraEntrees}): ${entreeUpcharge.toFixed(2)} @ ${EXTRA_ENTREE_PRICE} each</p>
         )}
         {saladUpcharge > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Salads ({extraSalads}): ${saladUpcharge.toFixed(2)} @ ${EXTRA_SALAD_PRICE} each</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Side Dishes ({extraSalads}): ${saladUpcharge.toFixed(2)} @ ${EXTRA_SALAD_PRICE} each</p>
         )}
         {addOnsBase > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsBase.toFixed(2)}</p>
@@ -625,7 +625,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               ) : null
             })}
 
-            <h3 style={{ color: '#1a441f', marginTop: '16px' }}>Salads</h3>
+            <h3 style={{ color: '#1a441f', marginTop: '16px' }}>Side Dishes</h3>
             {Object.entries(selectedSalads).map(([itemId, qty]) => {
               const item = menuItems.salads.find(s => s.id === itemId)
               return item ? (
@@ -818,7 +818,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
 
             {/* Fallback guidance for a sheet without section rows */}
             {!menuItems.sections?.some(s => s.note) && (
-              <p style={{ color: '#666', marginBottom: '20px' }}>Pick 3 entrées + 2 salads. Add-ons are optional.</p>
+              <p style={{ color: '#666', marginBottom: '20px' }}>Pick 3 entrées + 2 side dishes. Add-ons are optional.</p>
             )}
 
             {menuItems.sections?.map((section, sectionIdx) => {

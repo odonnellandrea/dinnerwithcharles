@@ -113,7 +113,7 @@ export function makePackingList(clients, weekLabel) {
     const contentW = PAGE_W - 2 * margin
     const x = margin
     const y = [PAGE_H - margin]
-    const groups = [['ENTRÉES', order.entrees || []], ['SALADS', order.salads || []], ['ADD-ONS', order.addons || []]]
+    const groups = [['ENTRÉES', order.entrees || []], ['SIDE DISHES', order.salads || []], ['ADD-ONS', order.addons || []]]
     const totalContainers = groups.reduce((sum, [, items]) => sum + items.reduce((n, item) => n + item.components.length, 0), 0)
 
     c.setFillColor(BLACK)
@@ -381,7 +381,7 @@ export function makeChefReference(data) {
   }
 
   section('ENTRÉES', 'Pick 3 · ', data.entrees, true)
-  section('SALADS', 'Pick 2 · ', data.salads, !data.entrees.length)
+  section('SIDE DISHES', 'Pick 2 · ', data.salads, !data.entrees.length)
   // Add-ons are few, so they follow the salads instead of taking a page of their own
   section('ADD-ONS', '', data.addons || [], !data.entrees.length && !data.salads.length, !data.salads.length)
 

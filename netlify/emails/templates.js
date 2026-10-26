@@ -74,7 +74,7 @@ function layout({ siteUrl, preheader, body }) {
 
 const ITEM_GROUPS = [
   { type: 'entree', label: 'Entrées' },
-  { type: 'salad', label: 'Salads' },
+  { type: 'salad', label: 'Side Dishes' },
   { type: 'addon', label: 'Add-ons' }
 ]
 
@@ -135,9 +135,9 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:40px 0 0 0;border-top:1px solid ${BORDER};">
       <tr><td colspan="2" style="padding-top:20px;"></td></tr>
-      ${priceRow('Base package (3 entrées + 2 salads)', BASE_PRICE)}
+      ${priceRow('Base package (3 entrées + 2 side dishes)', BASE_PRICE)}
       ${price.entreeUpcharge > 0 ? priceRow(`Extra entrées (${price.extraEntrees})`, price.entreeUpcharge) : ''}
-      ${price.saladUpcharge > 0 ? priceRow(`Extra salads (${price.extraSalads})`, price.saladUpcharge) : ''}
+      ${price.saladUpcharge > 0 ? priceRow(`Extra side dishes (${price.extraSalads})`, price.saladUpcharge) : ''}
       ${price.addOnsCost > 0 ? priceRow('Add-ons', price.addOnsCost) : ''}
       ${price.discount > 0 ? priceRow('Referral discount', -price.discount) : ''}
       ${price.messengerFee > 0 ? priceRow('Messenger delivery (estimate, at cost)', price.messengerFee) : ''}
@@ -166,8 +166,8 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
 
 // Same four steps as the landing page's "How it works"
 const HOW_IT_WORKS = [
-  ['A new menu each week', 'Every week we write a fresh menu of entrées, salads and extras, built around what’s in season.'],
-  ['Choose what you love', 'Pick 3 entrées and 2 salads for your household. Want more? Add extra dishes or an add-on to round out the week.'],
+  ['A new menu each week', 'Every week we write a fresh menu of entrées, side dishes and extras, built around what’s in season.'],
+  ['Choose what you love', 'Pick 3 entrées and 2 side dishes for your household. Want more? Add extra dishes or an add-on to round out the week.'],
   ['We cook from scratch', 'Every dish is cooked from scratch, fresh for delivery day, with the care we’d give our own family’s dinner.'],
   ['Delivered to your door', 'Choose the delivery windows that work for you. Every container comes labeled, with simple reheat instructions.']
 ]
@@ -347,7 +347,7 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discoun
       <tr><td colspan="2" style="padding-top:12px;"></td></tr>
       <tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Base package</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(BASE_PRICE)}</td></tr>
       ${price.entreeUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra entrées (${price.extraEntrees})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.entreeUpcharge)}</td></tr>` : ''}
-      ${price.saladUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra salads (${price.extraSalads})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.saladUpcharge)}</td></tr>` : ''}
+      ${price.saladUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra side dishes (${price.extraSalads})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.saladUpcharge)}</td></tr>` : ''}
       ${price.addOnsCost > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Add-ons</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.addOnsCost)}</td></tr>` : ''}
       ${price.discount > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Discount${discountCodes.length ? ` (${escapeHtml(discountCodes.join(', '))})` : ''}</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(-price.discount)}</td></tr>` : ''}
       ${price.messengerFee > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Messenger delivery (estimate)</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.messengerFee)}</td></tr>` : ''}
@@ -363,6 +363,6 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discoun
 
   return {
     subject: `New order: ${name}, ${money(price.total)} for ${deliveryDate}`,
-    html: layout({ siteUrl, preheader: `${orderNumber(first.order_id)} · ${name} · ${count('entree')} entrées, ${count('salad')} salads`, body })
+    html: layout({ siteUrl, preheader: `${orderNumber(first.order_id)} · ${name} · ${count('entree')} entrées, ${count('salad')} side dishes`, body })
   }
 }

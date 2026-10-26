@@ -12,7 +12,7 @@ export const MENU_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1IHDh1o4HhIzHpUAW4MG1qlkQZWt9REv8okGEcOIsiiA/gviz/tq?tqx=out:csv&headers=1'
 
 const DISH_TYPES = ['entree', 'salad', 'addon']
-const DEFAULT_TITLES = { entree: 'Entrées', salad: 'Salads', addon: 'Add-ons' }
+const DEFAULT_TITLES = { entree: 'Entrées', salad: 'Side Dishes', addon: 'Add-ons' }
 
 // Handles quoted fields with commas, doubled quotes and line breaks (descriptions can have all three)
 export function parseCsv(text) {
@@ -71,8 +71,14 @@ export function parseReheat(text) {
     })
 }
 
-// "Entrées" -> entree, "Add-Ons" -> addon, "Salads" -> salad
-const toKey = (s) => (s || '').toLowerCase().replace(/é/g, 'e').replace(/[^a-z]/g, '').replace(/s$/, '')
+// "Entrées" -> entree, "Add-Ons" -> addon, "Salads" -> salad. The customer-facing name for the
+// salad category is now "Side Dishes", so a heading or type written that way ("Side Dishes",
+// "Sides", "side") lands in the same category; orders and older sheet rows keep saying salad.
+const TYPE_ALIASES = { sidedishe: 'salad', sidedish: 'salad', side: 'salad' }
+const toKey = (s) => {
+  const key = (s || '').toLowerCase().replace(/é/g, 'e').replace(/[^a-z]/g, '').replace(/s$/, '')
+  return TYPE_ALIASES[key] || key
+}
 
 // Returns { weeks, weekOf, intro: [text], sections: [{ title, note, type, items }] }, visible rows only,
 // each list sorted by sort_order. A section heading named after a dish type (e.g. "Entrées")

@@ -12,7 +12,7 @@ const { json, L, R, TX, TW, GREEN, INK, MUTED } = pdf
 
 const SECTIONS = [
   { type: 'entree', title: 'Entrées' },
-  { type: 'salad', title: 'Salads' },
+  { type: 'salad', title: 'Side Dishes' },
   { type: 'addon', title: 'Add-Ons' }
 ]
 
