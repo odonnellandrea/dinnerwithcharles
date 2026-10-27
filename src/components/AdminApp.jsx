@@ -37,6 +37,10 @@ export default function AdminApp({ onLogout, onOrder }) {
   const [menuLive, setMenuLive] = useState(false) // delivery_settings.is_live for the selected date
   const [menuEmailSentAt, setMenuEmailSentAt] = useState(null)
   const [menuEmailRecipients, setMenuEmailRecipients] = useState(null) // approved customers opted in to menu emails
+  const [notifyLists, setNotifyLists] = useState({ email: [], sms: [], smsNoNumber: [] })
+  const [showEmailList, setShowEmailList] = useState(false)
+  const [showSmsList, setShowSmsList] = useState(false)
+  const [loginStats, setLoginStats] = useState({}) // user id -> { last_sign_in_at, login_count }
   const [sendingMenuEmail, setSendingMenuEmail] = useState(false)
   const [sheetMenu, setSheetMenu] = useState(null) // what customers see right now, read from the Google Sheet
   const [sheetError, setSheetError] = useState('')
@@ -109,6 +113,17 @@ export default function AdminApp({ onLogout, onOrder }) {
     let result = await count(true)
     if (result.error && String(result.error.message || '').includes('notification_prefs_set_at')) result = await count(false)
     setMenuEmailRecipients(result.count ?? 0)
+
+    // Who exactly: for the "show the list" toggles on steps 5 and 6
+    const { data: people } = await supabase.from('users').select('*').eq('approval_status', 'approved')
+    const chosen = (p) => !('notification_prefs_set_at' in p) || !!p.notification_prefs_set_at
+    const displayName = (p) => p.name || [p.first_name, p.last_name].filter(Boolean).join(' ') || p.email
+    const byName = (a, b) => a.name.localeCompare(b.name)
+    const email = (people || []).filter(p => p.email_opt_in === true && chosen(p)).map(p => ({ id: p.id, name: displayName(p), email: p.email })).sort(byName)
+    const texters = (people || []).filter(p => p.sms_opt_in === true && chosen(p))
+    const sms = texters.filter(p => p.phone_number || p.delivery_phone).map(p => ({ id: p.id, name: displayName(p), phone: formatUsPhone(p.phone_number || p.delivery_phone) })).sort(byName)
+    const smsNoNumber = texters.filter(p => !p.phone_number && !p.delivery_phone).map(p => ({ id: p.id, name: displayName(p), email: p.email })).sort(byName)
+    setNotifyLists({ email, sms, smsNoNumber })
   }
 
   // Emails this week's menu to every approved customer who opted in. The function refuses
@@ -273,10 +288,20 @@ export default function AdminApp({ onLogout, onOrder }) {
       .from('users')
       .select('*')
       .order('created_at', { ascending: false })
-    // Waiting for approval always on top, then approved, then rejected; newest first within each
-    const rank = { pending: 0, approved: 1, rejected: 2 }
+    // Waiting for approval always on top, then approved, paused, rejected; newest first within each
+    const rank = { pending: 0, approved: 1, paused: 2, rejected: 3 }
     setPendingCustomers((data || []).slice().sort((a, b) => (rank[a.approval_status] ?? 0) - (rank[b.approval_status] ?? 0)))
     setLoading(false)
+    // Sign-in history for each card. Needs 20261027_admin_tools.sql; without it there's just nothing to show.
+    const { data: stats } = await supabase.rpc('admin_login_stats')
+    if (stats) setLoginStats(Object.fromEntries(stats.map(s => [s.id, s])))
+  }
+
+  // A paused customer can sign in but sees no menu and can't order; Resume puts them back
+  const setApprovalStatus = async (userId, approval_status) => {
+    const { error } = await supabase.from('users').update({ approval_status }).eq('id', userId)
+    if (error) alert('Failed to save: ' + error.message)
+    fetchPendingCustomers()
   }
 
   // Request-to-join answers, in the order the form asks them
@@ -484,7 +509,15 @@ export default function AdminApp({ onLogout, onOrder }) {
                             </button>
                           </p>
                           <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
-                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status}</strong>{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
+                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status === 'paused' ? 'on hold' : customer.approval_status}</strong>{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
+                          {loginStats[customer.id] && (
+                            <p style={{ margin: '4px 0 0 0', color: '#999', fontSize: '12px' }}>
+                              {loginStats[customer.id].last_sign_in_at
+                                ? <>Last signed in {new Date(loginStats[customer.id].last_sign_in_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</>
+                                : 'Never signed in'}
+                              {Number(loginStats[customer.id].login_count) > 0 && <> &middot; {loginStats[customer.id].login_count} sign-in{Number(loginStats[customer.id].login_count) === 1 ? '' : 's'} since Oct 27</>}
+                            </p>
+                          )}
                           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0 0 0', fontSize: '12px', color: '#1a441f', cursor: 'pointer' }}>
                             <input
                               type="checkbox"
@@ -524,6 +557,22 @@ export default function AdminApp({ onLogout, onOrder }) {
                               style={{ background: '#1a441f' }}
                             >
                               Approve
+                            </button>
+                          )}
+                          {customer.approval_status === 'approved' && (
+                            <button
+                              onClick={() => { if (window.confirm(`Pause ${customer.name || customer.email}? They can still sign in but won't see the menu or be able to order until you resume them.`)) setApprovalStatus(customer.id, 'paused') }}
+                              style={{ background: 'white', color: '#1a441f', border: '1px solid #1a441f' }}
+                            >
+                              Pause
+                            </button>
+                          )}
+                          {customer.approval_status === 'paused' && (
+                            <button
+                              onClick={() => setApprovalStatus(customer.id, 'approved')}
+                              style={{ background: '#1a441f' }}
+                            >
+                              Resume
                             </button>
                           )}
                           {customer.approval_status !== 'rejected' && (
@@ -734,6 +783,40 @@ export default function AdminApp({ onLogout, onOrder }) {
                 </button>
                 {menuEmailSentAt && <span style={{ fontSize: '13px', color: '#1a441f' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
               </div>
+              <button onClick={() => setShowEmailList(v => !v)} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>
+                {showEmailList ? 'Hide' : 'Show'} who gets the email ({notifyLists.email.length})
+              </button>
+              {showEmailList && (
+                <ul style={{ margin: '10px 0 0 0', paddingLeft: '20px', fontSize: '13px', color: '#333', lineHeight: 1.8 }}>
+                  {notifyLists.email.length === 0 && <li style={{ listStyle: 'none', marginLeft: '-20px', color: '#666' }}>Nobody has opted in to menu emails yet.</li>}
+                  {notifyLists.email.map(p => <li key={p.id}>{p.name} <span style={{ color: '#999' }}>· {p.email}</span></li>)}
+                </ul>
+              )}
+            </div>
+
+            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 6 · Text customers</p>
+              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Menu Text</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+                Nothing is sent automatically. This is the list of customers who asked for texts, with their numbers, so you can text them from your phone.
+              </p>
+              <button onClick={() => setShowSmsList(v => !v)} style={{ padding: '8px 20px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>
+                {showSmsList ? 'Hide the list' : `Who to text (${notifyLists.sms.length})`}
+              </button>
+              {showSmsList && (
+                <div style={{ marginTop: '12px', fontSize: '13px', color: '#333', lineHeight: 1.8 }}>
+                  {notifyLists.sms.length === 0 && <p style={{ margin: 0, color: '#666' }}>Nobody has opted in to texts yet.</p>}
+                  {notifyLists.sms.map(p => (
+                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', borderTop: '1px solid #f0ece3', padding: '6px 0' }}>
+                      <span>{p.name}</span>
+                      <a href={`sms:${p.phone.replace(/[^\d+]/g, '')}`} style={{ color: '#1a441f', fontWeight: '600', whiteSpace: 'nowrap' }}>{p.phone}</a>
+                    </div>
+                  ))}
+                  {notifyLists.smsNoNumber.length > 0 && (
+                    <p style={{ margin: '10px 0 0 0', color: '#c62828' }}>Opted in but no number on file: {notifyLists.smsNoNumber.map(p => p.name).join(', ')}</p>
+                  )}
+                </div>
+              )}
             </div>
 
           </div>

@@ -5,6 +5,7 @@ import AdminApp from './components/AdminApp'
 import SignupApp from './components/SignupApp'
 import PendingApprovalApp from './components/PendingApprovalApp'
 import RejectedApp from './components/RejectedApp'
+import PausedApp from './components/PausedApp'
 import LandingPage from './components/LandingPage'
 import PasswordForm from './components/PasswordForm'
 import { isAdminEmail } from './lib/admins'
@@ -118,6 +119,8 @@ function App() {
     }
     if (approvalStatus === 'approved') {
       return <GuestApp user={user} onLogout={handleLogout} />
+    } else if (approvalStatus === 'paused') {
+      return <PausedApp user={user} onLogout={handleLogout} />
     } else if (approvalStatus === 'rejected') {
       return <RejectedApp user={user} onLogout={handleLogout} onResubmitted={() => setApprovalStatus('pending')} />
     } else {
@@ -183,6 +186,8 @@ function LoginForm({ onSuccess, onBack, expiredLink = false }) {
     if (signInError) {
       setError(signInError.message)
     } else if (data.user) {
+      // Best effort: a count of sign-ins for the admin. Never blocks the login.
+      supabase.from('user_logins').insert({ user_id: data.user.id, email: data.user.email }).then(() => {}, () => {})
       onSuccess()
     }
   }
