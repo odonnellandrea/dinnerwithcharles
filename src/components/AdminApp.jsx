@@ -375,7 +375,9 @@ export default function AdminApp({ onLogout, onOrder }) {
     a.click()
   }
 
-  // One entry per order (Orders has a row per item), newest first
+  // One entry per order (Orders has a row per item). Open orders first, this week's on top;
+  // delivered ones below them; cancelled last.
+  const orderRank = (status) => status === 'pending' || status === 'confirmed' ? 0 : status === 'cancelled' ? 2 : 1
   const groupedOrders = Object.values(orders.reduce((acc, row) => {
     acc[row.order_id] ??= {
       order_id: row.order_id,
@@ -388,7 +390,10 @@ export default function AdminApp({ onLogout, onOrder }) {
     }
     acc[row.order_id].rows.push(row)
     return acc
-  }, {}))
+  }, {})).sort((a, b) =>
+    (orderRank(a.status) - orderRank(b.status)) ||
+    String(b.delivery_date || '').localeCompare(String(a.delivery_date || '')) ||
+    String(b.rows[0]?.created_at || '').localeCompare(String(a.rows[0]?.created_at || '')))
 
   const orderDeliveryDates = [...new Set(groupedOrders.map(o => o.delivery_date).filter(Boolean))].sort().reverse()
 
@@ -456,7 +461,7 @@ export default function AdminApp({ onLogout, onOrder }) {
 
         {screen === 'approvals' && (
           <div>
-            <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Pending Approvals</h2>
+            <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Approvals</h2>
             {loading ? (
               <p>Loading...</p>
             ) : (
