@@ -46,6 +46,11 @@ export default function AdminApp({ onLogout, onOrder }) {
   const [notifyLists, setNotifyLists] = useState({ email: [], sms: [], smsNoNumber: [] })
   const [showEmailList, setShowEmailList] = useState(false)
   const [showSmsList, setShowSmsList] = useState(false)
+  // The text to send. {first} becomes the customer's first name. Kept on this device.
+  const DEFAULT_MENU_TEXT = "Hi {first}! This week's Dinner with Charles menu is up for delivery on {date}. Order by {close} at dinnerwithcharles.com."
+  const [menuText, setMenuText] = useState(() => { try { return localStorage.getItem('dwc-menu-text') || DEFAULT_MENU_TEXT } catch { return DEFAULT_MENU_TEXT } })
+  const [menuImage, setMenuImage] = useState(null) // this week's menu JPEG, picked from the phone
+  const [shareNote, setShareNote] = useState('')
   const [loginStats, setLoginStats] = useState({}) // user id -> { last_sign_in_at, login_count }
   const [sendingMenuEmail, setSendingMenuEmail] = useState(false)
   const [sheetMenu, setSheetMenu] = useState(null) // what customers see right now, read from the Google Sheet
@@ -335,6 +340,33 @@ export default function AdminApp({ onLogout, onOrder }) {
     // Sign-in history for each card. Needs 20261027_admin_tools.sql; without it there's just nothing to show.
     const { data: stats } = await supabase.rpc('admin_login_stats')
     if (stats) setLoginStats(Object.fromEntries(stats.map(s => [s.id, s])))
+  }
+
+  const saveMenuText = (text) => {
+    setMenuText(text)
+    try { localStorage.setItem('dwc-menu-text', text) } catch { /* per-visit only */ }
+  }
+
+  // The message for one customer, with the placeholders filled in
+  const personalMenuText = (name) => {
+    const first = String(name || '').trim().split(/\s+/)[0] || 'there'
+    const date = deliveryDate ? new Date(`${deliveryDate}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Monday'
+    const close = orderCloseLocal ? new Date(orderCloseLocal).toLocaleString('en-US', { weekday: 'long', hour: 'numeric', minute: '2-digit' }) : 'Thursday night'
+    return menuText.replace(/\{first\}/g, first).replace(/\{date\}/g, date).replace(/\{close\}/g, close)
+  }
+
+  // Phones can't send a text from a website. With the menu image, the share sheet hands the
+  // image and message to Messages (you pick the person); without it, the Messages app opens
+  // on the number with the message filled in.
+  const smsLink = (p) => `sms:${p.phone.replace(/[^\d+]/g, '')}&body=${encodeURIComponent(personalMenuText(p.name))}`
+  const canShareImage = () => !!(menuImage && navigator.canShare && navigator.canShare({ files: [menuImage] }))
+  const shareWithImage = async (p) => {
+    try {
+      await navigator.share({ files: [menuImage], text: personalMenuText(p.name) })
+      setShareNote(`Shared for ${p.name}. Pick Messages and their number: ${p.phone}.`)
+    } catch (err) {
+      if (err?.name !== 'AbortError') setShareNote("Sharing didn't work here. Use the Text link and attach the image by hand.")
+    }
   }
 
   // A paused customer can sign in but sees no menu and can't order; Resume puts them back
@@ -843,18 +875,44 @@ export default function AdminApp({ onLogout, onOrder }) {
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 6 · Text customers</p>
               <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Menu Text</h3>
               <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
-                Nothing is sent automatically. This is the list of customers who asked for texts, with their numbers, so you can text them from your phone.
+                Nothing is sent automatically. Write the message once, add this week's menu image, then tap Text next to each person: your phone's Messages app opens with the message filled in.
+              </p>
+              <label htmlFor="menuText" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#1a441f' }}>Message</label>
+              <textarea
+                id="menuText"
+                value={menuText}
+                onChange={(e) => saveMenuText(e.target.value)}
+                rows={4}
+                style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px', lineHeight: 1.5 }}
+              />
+              <p style={{ margin: '6px 0 14px 0', fontSize: '12px', color: '#999', lineHeight: 1.6 }}>
+                {'{first}'} becomes their first name, {'{date}'} the delivery date and {'{close}'} the order close time. Preview: <em>{personalMenuText('Jiaqi Chen')}</em>
+              </p>
+              <label htmlFor="menuImage" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#1a441f' }}>Menu image (optional)</label>
+              <input id="menuImage" type="file" accept="image/*" onChange={(e) => setMenuImage(e.target.files?.[0] || null)} style={{ fontSize: '13px', marginBottom: '4px' }} />
+              <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#999', lineHeight: 1.6 }}>
+                {menuImage ? (canShareImage() ? `✓ ${menuImage.name} goes with each text through your phone's share sheet.` : `${menuImage.name} is picked, but this browser can't share images. Use the Text link and attach it by hand.`) : 'Pick this week\'s menu JPEG from your photos. On an iPhone it goes with the message through the share sheet.'}
               </p>
               <button onClick={() => setShowSmsList(v => !v)} style={{ padding: '8px 20px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>
                 {showSmsList ? 'Hide the list' : `Who to text (${notifyLists.sms.length})`}
               </button>
+              {shareNote && <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#1a441f' }}>{shareNote}</p>}
               {showSmsList && (
                 <div style={{ marginTop: '12px', fontSize: '13px', color: '#333', lineHeight: 1.8 }}>
                   {notifyLists.sms.length === 0 && <p style={{ margin: 0, color: '#666' }}>Nobody has opted in to texts yet.</p>}
                   {notifyLists.sms.map(p => (
-                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', borderTop: '1px solid #f0ece3', padding: '6px 0' }}>
-                      <span>{p.name}</span>
-                      <a href={`sms:${p.phone.replace(/[^\d+]/g, '')}`} style={{ color: '#1a441f', fontWeight: '600', whiteSpace: 'nowrap' }}>{p.phone}</a>
+                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', borderTop: '1px solid #f0ece3', padding: '6px 0' }}>
+                      <span>{p.name} <span style={{ color: '#999' }}>· {p.phone}</span></span>
+                      <span style={{ display: 'flex', gap: '6px' }}>
+                        {canShareImage() && (
+                          <button onClick={() => shareWithImage(p)} style={{ padding: '4px 12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                            Text with image
+                          </button>
+                        )}
+                        <a href={smsLink(p)} style={{ padding: '4px 12px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', fontSize: '12px', fontWeight: '600', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                          Text
+                        </a>
+                      </span>
                     </div>
                   ))}
                   {notifyLists.smsNoNumber.length > 0 && (
