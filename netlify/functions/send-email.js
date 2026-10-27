@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 import { isAdminEmail } from '../../src/lib/admins.js'
 import { createClient } from '@supabase/supabase-js'
 import { orderConfirmationEmail, orderNoticeEmail, reheatGuideEmail, approvedEmail, menuLiveEmail } from '../emails/templates.js'
-import { messengerFeeFor } from '../../src/lib/pricing.js'
+import { messengerFeeFor, pricingFor } from '../../src/lib/pricing.js'
 import { PREFS_SET_COLUMN, isMissingPrefsColumn } from '../../src/lib/notificationConsent.js'
 
 // Netlify env vars: RESEND_API_KEY (required), EMAIL_FROM and EMAIL_REPLY_TO (optional).
@@ -156,8 +156,9 @@ export default async (req) => {
     const { data: discounts } = await supabase.from('order_discounts').select('amount_cents, code').eq('order_id', orderId)
     const discount = (discounts || []).reduce((n, d) => n + Number(d.amount_cents || 0), 0) / 100
     const discountCodes = [...new Set((discounts || []).map(d => d.code).filter(Boolean))]
-    message = orderConfirmationEmail({ rows, siteUrl, messengerFee, discount })
-    adminNotice = { rows, profile: profile || {}, messengerFee, discount, discountCodes }
+    const { basePrice, complimentary } = pricingFor(profile)
+    message = orderConfirmationEmail({ rows, siteUrl, messengerFee, discount, basePrice, complimentary })
+    adminNotice = { rows, profile: profile || {}, messengerFee, discount, discountCodes, basePrice, complimentary }
   } else if (type === 'reheat_link') {
     if (!isAdminEmail(user.email)) return json(403, { error: 'Admin only' })
     if (!('reheat_email_sent_at' in rows[0])) {

@@ -17,15 +17,24 @@ export function messengerFeeFor(profile) {
   return Number.isFinite(fee) && fee >= 0 ? fee : MESSENGER_FEE
 }
 
-// discount (dollars) comes off the food only, never the messenger fee, and never below zero
-export function priceOrder({ entreeCount, saladCount, addOnsCost = 0, messengerFee = 0, discount = 0 }) {
+// The base package price and complimentary flag from a customer's profile (admin sets both)
+export function pricingFor(profile) {
+  const base = profile?.base_price == null ? NaN : Number(profile.base_price)
+  return { basePrice: Number.isFinite(base) && base >= 0 ? base : BASE_PRICE, complimentary: profile?.complimentary === true }
+}
+
+// discount (dollars) comes off the food only, never the messenger fee, and never below zero.
+// A complimentary order costs nothing at all.
+export function priceOrder({ entreeCount, saladCount, addOnsCost = 0, messengerFee = 0, discount = 0, basePrice = BASE_PRICE, complimentary = false }) {
   const extraEntrees = Math.max(0, entreeCount - BASE_ENTREES)
   const extraSalads = Math.max(0, saladCount - BASE_SALADS)
   const entreeUpcharge = extraEntrees * EXTRA_ENTREE_PRICE
   const saladUpcharge = extraSalads * EXTRA_SALAD_PRICE
-  const subtotal = BASE_PRICE + entreeUpcharge + saladUpcharge + addOnsCost
+  const subtotal = basePrice + entreeUpcharge + saladUpcharge + addOnsCost
   const discountTaken = Math.min(Math.max(Number(discount) || 0, 0), subtotal)
   return {
+    basePrice,
+    complimentary,
     extraEntrees,
     extraSalads,
     entreeUpcharge,
@@ -34,6 +43,6 @@ export function priceOrder({ entreeCount, saladCount, addOnsCost = 0, messengerF
     messengerFee,
     subtotal,
     discount: discountTaken,
-    total: subtotal - discountTaken + messengerFee
+    total: complimentary ? 0 : subtotal - discountTaken + messengerFee
   }
 }

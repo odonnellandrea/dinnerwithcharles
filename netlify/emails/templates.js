@@ -1,4 +1,4 @@
-import { priceOrder, BASE_PRICE, MESSENGER_FEE_RANGE } from '../../src/lib/pricing.js'
+import { priceOrder, MESSENGER_FEE_RANGE } from '../../src/lib/pricing.js'
 import { formatWindows } from '../../src/lib/deliveryWindows.js'
 import { deliveryOptionLabel } from '../../src/lib/deliveryOptions.js'
 import { orderNumber } from '../../src/lib/orderNumber.js'
@@ -79,7 +79,7 @@ const ITEM_GROUPS = [
 ]
 
 // rows: the Orders rows for one order_id (one row per item)
-export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discount = 0 }) {
+export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discount = 0, basePrice, complimentary = false }) {
   const first = rows[0]
   const name = firstName(first.customer_name)
   const deliveryDate = formatDeliveryDate(first.delivery_date)
@@ -87,7 +87,7 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
   const count = (type) => rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
   // add-on rows store the unit price in dollars
   const addOnsCost = rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
-  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0, discount: Number(discount) || 0 })
+  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0, discount: Number(discount) || 0, ...(basePrice != null ? { basePrice: Number(basePrice) } : {}), complimentary })
 
   const groups = ITEM_GROUPS.map(({ type, label }) => {
     const items = rows.filter(r => r.item_type === type)
@@ -135,12 +135,13 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:40px 0 0 0;border-top:1px solid ${BORDER};">
       <tr><td colspan="2" style="padding-top:20px;"></td></tr>
-      ${priceRow('Base package (3 entrées + 2 sides)', BASE_PRICE)}
+      ${priceRow('Base package (3 entrées + 2 sides)', price.basePrice)}
       ${price.entreeUpcharge > 0 ? priceRow(`Extra entrées (${price.extraEntrees})`, price.entreeUpcharge) : ''}
       ${price.saladUpcharge > 0 ? priceRow(`Extra sides (${price.extraSalads})`, price.saladUpcharge) : ''}
       ${price.addOnsCost > 0 ? priceRow('Add-ons', price.addOnsCost) : ''}
       ${price.discount > 0 ? priceRow('Referral discount', -price.discount) : ''}
       ${price.messengerFee > 0 ? priceRow('Messenger delivery (estimate, at cost)', price.messengerFee) : ''}
+      ${price.complimentary ? priceRow('Complimentary', -(price.subtotal - price.discount + price.messengerFee)) : ''}
       <tr>
         <td style="padding:20px 0 0 0;border-top:2px solid ${GOLD};font-size:16px;font-weight:700;color:${GREEN};">Total</td>
         <td align="right" style="padding:20px 0 0 0;border-top:2px solid ${GOLD};font-size:16px;font-weight:700;color:${GREEN};">${money(price.total)}</td>
@@ -150,7 +151,9 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0;background:${CREAM};border:1px solid ${BORDER};">
       <tr><td style="padding:24px 28px;">
         ${eyebrow('Payment')}
-        <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">Payment of <strong style="color:${GREEN};">${money(price.total)}</strong> is due upon order, by Venmo, Zelle or cash.</p>
+        ${price.complimentary
+          ? `<p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">This order is on us. Nothing to pay.</p>`
+          : `<p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">Payment of <strong style="color:${GREEN};">${money(price.total)}</strong> is due upon order, by Venmo, Zelle or cash.</p>`}
       </td></tr>
     </table>
 
@@ -298,14 +301,14 @@ export function joinRequestEmail({ request, siteUrl }) {
 
 // To the admin when a customer places an order. rows: the Orders rows for that order_id;
 // profile: the customer's users row (for address, phone and how they'd like to receive it).
-export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discount = 0, discountCodes = [], siteUrl }) {
+export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discount = 0, discountCodes = [], basePrice, complimentary = false, siteUrl }) {
   const first = rows[0]
   const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || (first.customer_name && !first.customer_name.includes('@') ? first.customer_name : '') || first.email
   const deliveryDate = formatDeliveryDate(first.delivery_date)
 
   const count = (type) => rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
   const addOnsCost = rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
-  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0, discount: Number(discount) || 0 })
+  const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: Number(messengerFee) || 0, discount: Number(discount) || 0, ...(basePrice != null ? { basePrice: Number(basePrice) } : {}), complimentary })
 
   const groups = ITEM_GROUPS.map(({ type, label }) => {
     const items = rows.filter(r => r.item_type === type)
@@ -327,7 +330,7 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discoun
   const body = `
     ${eyebrow('New order')}
     <h1 style="margin:0 0 8px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${escapeHtml(name)} placed an order.</h1>
-    <p style="margin:0 0 28px 0;font-size:16px;line-height:1.7;">${money(price.total)} for delivery ${escapeHtml(deliveryDate)}.</p>
+    <p style="margin:0 0 28px 0;font-size:16px;line-height:1.7;">${price.complimentary ? 'Complimentary' : money(price.total)} for delivery ${escapeHtml(deliveryDate)}.</p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${BORDER};">
       ${detail('Order number', orderNumber(first.order_id))}
@@ -345,7 +348,7 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discoun
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0;border-top:1px solid ${BORDER};">
       <tr><td colspan="2" style="padding-top:12px;"></td></tr>
-      <tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Base package</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(BASE_PRICE)}</td></tr>
+      <tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Base package</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.basePrice)}</td></tr>
       ${price.entreeUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra entrées (${price.extraEntrees})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.entreeUpcharge)}</td></tr>` : ''}
       ${price.saladUpcharge > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Extra sides (${price.extraSalads})</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.saladUpcharge)}</td></tr>` : ''}
       ${price.addOnsCost > 0 ? `<tr><td style="padding:5px 0;font-size:14px;color:${MUTED};">Add-ons</td><td align="right" style="padding:5px 0;font-size:14px;color:${MUTED};">${money(price.addOnsCost)}</td></tr>` : ''}

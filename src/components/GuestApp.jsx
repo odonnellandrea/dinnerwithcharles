@@ -7,7 +7,7 @@ import ProfileDetails from './ProfileDetails'
 import GuestHeader from './GuestHeader'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
-import { priceOrder, BASE_PRICE, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, messengerFeeFor } from '../lib/pricing'
+import { priceOrder, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, messengerFeeFor, pricingFor } from '../lib/pricing'
 import { normalizeCode, formatCents } from '../lib/referral'
 import { downloadPdf } from '../lib/downloadPdf'
 import { fetchSheetMenu, getCachedSheetMenu } from '../lib/sheetMenu'
@@ -64,6 +64,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   const [profileName, setProfileName] = useState('')
   // Outside the walking range: orders come by Uber messenger and the fee is added
   const [messengerFee, setMessengerFee] = useState(0)
+  const [pricing, setPricing] = useState(pricingFor(null)) // base package price and complimentary, from the profile
   // From the referral_codes migration: { newCents, creditCents } this customer could take off an order
   const [pendingDiscount, setPendingDiscount] = useState({ newCents: 0, creditCents: 0, hasCode: false })
   const [checkoutCode, setCheckoutCode] = useState('')
@@ -198,6 +199,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
       .single()
     if (data?.name) setProfileName(data.name)
     setMessengerFee(messengerFeeFor(data))
+    setPricing(pricingFor(data))
     // Ask once about email/text updates. Needs the notification_prefs_set_at column
     // (20261013_notification_prefs_set_at.sql); without it the prompt could never be dismissed.
     if (!error && data && 'notification_prefs_set_at' in data && !data.notification_prefs_set_at) {
@@ -295,9 +297,9 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
       alert('Please select at least one delivery window')
       return
     }
-    // Pick up a messenger fee the admin changed since this page was opened
-    supabase.from('users').select('messenger_delivery, messenger_fee').eq('id', user.id).single()
-      .then(({ data }) => { if (data) setMessengerFee(messengerFeeFor(data)) })
+    // Pick up a messenger fee or price the admin changed since this page was opened
+    supabase.from('users').select('*').eq('id', user.id).single()
+      .then(({ data }) => { if (data) { setMessengerFee(messengerFeeFor(data)); setPricing(pricingFor(data)) } })
     setScreen('review')
   }
 
@@ -419,9 +421,10 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
         const subtotalCents = Math.round(priceOrder({
           entreeCount: Object.values(selectedEntrees).reduce((sum, q) => sum + q, 0),
           saladCount: Object.values(selectedSalads).reduce((sum, q) => sum + q, 0),
-          addOnsCost: menuItems.addOns.filter(a => selectedAddOns[a.id]).reduce((sum, a) => sum + ((a.price + (a.deposit || 0)) / 100) * selectedAddOns[a.id], 0)
+          addOnsCost: menuItems.addOns.filter(a => selectedAddOns[a.id]).reduce((sum, a) => sum + ((a.price + (a.deposit || 0)) / 100) * selectedAddOns[a.id], 0),
+          basePrice: pricing.basePrice
         }).subtotal * 100)
-        if (pendingDiscount.newCents + pendingDiscount.creditCents > 0) {
+        if (!pricing.complimentary && pendingDiscount.newCents + pendingDiscount.creditCents > 0) {
           const { error: redeemError } = await supabase.rpc('redeem_discounts', { oid: orderId, subtotal_cents: subtotalCents })
           if (redeemError) console.error('Could not apply the referral discount:', redeemError)
         }
@@ -482,15 +485,15 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
     const chosenAddOns = menuItems.addOns?.filter(item => selectedAddOns[item.id]) || []
     const addOnsBase = chosenAddOns.reduce((sum, item) => sum + (item.price / 100) * selectedAddOns[item.id], 0)
     const depositCost = chosenAddOns.reduce((sum, item) => sum + ((item.deposit || 0) / 100) * selectedAddOns[item.id], 0)
-    const foodOnly = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost: addOnsBase + depositCost })
+    const foodOnly = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost: addOnsBase + depositCost, basePrice: pricing.basePrice })
     // Code discount first, then credit, neither past what the food costs
     const codeOff = Math.min(pendingDiscount.newCents / 100, foodOnly.subtotal)
     const creditOff = Math.min(pendingDiscount.creditCents / 100, foodOnly.subtotal - codeOff)
-    const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost: addOnsBase + depositCost, messengerFee, discount: codeOff + creditOff })
+    const { extraEntrees, extraSalads, entreeUpcharge, saladUpcharge, total: grandTotal } = priceOrder({ entreeCount: totalEntrees, saladCount: totalSalads, addOnsCost: addOnsBase + depositCost, messengerFee, discount: codeOff + creditOff, basePrice: pricing.basePrice, complimentary: pricing.complimentary })
 
     return (
       <div>
-        <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 sides): ${BASE_PRICE.toFixed(2)}</p>
+        <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 sides): ${pricing.basePrice.toFixed(2)}</p>
         {entreeUpcharge > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Entrées ({extraEntrees}): ${entreeUpcharge.toFixed(2)} @ ${EXTRA_ENTREE_PRICE} each</p>
         )}
@@ -511,6 +514,9 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
         )}
         {messengerFee > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>
+        )}
+        {pricing.complimentary && (
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#1a441f' }}>Complimentary: no charge for this order</p>
         )}
         <div style={{ paddingTop: '8px', borderTop: '2px solid #D4A373' }}>
           <p style={{ margin: '0', fontSize: '16px', fontWeight: '700', color: '#D4A373' }}>Total: ${grandTotal.toFixed(2)}</p>

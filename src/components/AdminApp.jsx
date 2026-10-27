@@ -9,6 +9,8 @@ import ReferralCodesDashboard from './ReferralCodesDashboard'
 import CustomerEditModal from './CustomerEditModal'
 import SurveyResponses from './SurveyResponses'
 import MessengerFeeEditor from './MessengerFeeEditor'
+import CustomerPricing from './CustomerPricing'
+import { priceOrder, messengerFeeFor, pricingFor } from '../lib/pricing'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
 import { orderNumber } from '../lib/orderNumber'
 import { nextMonday } from '../lib/deliveryDate'
@@ -26,6 +28,10 @@ export default function AdminApp({ onLogout, onOrder }) {
   const [ordersError, setOrdersError] = useState('')
   const [orderDateFilter, setOrderDateFilter] = useState('all')
   const [orderStatusFilter, setOrderStatusFilter] = useState('all') // all | active | delivered | cancelled
+  const [paymentFilter, setPaymentFilter] = useState('all') // all | unpaid | paid | free
+  const [payments, setPayments] = useState({}) // order_id -> order_payments row
+  const [profilesByEmail, setProfilesByEmail] = useState({})
+  const [discountsByOrder, setDiscountsByOrder] = useState({}) // order_id -> dollars off
   const [pendingCustomers, setPendingCustomers] = useState([])
   const [editingCustomer, setEditingCustomer] = useState(null)
   const [expandedAnswers, setExpandedAnswers] = useState({})
@@ -280,6 +286,40 @@ export default function AdminApp({ onLogout, onOrder }) {
       setOrders(result.data || [])
     }
     setLoading(false)
+    // Prices, discounts and payment status for the totals column. Each is best effort: a missing
+    // table (migration not run yet) just means that part isn't shown.
+    const [profiles, discounts, paid] = await Promise.all([
+      supabase.from('users').select('email, base_price, complimentary, messenger_delivery, messenger_fee'),
+      supabase.from('order_discounts').select('order_id, amount_cents'),
+      supabase.from('order_payments').select('*')
+    ])
+    setProfilesByEmail(Object.fromEntries((profiles.data || []).map(p => [String(p.email).toLowerCase(), p])))
+    setDiscountsByOrder((discounts.data || []).reduce((acc, d) => { acc[d.order_id] = (acc[d.order_id] || 0) + d.amount_cents / 100; return acc }, {}))
+    setPayments(Object.fromEntries((paid.data || []).map(p => [p.order_id, p])))
+  }
+
+  // What an order costs, from its rows and the customer's profile (same maths as the review screen)
+  const orderTotal = (order) => {
+    const profile = profilesByEmail[String(order.email).toLowerCase()]
+    const count = (type) => order.rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
+    const addOnsCost = order.rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
+    const { basePrice, complimentary } = pricingFor(profile)
+    return priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: messengerFeeFor(profile), discount: discountsByOrder[order.order_id] || 0, basePrice, complimentary })
+  }
+
+  // Paid / unpaid / free for an order: the saved row, or free for a complimentary customer, else unpaid
+  const paymentOf = (order) => {
+    const row = payments[order.order_id]
+    if (row) return row
+    return { status: pricingFor(profilesByEmail[String(order.email).toLowerCase()]).complimentary ? 'free' : 'unpaid', derived: true }
+  }
+
+  const setPayment = async (order, status) => {
+    const total = orderTotal(order)
+    const row = { order_id: order.order_id, email: order.email, status, amount_cents: status === 'paid' ? Math.round(total.total * 100) : null, paid_at: status === 'paid' ? new Date().toISOString() : null, updated_at: new Date().toISOString() }
+    const { error } = await supabase.from('order_payments').upsert(row, { onConflict: 'order_id' })
+    if (error) { alert('Could not save the payment: ' + (/order_payments/.test(error.message || '') ? 'run supabase/migrations/20261027_admin_tools.sql first.' : error.message)); return }
+    setPayments(prev => ({ ...prev, [order.order_id]: row }))
   }
 
   const fetchPendingCustomers = async () => {
@@ -371,7 +411,7 @@ export default function AdminApp({ onLogout, onOrder }) {
   // The kitchen works from this file, so cancelled orders stay out unless asked for
   const exportToCSV = (rows) => {
     const csv = [
-      ['Order ID', 'Customer', 'Email', 'Item Type', 'Item Name', 'Quantity', 'Delivery Date', 'Delivery Windows', 'Total Price', 'Status']
+      ['Order ID', 'Customer', 'Email', 'Item Type', 'Item Name', 'Quantity', 'Delivery Date', 'Delivery Windows', 'Total Price', 'Status', 'Payment']
     ]
     
     rows.filter(order => includeCancelledInExport || order.status !== 'cancelled').forEach(order => {
@@ -385,7 +425,8 @@ export default function AdminApp({ onLogout, onOrder }) {
         order.delivery_date,
         formatWindows(order.delivery_time_slot),
         order.total_order_price,
-        order.status
+        order.status,
+        order.status === 'cancelled' ? '' : paymentOf({ order_id: order.order_id, email: order.email, rows: [] }).status
       ])
     })
 
@@ -432,12 +473,13 @@ export default function AdminApp({ onLogout, onOrder }) {
   const searchTerm = orderSearch.trim().toLowerCase().replace(/^#/, '')
   const visibleOrders = groupedOrders.filter(order =>
     matchesStatusFilter(order.status) &&
+    (paymentFilter === 'all' || (order.status !== 'cancelled' && paymentOf(order).status === paymentFilter)) &&
     (orderDateFilter === 'all' || order.delivery_date === orderDateFilter) &&
     (!searchTerm || [order.customer_name, order.email, order.order_id, ...order.rows.map(r => r.item_name)]
       .some(value => String(value || '').toLowerCase().includes(searchTerm)))
   )
 
-  const filtersActive = orderSearch || orderDateFilter !== 'all' || orderStatusFilter !== 'all'
+  const filtersActive = orderSearch || orderDateFilter !== 'all' || orderStatusFilter !== 'all' || paymentFilter !== 'all'
 
   return (
     <div className="admin-page">
@@ -536,6 +578,9 @@ export default function AdminApp({ onLogout, onOrder }) {
                           </label>
                           {customer.messenger_delivery === true && (
                             <MessengerFeeEditor customer={customer} onSaved={(fee) => setPendingCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, messenger_fee: fee } : c))} />
+                          )}
+                          {customer.approval_status === 'approved' && (
+                            <CustomerPricing customer={customer} onSaved={(changes) => setPendingCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, ...changes } : c))} />
                           )}
                           {customer.resubmitted_at && (
                             <p style={{ margin: '8px 0 0 0', display: 'inline-block', padding: '3px 8px', background: '#faf8f3', border: '1px solid #D4A373', color: '#1a441f', fontSize: '12px', fontWeight: '600' }}>
@@ -870,6 +915,15 @@ export default function AdminApp({ onLogout, onOrder }) {
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
+              <div className="admin-filter">
+                <label htmlFor="paymentFilter">Payment</label>
+                <select id="paymentFilter" className="admin-input" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
+                  <option value="all">All</option>
+                  <option value="unpaid">Unpaid</option>
+                  <option value="paid">Paid</option>
+                  <option value="free">Free</option>
+                </select>
+              </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px', fontSize: '13px', color: '#666' }}>
@@ -881,7 +935,7 @@ export default function AdminApp({ onLogout, onOrder }) {
               </span>
               {filtersActive && (
                 <button
-                  onClick={() => { setOrderSearch(''); setOrderDateFilter('all'); setOrderStatusFilter('all') }}
+                  onClick={() => { setOrderSearch(''); setOrderDateFilter('all'); setOrderStatusFilter('all'); setPaymentFilter('all') }}
                   style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}
                 >
                   Clear filters
@@ -909,6 +963,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                       <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Customer</th>
                       <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Items</th>
                       <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Status</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Payment</th>
                       <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Action</th>
                     </tr>
                   </thead>
@@ -939,6 +994,26 @@ export default function AdminApp({ onLogout, onOrder }) {
                             }}>
                               {order.status === 'delivered' ? '✓ Delivered' : order.status === 'cancelled' ? 'Cancelled' : order.status === 'pending' ? 'Pending' : order.status}
                             </span>
+                          </td>
+                          <td data-label="Payment" style={{ padding: '12px', fontSize: '13px' }}>
+                            {order.status === 'cancelled' ? <span style={{ color: '#999' }}>—</span> : (() => {
+                              const pay = paymentOf(order)
+                              const total = orderTotal(order)
+                              const label = pay.status === 'paid' ? `Paid${pay.paid_at ? ' ' + new Date(pay.paid_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}` : pay.status === 'free' ? 'Free' : 'Unpaid'
+                              return (
+                                <div>
+                                  <div style={{ marginBottom: '6px' }}>
+                                    <strong style={{ color: '#1a441f' }}>{total.complimentary ? 'Complimentary' : `$${total.total.toFixed(2)}`}</strong>
+                                    <span style={{ marginLeft: '8px', padding: '2px 8px', fontSize: '12px', fontWeight: '600', background: pay.status === 'paid' ? '#1a441f' : pay.status === 'free' ? '#e0dbd1' : '#ffebee', color: pay.status === 'paid' ? '#faf8f3' : pay.status === 'free' ? '#1a441f' : '#c62828' }}>{label}</span>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                    {pay.status !== 'paid' && <button onClick={() => setPayment(order, 'paid')} style={{ padding: '4px 10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
+                                    {pay.status !== 'unpaid' && <button onClick={() => setPayment(order, 'unpaid')} style={{ padding: '4px 10px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Unpaid</button>}
+                                    {pay.status !== 'free' && <button onClick={() => setPayment(order, 'free')} style={{ padding: '4px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Free</button>}
+                                  </div>
+                                </div>
+                              )
+                            })()}
                           </td>
                           <td className="admin-order-actions" style={{ padding: '12px', display: 'flex', gap: '8px' }}>
                             {order.status === 'cancelled' ? (
