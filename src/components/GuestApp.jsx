@@ -880,7 +880,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             })}
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '12px' }}>Select all delivery windows that work for your family *</h3>
+              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '12px' }}>Please select delivery windows that work for your family *</h3>
               {TIME_SLOTS.map(slot => (
                 <label key={slot} style={{ display: 'block', marginBottom: '10px', cursor: 'pointer' }}>
                   <input
