@@ -379,6 +379,8 @@ export default function AdminApp({ onLogout, onOrder }) {
   // Request-to-join answers, in the order the form asks them
   const ANSWER_FIELDS = [
     ['Referral code', 'referral_code'],
+    ['Heard about us', 'heard_about'],
+    ['Heard about us (detail)', 'heard_about_detail'],
     ['Household', 'household_composition'],
     ['Delivery address', 'delivery_address'],
     ['Delivery option', 'delivery_option'],

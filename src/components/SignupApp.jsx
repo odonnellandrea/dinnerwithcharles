@@ -29,6 +29,8 @@ const ANSWER_COLUMNS = {
   kidsEating: 'kids_eating',
   kidsQuirks: 'kids_quirks',
   reheatingPreference: 'reheating_preference',
+  heardAbout: 'heard_about',
+  heardAboutDetail: 'heard_about_detail',
   anythingElse: 'anything_else'
 }
 
@@ -75,6 +77,8 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
     kidsEating: '',
     kidsQuirks: '',
     reheatingPreference: '',
+    heardAbout: '',
+    heardAboutDetail: '',
     anythingElse: '',
     // Marketing opt-ins: always start unchecked
     emailOptIn: false,
@@ -302,6 +306,11 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           const { referral_code: _r, ...withoutCode } = profile
           ;({ error: insertError } = await supabase.from('users').insert([withoutCode]))
         }
+        // Until 20261028_heard_about.sql is run there are no heard_about columns
+        if (insertError && /heard_about/.test(insertError.message || '')) {
+          const { heard_about: _h, heard_about_detail: _d, referral_code: _r2, ...rest } = profile
+          ;({ error: insertError } = await supabase.from('users').insert([rest]))
+        }
         if (isMissingPrefsColumn(insertError)) {
           ({ error: insertError } = await supabase.from('users').insert([withoutPrefsColumn(profile)]))
         }
@@ -471,6 +480,18 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
                 <option value="Microwave">Microwave</option>
                 <option value="Both">Both</option>
               </select>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#1a441f', fontSize: '14px' }}>How did you hear about us?</label>
+              <select value={formData.heardAbout} onChange={(e) => updateField('heardAbout', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
+                <option value="">Select an option</option>
+                <option value="A friend or family member">A friend or family member</option>
+                <option value="Instagram">Instagram</option>
+                <option value="A flyer or postcard">A flyer or postcard</option>
+                <option value="An event">An event</option>
+                <option value="Other">Other</option>
+              </select>
+              {formData.heardAbout && (
+                <input type="text" placeholder={formData.heardAbout === 'A friend or family member' ? 'Who? (so we can thank them)' : 'Tell us more (optional)'} value={formData.heardAboutDetail} onChange={(e) => updateField('heardAboutDetail', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              )}
               <textarea placeholder="Is there anything else we should know to better understand your family's needs and preferences?" value={formData.anythingElse} onChange={(e) => updateField('anythingElse', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
 
               <div style={{ marginBottom: '24px', paddingTop: '8px', borderTop: '1px solid #e0dbd1' }}>

@@ -263,6 +263,8 @@ export function menuLiveEmail({ profile, settings, siteUrl }) {
 // To the admin when someone requests to join (or resubmits). request: the users row.
 const REQUEST_FIELDS = [
   ['Referral code', 'referral_code'],
+  ['Heard about us', 'heard_about'],
+  ['Heard about us (detail)', 'heard_about_detail'],
   ['Household', 'household_composition'],
   ['Delivery address', 'delivery_address'],
   ['Delivery options', 'delivery_option'],
