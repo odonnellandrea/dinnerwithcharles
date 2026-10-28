@@ -526,15 +526,15 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   }
 
   const deliveryBanner = (
-    <div style={{ background: '#1a441f', color: '#faf8f3', padding: '24px 28px', marginBottom: '28px', display: 'flex', flexWrap: 'wrap', gap: '20px 48px' }}>
+    <div style={{ background: 'white', border: '1px solid #e0dbd1', borderLeft: '4px solid #1a441f', padding: '14px 18px', marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '10px 40px' }}>
       <div>
-        <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Delivery</p>
-        <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatDeliveryDate(deliveryDate)}</p>
+        <p style={{ margin: '0 0 3px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#b8923f' }}>Delivery</p>
+        <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1a441f' }}>{formatDeliveryDate(deliveryDate)}</p>
       </div>
       {orderCloseDatetime && (
         <div>
-          <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373' }}>Orders close</p>
-          <p style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
+          <p style={{ margin: '0 0 3px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#b8923f' }}>Orders close</p>
+          <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1a441f' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
         </div>
       )}
     </div>
@@ -766,31 +766,35 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
 
         {!loading && !error && !placedOrder && !menuClosed && !menuEmpty && (
           <>
-            {deliveryBanner}
-
-            <div style={{ textAlign: 'center', margin: '8px 0 28px 0' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#1a441f', fontFamily: "'Courier New', Courier, monospace" }}>Dinner with Charles</p>
-              <h1 style={{ margin: 0, fontSize: '34px', fontWeight: '700', color: '#1a441f', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
-              <p style={{ margin: '6px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>cooked by Chef Robert, your private chef</p>
-              <button
-                onClick={async () => {
-                  setDownloadingMenu(true)
-                  try {
-                    await downloadPdf('/.netlify/functions/menu-pdf', `Weekly Kitchen Menu - week of ${deliveryDate}.pdf`)
-                  } catch (err) {
-                    alert("Sorry, we couldn't build the menu PDF. Please try again in a moment.\n\n(" + err.message + ")")
-                  }
-                  setDownloadingMenu(false)
-                }}
-                disabled={downloadingMenu}
-                style={{ marginTop: '14px', padding: '9px 16px', background: 'transparent', color: '#1a441f', border: '1px solid #1a441f', cursor: downloadingMenu ? 'wait' : 'pointer', fontSize: '12px', fontWeight: '600', letterSpacing: '0.06em', fontFamily: 'inherit', opacity: downloadingMenu ? 0.6 : 1 }}
-              >
-                {downloadingMenu ? 'Preparing PDF…' : 'Download menu PDF'}
-              </button>
+            <div style={{ margin: '0 0 20px 0' }}>
+              <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: '#1a441f', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
+              <p style={{ margin: '4px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>cooked by Chef Robert, your private chef</p>
             </div>
 
+            {deliveryBanner}
+
+            {menuItems.intro?.map((text, idx) => (
+              <p key={idx} style={{ color: '#444', fontSize: '15px', lineHeight: '1.7', margin: '0 0 16px 0', whiteSpace: 'pre-line' }}>{text}</p>
+            ))}
+
+            <button
+              onClick={async () => {
+                setDownloadingMenu(true)
+                try {
+                  await downloadPdf('/.netlify/functions/menu-pdf', `Weekly Kitchen Menu - week of ${deliveryDate}.pdf`)
+                } catch (err) {
+                  alert("Sorry, we couldn't build the menu PDF. Please try again in a moment.\n\n(" + err.message + ")")
+                }
+                setDownloadingMenu(false)
+              }}
+              disabled={downloadingMenu}
+              style={{ margin: '0 0 24px 0', padding: '8px 14px', background: 'transparent', color: '#1a441f', border: '1px solid #1a441f', cursor: downloadingMenu ? 'wait' : 'pointer', fontSize: '12px', fontWeight: '600', letterSpacing: '0.06em', fontFamily: 'inherit' }}
+            >
+              {downloadingMenu ? 'Preparing PDF…' : 'Download menu PDF'}
+            </button>
+
             {survey?.question && (
-              <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
+              <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
                 <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#1a441f' }}>Quick Feedback</p>
                 <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666' }}>{survey.question}</p>
                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -799,12 +803,12 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                     value={surveyResponse}
                     onChange={(e) => setSurveyResponse(e.target.value)}
                     placeholder="Your response..."
-                    style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #e0dbd1', fontSize: '13px' }}
+                    style={{ flex: 1, padding: '8px 12px', border: '1px solid #e0dbd1', fontSize: '13px' }}
                   />
                   <button
                     onClick={handleSurveySubmit}
                     disabled={!surveyResponse.trim()}
-                    style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+                    style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
                   >
                     Send
                   </button>
@@ -817,10 +821,6 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                 )}
               </div>
             )}
-
-            {menuItems.intro?.map((text, idx) => (
-              <p key={idx} style={{ color: '#444', fontSize: '15px', lineHeight: '1.7', margin: '0 auto 28px', maxWidth: '560px', textAlign: 'center', whiteSpace: 'pre-line' }}>{text}</p>
-            ))}
 
             {/* Fallback guidance for a sheet without section rows */}
             {!menuItems.sections?.some(s => s.note) && (
