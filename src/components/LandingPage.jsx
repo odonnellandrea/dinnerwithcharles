@@ -50,7 +50,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
               <button className="landing-btn landing-btn--outline" onClick={onSignIn}>Sign In</button>
             </div>
           </div>
-          <img className="landing-hero-photo" src="/images/chicken-thighs-olives.jpg" alt="Charred chicken thighs with green olives, thyme and roasted squash" />
+          <img className="landing-hero-photo" src="/images/roast-chicken-wide.jpg" alt="Sliced roast chicken with mustard sauce, baby potatoes and carrots on a burgundy plate" />
         </div>
       </section>
 
