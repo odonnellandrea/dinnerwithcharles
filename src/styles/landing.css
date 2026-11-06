@@ -279,3 +279,10 @@
   .landing-follow { padding-top: 48px; padding-bottom: 48px; }
   .landing-follow .landing-btn { width: 100%; text-align: center; }
 }
+
+.landing-contact { margin-top: 14px !important; }
+.landing-contact a { color: var(--cream); text-decoration: underline; text-underline-offset: 3px; }
+.landing-about img.landing-about-img--family { object-position: center 38%; }
+@media (max-width: 900px) {
+  .landing-about img.landing-about-img--family { object-position: center 68%; }
+}

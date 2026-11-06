@@ -138,7 +138,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
 
       <section className="landing-section landing-section--white">
         <div className="landing-wrap landing-about">
-          <img src="/images/pastry-bites.jpg" alt="Golden pastry bites with chopsticks and a cup of soup" />
+          <img className="landing-about-img--family" src="/images/charles-fish-rice.jpg" alt="A toddler reaching for a plate of fish and rice topped with scallions" />
           <div>
             <p className="landing-eyebrow">Who we are</p>
             <h2>A kitchen that cooks like family.</h2>
@@ -151,6 +151,29 @@ export default function LandingPage({ onSignIn, onJoin }) {
               Chef Robert cooks every dish himself. The menu follows the seasons and the places we’ve traveled, and
               it’s always made the way he’d make it for us at home.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-section">
+        <div className="landing-wrap landing-about landing-about--flip">
+          <img src="/images/pastry-bites.jpg" alt="Golden pastry bites with chopsticks and a cup of soup" />
+          <div>
+            <p className="landing-eyebrow">Private chef</p>
+            <h2>An evening at your table, cooked in your kitchen.</h2>
+            <p>
+              Beyond the weekly delivery, Chef Robert cooks in private homes. A dinner for two, a table of
+              twelve, a weekend with friends. The menu is written for you, built around the season and the
+              people coming, and cooked course by course while you sit down.
+            </p>
+            <p>
+              Robert spent years as a restaurant owner and corporate executive chef across many cuisines.
+              The same care that goes into every container goes into every plate.
+            </p>
+            <div className="landing-hero-actions">
+              <a className="landing-btn landing-btn--outline" href="mailto:info@dinnerwithcharles.com?subject=Private%20dinner%20inquiry">Inquire about a dinner</a>
+              <a className="landing-link" href="https://instagram.com/dinnerwithcharles" target="_blank" rel="noreferrer">or message us on Instagram</a>
+            </div>
           </div>
         </div>
       </section>
@@ -173,6 +196,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <p className="landing-eyebrow">Follow along</p>
             <h3>See what’s cooking on Instagram.</h3>
             <p>New menus, behind-the-scenes moments and the latest from our kitchen.</p>
+            <p className="landing-contact">Questions? Write to us at <a href="mailto:info@dinnerwithcharles.com">info@dinnerwithcharles.com</a>.</p>
           </div>
           <a className="landing-btn landing-btn--ghost-light" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
             Follow @dinnerwithcharles
