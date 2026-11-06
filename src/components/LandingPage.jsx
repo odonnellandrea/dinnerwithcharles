@@ -50,7 +50,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
               <button className="landing-btn landing-btn--outline" onClick={onSignIn}>Sign In</button>
             </div>
           </div>
-          <img className="landing-hero-photo" src="/images/steak-sauce.jpg" alt="Sauce spooned over sliced steak with crisp potatoes" />
+          <img className="landing-hero-photo" src="/images/chicken-thighs-olives.jpg" alt="Charred chicken thighs with green olives, thyme and roasted squash" />
         </div>
       </section>
 
@@ -115,7 +115,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
 
       <section className="landing-section">
         <div className="landing-wrap landing-plan">
-          <img src="/images/roast-chicken-wide.jpg" alt="Sliced roast chicken with mustard sauce, baby potatoes and carrots" />
+          <img className="landing-plan-img--bowl" src="/images/salmon-mushroom-teapot.jpg" alt="Seared salmon and roasted mushrooms over rice in a blue bowl, beside a white teapot" />
           <div>
             <p className="landing-eyebrow">Your week</p>
             <div className="landing-price-card">
