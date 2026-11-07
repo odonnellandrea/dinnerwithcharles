@@ -157,7 +157,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
 
       <section className="landing-section">
         <div className="landing-wrap landing-about landing-about--flip">
-          <img src="/images/pastry-bites.jpg" alt="Golden pastry bites with chopsticks and a cup of soup" />
+          <img className="landing-about-img--pastry" src="/images/pastry-bites.jpg" alt="Golden pastry bites with chopsticks and a cup of soup" />
           <div>
             <p className="landing-eyebrow">Private chef</p>
             <h2>An evening at your table, cooked in your kitchen.</h2>
