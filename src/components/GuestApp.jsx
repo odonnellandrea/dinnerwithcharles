@@ -941,7 +941,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '4px' }}>Special notes for the kitchen</h3>
-              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Anything Chef Robert should know for this week's cooking. Your allergies and standing preferences are already with us from your Settings.</p>
+              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Anything the kitchen should know for this week's cooking.</p>
               <textarea
                 value={specialNotes}
                 onChange={(e) => setSpecialNotes(e.target.value)}
@@ -949,7 +949,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                 style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '70px', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }}
               />
               <h3 style={{ color: '#1a441f', margin: '18px 0 4px 0' }}>Special notes for delivery</h3>
-              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Anything that helps us get it to your door this week: the doorman, a buzzer, a change of timing.</p>
+              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Anything that helps us get it to your door this week: the doorman, a buzzer, a side entrance.</p>
               <textarea
                 value={deliveryNotes}
                 onChange={(e) => setDeliveryNotes(e.target.value)}
