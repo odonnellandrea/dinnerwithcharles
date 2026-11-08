@@ -1,0 +1,171 @@
+import React, { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+import { formatWindows } from '../lib/deliveryWindows'
+import { formatUsPhone } from '../lib/notificationConsent'
+import { priceOrder, messengerFeeFor, pricingFor } from '../lib/pricing'
+import { awaySummary, isAwayOn } from '../lib/awayDates'
+import { nextMonday } from '../lib/deliveryDate'
+
+const displayName = (p) => p.name || [p.first_name, p.last_name].filter(Boolean).join(' ') || p.email
+const niceDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+
+// Who has ordered for the week, who hasn't yet, and who's away: the question that gets asked
+// every Thursday, answered on one screen.
+export default function ThisWeek({ onOpenOrders }) {
+  const [deliveryDate, setDeliveryDate] = useState('')
+  const [live, setLive] = useState(null) // the delivery_settings row, if any
+  const [ordered, setOrdered] = useState([])
+  const [waiting, setWaiting] = useState([])
+  const [away, setAway] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  // The live delivery date if one is open, else the coming Monday
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from('delivery_settings').select('*').eq('is_live', true).order('delivery_date', { ascending: false }).limit(1)
+      setLive(data?.[0] || null)
+      setDeliveryDate(data?.[0]?.delivery_date || nextMonday())
+    })()
+  }, [])
+
+  useEffect(() => { if (deliveryDate) load() }, [deliveryDate])
+
+  const load = async () => {
+    setLoading(true)
+    setError('')
+    const [ordersRes, peopleRes, awayRes, payRes, discountRes] = await Promise.all([
+      supabase.from('Orders').select('*').eq('delivery_date', deliveryDate).neq('status', 'cancelled'),
+      supabase.from('users').select('*').eq('approval_status', 'approved'),
+      supabase.from('away_dates').select('*').lte('starts_on', deliveryDate).gte('ends_on', deliveryDate),
+      supabase.from('order_payments').select('*'),
+      supabase.from('order_discounts').select('order_id, amount_cents')
+    ])
+    if (ordersRes.error || peopleRes.error) { setError((ordersRes.error || peopleRes.error).message); setLoading(false); return }
+    const people = peopleRes.data || []
+    const byEmail = Object.fromEntries(people.map(p => [String(p.email).toLowerCase(), p]))
+    const awayRows = awayRes.data || []
+    const awayByUser = awayRows.reduce((acc, r) => { (acc[r.user_id] ||= []).push(r); return acc }, {})
+    const payments = Object.fromEntries((payRes.data || []).map(p => [p.order_id, p]))
+    const discounts = (discountRes.data || []).reduce((acc, d) => { acc[d.order_id] = (acc[d.order_id] || 0) + d.amount_cents / 100; return acc }, {})
+
+    // One card per order
+    const orders = Object.values((ordersRes.data || []).reduce((acc, row) => {
+      const key = row.order_id
+      acc[key] ||= { order_id: key, email: String(row.email).toLowerCase(), name: row.customer_name, delivery_time_slot: row.delivery_time_slot, special_notes: row.special_notes, status: row.status, rows: [] }
+      acc[key].rows.push(row)
+      return acc
+    }, {})).map(o => {
+      const profile = byEmail[o.email]
+      const count = (type) => o.rows.filter(r => r.item_type === type).reduce((n, r) => n + Number(r.quantity || 0), 0)
+      const addOnsCost = o.rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
+      const { basePrice, complimentary } = pricingFor(profile)
+      const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: messengerFeeFor(profile), discount: discounts[o.order_id] || 0, basePrice, complimentary })
+      const pay = payments[o.order_id]?.status || (complimentary ? 'free' : 'unpaid')
+      return { ...o, name: profile ? displayName(profile) : (o.name && !o.name.includes('@') ? o.name : o.email), entrees: count('entree'), sides: count('salad'), addons: count('addon'), total: price.total, complimentary, pay }
+    }).sort((a, b) => a.name.localeCompare(b.name))
+
+    const orderedEmails = new Set(orders.map(o => o.email))
+    const notOrdered = people.filter(p => !orderedEmails.has(String(p.email).toLowerCase()))
+    const awayPeople = notOrdered.filter(p => isAwayOn(awayByUser[p.id], deliveryDate)).map(p => ({ ...p, awayText: awaySummary(awayByUser[p.id]) }))
+    const stillWaiting = notOrdered.filter(p => !isAwayOn(awayByUser[p.id], deliveryDate))
+    setOrdered(orders)
+    setWaiting(stillWaiting.sort((a, b) => displayName(a).localeCompare(displayName(b))))
+    setAway(awayPeople.sort((a, b) => displayName(a).localeCompare(displayName(b))))
+    setLoading(false)
+  }
+
+  const card = { background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }
+  const chip = (label, value, strong) => (
+    <div style={{ flex: '1 1 110px', padding: '14px 16px', background: strong ? '#1a441f' : '#faf8f3', border: '1px solid #e0dbd1' }}>
+      <p style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: strong ? '#faf8f3' : '#1a441f', lineHeight: 1 }}>{value}</p>
+      <p style={{ margin: '6px 0 0 0', fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', color: strong ? '#D4A373' : '#666' }}>{label}</p>
+    </div>
+  )
+  const unpaid = ordered.filter(o => o.pay === 'unpaid').length
+  const expected = ordered.reduce((n, o) => n + o.total, 0)
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
+        <div>
+          <h2 style={{ color: '#1a441f', margin: '0 0 4px 0' }}>This Week</h2>
+          <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
+            Delivery {deliveryDate ? niceDate(deliveryDate) : '…'}{live ? (live.is_live ? ' · ordering is open' : '') : ' · no menu is live yet'}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <label htmlFor="weekDate" style={{ fontSize: '12px', color: '#666' }}>Other week</label>
+          <input id="weekDate" type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} style={{ padding: '6px 10px', border: '1px solid #e0dbd1', fontFamily: 'inherit' }} />
+          <button onClick={load} style={{ padding: '6px 12px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
+        </div>
+      </div>
+
+      {error && <p style={{ color: '#c62828', background: '#ffebee', border: '1px solid #ffcdd2', padding: '12px 16px', fontSize: '13px' }}>Couldn't load this week: {error}</p>}
+      {loading ? <p>Loading...</p> : (
+        <>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '20px' }}>
+            {chip('Ordered', ordered.length, true)}
+            {chip('Not yet', waiting.length)}
+            {chip('Away', away.length)}
+            {chip('Unpaid', unpaid)}
+            {chip('Expected', `$${Math.round(expected)}`)}
+          </div>
+
+          <div style={card}>
+            <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
+            {waiting.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>Everyone who's home has ordered.</p>}
+            {waiting.map(p => {
+              const phone = p.phone_number || p.delivery_phone
+              return (
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '8px 0', borderTop: '1px solid #f0ece3' }}>
+                  <span style={{ fontSize: '14px', color: '#333' }}>{displayName(p)}<span style={{ color: '#999', fontSize: '12px' }}> · {p.email}</span></span>
+                  <span style={{ display: 'flex', gap: '8px', fontSize: '12px' }}>
+                    {p.sms_opt_in === true && phone && <a href={`sms:${String(phone).replace(/[^\d+]/g, '')}`} style={{ color: '#1a441f', fontWeight: '600', textDecoration: 'none', border: '1px solid #1a441f', padding: '3px 10px' }}>Text</a>}
+                    <a href={`mailto:${p.email}`} style={{ color: '#1a441f', fontWeight: '600', textDecoration: 'none', border: '1px solid #e0dbd1', padding: '3px 10px' }}>Email</a>
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+
+          <div style={card}>
+            <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Ordered ({ordered.length})</h3>
+            {ordered.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>No orders yet for this date.</p>}
+            {ordered.map(o => (
+              <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '14px', color: '#333', fontWeight: '600' }}>{o.name}</span>
+                  <span style={{ fontSize: '13px', color: '#1a441f', fontWeight: '600' }}>
+                    {o.complimentary ? 'Complimentary' : `$${o.total.toFixed(2)}`}
+                    <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', background: o.pay === 'paid' ? '#1a441f' : o.pay === 'free' ? '#e0dbd1' : '#ffebee', color: o.pay === 'paid' ? '#faf8f3' : o.pay === 'free' ? '#1a441f' : '#c62828' }}>{o.pay === 'paid' ? 'Paid' : o.pay === 'free' ? 'Free' : 'Unpaid'}</span>
+                  </span>
+                </div>
+                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
+                  {o.entrees} entrée{o.entrees === 1 ? '' : 's'} · {o.sides} side{o.sides === 1 ? '' : 's'}{o.addons ? ` · ${o.addons} add-on${o.addons === 1 ? '' : 's'}` : ''}
+                  {formatWindows(o.delivery_time_slot) ? ` · ${formatWindows(o.delivery_time_slot)}` : ''}
+                  {o.status === 'delivered' ? ' · delivered' : ''}
+                </p>
+                {o.special_notes && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#b8923f' }}>“{o.special_notes}”</p>}
+              </div>
+            ))}
+            {ordered.length > 0 && onOpenOrders && (
+              <button onClick={onOpenOrders} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Open the full Orders tab</button>
+            )}
+          </div>
+
+          {away.length > 0 && (
+            <div style={card}>
+              <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Away this week ({away.length})</h3>
+              {away.map(p => (
+                <div key={p.id} style={{ padding: '8px 0', borderTop: '1px solid #f0ece3', fontSize: '14px', color: '#333' }}>
+                  {displayName(p)} <span style={{ color: '#b8923f', fontSize: '12px' }}>· ✈ {p.awayText}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}

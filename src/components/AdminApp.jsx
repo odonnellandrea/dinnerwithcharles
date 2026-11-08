@@ -6,6 +6,7 @@ import '../styles/admin.css'
 import NotificationsDashboard from './NotificationsDashboard'
 import DocumentGenerationDashboard from './DocumentGenerationDashboard'
 import ReferralCodesDashboard from './ReferralCodesDashboard'
+import ThisWeek from './ThisWeek'
 import CustomerEditModal from './CustomerEditModal'
 import SurveyResponses from './SurveyResponses'
 import MessengerFeeEditor from './MessengerFeeEditor'
@@ -22,7 +23,7 @@ const MENU_SHEET_EDIT_URL = MENU_SHEET_URL.replace(/\/gviz\/.*$/, '/edit')
 
 
 export default function AdminApp({ onLogout, onOrder }) {
-  const [screen, setScreen] = useState('approvals')
+  const [screen, setScreen] = useState('week')
   const [orders, setOrders] = useState([])
   const [includeCancelledInExport, setIncludeCancelledInExport] = useState(false)
   const [orderSearch, setOrderSearch] = useState('')
@@ -550,6 +551,7 @@ export default function AdminApp({ onLogout, onOrder }) {
 
         <nav className="admin-tabs">
           {[
+            ['week', 'This Week'],
             ['approvals', 'Approvals'],
             ['menu', 'Menu'],
             ['orders', 'Orders'],
@@ -569,6 +571,10 @@ export default function AdminApp({ onLogout, onOrder }) {
             </button>
           ))}
         </nav>
+
+        {screen === 'week' && (
+          <ThisWeek onOpenOrders={() => setScreen('orders')} />
+        )}
 
         {screen === 'approvals' && (
           <div>
