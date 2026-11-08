@@ -337,7 +337,7 @@ export default function AdminApp({ onLogout, onOrder }) {
       .select('*')
       .order('created_at', { ascending: false })
     // Waiting for approval always on top, then approved, paused, rejected; newest first within each
-    const rank = { pending: 0, approved: 1, paused: 2, rejected: 3 }
+    const rank = { pending: 0, approved: 1, paused: 2, waitlisted: 3, rejected: 4 }
     setPendingCustomers((data || []).slice().sort((a, b) => (rank[a.approval_status] ?? 0) - (rank[b.approval_status] ?? 0)))
     setLoading(false)
     // Sign-in history for each card. Needs 20261027_admin_tools.sql; without it there's just nothing to show.
@@ -595,7 +595,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                             </button>
                           </p>
                           <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
-                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status === 'paused' ? 'on hold' : customer.approval_status}</strong>{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
+                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status === 'paused' ? 'on hold' : customer.approval_status === 'waitlisted' ? 'on the waitlist' : customer.approval_status}</strong>{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
                           {awaySummary(awayByUser[customer.id]) && (
                             <p style={{ margin: '4px 0 0 0', color: '#b8923f', fontSize: '12px', fontWeight: '600' }}>✈ {awaySummary(awayByUser[customer.id])}</p>
                           )}
@@ -657,6 +657,14 @@ export default function AdminApp({ onLogout, onOrder }) {
                               style={{ background: 'white', color: '#1a441f', border: '1px solid #1a441f' }}
                             >
                               Pause
+                            </button>
+                          )}
+                          {(customer.approval_status === 'pending' || customer.approval_status === 'rejected') && (
+                            <button
+                              onClick={() => { if (window.confirm(`Put ${customer.name || customer.email} on the neighborhood waitlist? They'll see a note that we don't deliver to them yet, and you can approve them when you do.`)) setApprovalStatus(customer.id, 'waitlisted') }}
+                              style={{ background: 'white', color: '#1a441f', border: '1px solid #1a441f' }}
+                            >
+                              Waitlist
                             </button>
                           )}
                           {customer.approval_status === 'paused' && (

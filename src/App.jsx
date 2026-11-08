@@ -6,6 +6,7 @@ import SignupApp from './components/SignupApp'
 import PendingApprovalApp from './components/PendingApprovalApp'
 import RejectedApp from './components/RejectedApp'
 import PausedApp from './components/PausedApp'
+import WaitlistApp from './components/WaitlistApp'
 import LandingPage from './components/LandingPage'
 import PasswordForm from './components/PasswordForm'
 import { isAdminEmail } from './lib/admins'
@@ -121,6 +122,8 @@ function App() {
       return <GuestApp user={user} onLogout={handleLogout} />
     } else if (approvalStatus === 'paused') {
       return <PausedApp user={user} onLogout={handleLogout} />
+    } else if (approvalStatus === 'waitlisted') {
+      return <WaitlistApp user={user} onLogout={handleLogout} />
     } else if (approvalStatus === 'rejected') {
       return <RejectedApp user={user} onLogout={handleLogout} onResubmitted={() => setApprovalStatus('pending')} />
     } else {

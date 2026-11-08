@@ -946,10 +946,10 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               return (
                 <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
                   {longer
-                    ? <>✓ You've told us you're away {formatRange(longer)}, so we won't expect an order. Plans changed? Update your dates in Settings.</>
+                    ? <>✓ You've told us you're away {formatRange(longer)}, so we'll plan around you. Plans changed? Update your dates in Settings.</>
                     : covering.length
-                      ? <>✓ Noted, we won't expect an order this week. Changed your mind? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>The menu is still open.</button></>
-                      : <>Not ordering this week? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Let us know</button>, and we won't expect one. Away longer? Add your dates in Settings.</>}
+                      ? <>✓ Noted, thank you. That helps us plan. Changed your mind? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>The menu is still open.</button></>
+                      : <>Not ordering this week? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Let us know</button>, so we can plan the kitchen and keep your favorites in rotation for when you're back. Away longer? Add your dates in Settings.</>}
                 </p>
               )
             })()}
