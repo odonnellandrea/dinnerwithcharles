@@ -691,8 +691,12 @@ export default function AdminApp({ onLogout, onOrder }) {
                             <dd>{optInLabel(customer, 'email_opt_in')}</dd>
                           </div>
                           <div>
-                            <dt>Text updates</dt>
+                            <dt>Order and menu texts</dt>
                             <dd>{optInLabel(customer, 'sms_opt_in')}{optInLabel(customer, 'sms_opt_in') === 'Yes' && customer.phone_number ? ` · ${formatUsPhone(customer.phone_number)}` : ''}</dd>
+                          </div>
+                          <div>
+                            <dt>News and offers texts</dt>
+                            <dd>{customer.sms_marketing_opt_in === true ? 'Yes' : 'No'}</dd>
                           </div>
                         </dl>
                       )}

@@ -3,7 +3,20 @@
 
 export const EMAIL_CONSENT_TEXT = 'Email me weekly menu announcements and news from Dinner with Charles.'
 
-export const SMS_CONSENT_TEXT = "Text me when the menu opens and with order updates from Dinner with Charles. We're not texting yet. We plan to start as we grow, and you'll only get texts once we do. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of joining or ordering."
+// Two separate text consents: the first is about their orders and the weekly menu, the second
+// is marketing. Each needs its own clear yes.
+export const SMS_CONSENT_TEXT = "Text me when the menu opens and with updates about my orders and deliveries from Dinner with Charles."
+
+export const SMS_MARKETING_CONSENT_TEXT = "Text me occasional news and offers from Dinner with Charles."
+
+export const SMS_TERMS_TEXT = "Texts are sent by a person, not a machine, so frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of joining or ordering."
+
+// Until 20261108_sms_marketing_opt_in.sql is run, writes with the new column fail; retry without it
+export const isMissingSmsMarketingColumn = (error) => !!error && String(error.message || '').includes('sms_marketing_opt_in')
+export function withoutSmsMarketingColumn(payload) {
+  const { sms_marketing_opt_in: _m, ...rest } = payload
+  return rest
+}
 
 export const TRANSACTIONAL_NOTE = "Order confirmations and delivery emails are always sent, whatever you choose here."
 

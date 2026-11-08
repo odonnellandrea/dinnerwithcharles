@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
+import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn } from '../lib/notificationConsent'
 
 // Asked exactly once, for customers who joined before the opt-ins existed. It's marked as
 // asked as soon as it appears, so saving, skipping or just leaving all end it for good;
@@ -11,6 +11,7 @@ import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn
 export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn, onDone }) {
   const [emailOptIn, setEmailOptIn] = useState(false)
   const [smsOptIn, setSmsOptIn] = useState(initialSmsOptIn === true)
+  const [smsMarketingOptIn, setSmsMarketingOptIn] = useState(false)
   const markedAsked = useRef(null)
 
   useEffect(() => {
@@ -30,14 +31,15 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
   const handleChange = (field, value) => {
     if (field === 'emailOptIn') setEmailOptIn(value)
     if (field === 'smsOptIn') setSmsOptIn(value)
+    if (field === 'smsMarketingOptIn') setSmsMarketingOptIn(value)
     if (field === 'phoneNumber') setPhoneNumber(value)
     setPhoneError('')
   }
 
   const handleSave = async () => {
     const normalizedPhone = normalizeUsPhone(phoneNumber)
-    if (smsOptIn && !normalizedPhone) {
-      setPhoneError('Enter a valid 10-digit US mobile number, or uncheck the text message box.')
+    if ((smsOptIn || smsMarketingOptIn) && !normalizedPhone) {
+      setPhoneError('Enter a valid 10-digit US mobile number, or uncheck the text message boxes.')
       return
     }
     setSaving(true)
@@ -45,10 +47,14 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
     const changes = {
       email_opt_in: emailOptIn === true,
       sms_opt_in: smsOptIn === true,
-      phone_number: smsOptIn ? normalizedPhone : null,
+      sms_marketing_opt_in: smsMarketingOptIn === true,
+      phone_number: (smsOptIn || smsMarketingOptIn) ? normalizedPhone : null,
       [PREFS_SET_COLUMN]: new Date().toISOString()
     }
     let { error } = await supabase.from('users').update(changes).eq('id', user.id)
+    if (isMissingSmsMarketingColumn(error)) {
+      ({ error } = await supabase.from('users').update(withoutSmsMarketingColumn(changes)).eq('id', user.id))
+    }
     if (isMissingPrefsColumn(error)) {
       ({ error } = await supabase.from('users').update(withoutPrefsColumn(changes)).eq('id', user.id))
     }
@@ -72,6 +78,7 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
       <NotificationChoices
         emailOptIn={emailOptIn}
         smsOptIn={smsOptIn}
+        smsMarketingOptIn={smsMarketingOptIn}
         phoneNumber={phoneNumber}
         phoneError={phoneError}
         onChange={handleChange}

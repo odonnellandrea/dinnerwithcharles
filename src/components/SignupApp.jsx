@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
+import { normalizeUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn } from '../lib/notificationConsent'
 import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
 import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions, hasDeliveryOption } from '../lib/deliveryOptions'
 import { normalizeCode, codeMessage } from '../lib/referral'
@@ -83,6 +83,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
     // Marketing opt-ins: always start unchecked
     emailOptIn: false,
     smsOptIn: false,
+    smsMarketingOptIn: false,
     smsPhone: ''
   })
   const [phoneError, setPhoneError] = useState('')
@@ -117,6 +118,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           // Show the choices they already saved; nothing new is pre-checked
           emailOptIn: data.email_opt_in === true,
           smsOptIn: data.sms_opt_in === true,
+          smsMarketingOptIn: data.sms_marketing_opt_in === true,
           smsPhone: data.phone_number || ''
         }))
       }
@@ -235,8 +237,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
   const handleSubmit = async () => {
     // Texting consent needs a number to text; without consent the number is optional and not saved
     const smsPhone = normalizeUsPhone(formData.smsPhone)
-    if (formData.smsOptIn && !smsPhone) {
-      setPhoneError('Enter a valid 10-digit US mobile number, or uncheck the text message box.')
+    const wantsTexts = formData.smsOptIn || formData.smsMarketingOptIn
+    if (wantsTexts && !smsPhone) {
+      setPhoneError('Enter a valid 10-digit US mobile number, or uncheck the text message boxes.')
       return
     }
     setPhoneError('')
@@ -251,12 +254,16 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           ...nameColumns(formData.firstName, formData.lastName),
           email_opt_in: formData.emailOptIn === true,
           sms_opt_in: formData.smsOptIn === true,
-          phone_number: formData.smsOptIn ? smsPhone : null,
+          sms_marketing_opt_in: formData.smsMarketingOptIn === true,
+          phone_number: (formData.smsOptIn || formData.smsMarketingOptIn) ? smsPhone : null,
           [PREFS_SET_COLUMN]: new Date().toISOString(),
           approval_status: 'pending',
           resubmitted_at: new Date().toISOString()
         }
         let { error: updateError } = await supabase.from('users').update(changes).eq('id', resubmitFor.id)
+        if (isMissingSmsMarketingColumn(updateError)) {
+          ({ error: updateError } = await supabase.from('users').update(withoutSmsMarketingColumn(changes)).eq('id', resubmitFor.id))
+        }
         if (isMissingPrefsColumn(updateError)) {
           ({ error: updateError } = await supabase.from('users').update(withoutPrefsColumn(changes)).eq('id', resubmitFor.id))
         }
@@ -293,7 +300,8 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           // Always explicit so we never rely on the column default
           email_opt_in: formData.emailOptIn === true,
           sms_opt_in: formData.smsOptIn === true,
-          phone_number: formData.smsOptIn ? smsPhone : null,
+          sms_marketing_opt_in: formData.smsMarketingOptIn === true,
+          phone_number: (formData.smsOptIn || formData.smsMarketingOptIn) ? smsPhone : null,
           [PREFS_SET_COLUMN]: new Date().toISOString(),
           approval_status: 'pending',
           is_active: true,
@@ -301,6 +309,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         }
 
         let { error: insertError } = await supabase.from('users').insert([profile])
+        if (isMissingSmsMarketingColumn(insertError)) {
+          ({ error: insertError } = await supabase.from('users').insert([withoutSmsMarketingColumn(profile)]))
+        }
         // Until 20261022_referral_codes.sql is run there is no referral_code column
         if (insertError && /referral_code/.test(insertError.message || '')) {
           const { referral_code: _r, ...withoutCode } = profile
@@ -500,6 +511,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
                 <NotificationChoices
                   emailOptIn={formData.emailOptIn}
                   smsOptIn={formData.smsOptIn}
+                  smsMarketingOptIn={formData.smsMarketingOptIn}
                   phoneNumber={formData.smsPhone}
                   phoneError={phoneError}
                   onChange={(field, value) => {

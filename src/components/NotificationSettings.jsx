@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn } from '../lib/notificationConsent'
+import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn } from '../lib/notificationConsent'
 
 export default function NotificationSettings({ user }) {
   // Show exactly what's saved: anything other than true counts as not opted in
   const [emailOptIn, setEmailOptIn] = useState(false)
   const [smsOptIn, setSmsOptIn] = useState(false)
+  const [smsMarketingOptIn, setSmsMarketingOptIn] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -19,13 +20,14 @@ export default function NotificationSettings({ user }) {
   const fetchSettings = async () => {
     const { data } = await supabase
       .from('users')
-      .select('email_opt_in, sms_opt_in, phone_number')
+      .select('*')
       .eq('id', user.id)
       .single()
 
     if (data) {
       setEmailOptIn(data.email_opt_in === true)
       setSmsOptIn(data.sms_opt_in === true)
+      setSmsMarketingOptIn(data.sms_marketing_opt_in === true)
       setPhoneNumber(formatUsPhone(data.phone_number))
     }
   }
@@ -33,6 +35,7 @@ export default function NotificationSettings({ user }) {
   const handleChange = (field, value) => {
     if (field === 'emailOptIn') setEmailOptIn(value)
     if (field === 'smsOptIn') setSmsOptIn(value)
+    if (field === 'smsMarketingOptIn') setSmsMarketingOptIn(value)
     if (field === 'phoneNumber') setPhoneNumber(value)
     setPhoneError('')
     setSaved(false)
@@ -40,8 +43,9 @@ export default function NotificationSettings({ user }) {
 
   const handleSave = async () => {
     const normalizedPhone = normalizeUsPhone(phoneNumber)
-    if (smsOptIn && !normalizedPhone) {
-      setPhoneError('Enter a valid 10-digit US mobile number, or uncheck the text message box.')
+    const wantsTexts = smsOptIn || smsMarketingOptIn
+    if (wantsTexts && !normalizedPhone) {
+      setPhoneError('Enter a valid 10-digit US mobile number, or uncheck the text message boxes.')
       return
     }
 
@@ -51,10 +55,14 @@ export default function NotificationSettings({ user }) {
       const changes = {
         email_opt_in: emailOptIn === true,
         sms_opt_in: smsOptIn === true,
-        phone_number: smsOptIn ? normalizedPhone : null,
+        sms_marketing_opt_in: smsMarketingOptIn === true,
+        phone_number: (smsOptIn || smsMarketingOptIn) ? normalizedPhone : null,
         [PREFS_SET_COLUMN]: new Date().toISOString()
       }
       let { error } = await supabase.from('users').update(changes).eq('id', user.id)
+      if (isMissingSmsMarketingColumn(error)) {
+        ({ error } = await supabase.from('users').update(withoutSmsMarketingColumn(changes)).eq('id', user.id))
+      }
       if (isMissingPrefsColumn(error)) {
         ({ error } = await supabase.from('users').update(withoutPrefsColumn(changes)).eq('id', user.id))
       }
@@ -79,6 +87,7 @@ export default function NotificationSettings({ user }) {
       <NotificationChoices
         emailOptIn={emailOptIn}
         smsOptIn={smsOptIn}
+        smsMarketingOptIn={smsMarketingOptIn}
         phoneNumber={phoneNumber}
         phoneError={phoneError}
         onChange={handleChange}
