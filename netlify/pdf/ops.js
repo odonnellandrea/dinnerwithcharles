@@ -226,7 +226,7 @@ export function makePackingList(clients, weekLabel) {
       y[0] -= 10
       c.setFont('Helvetica-Bold', 7)
       c.setFillColor(BLACK)
-      c.drawString(x, y[0], 'SPECIAL INSTRUCTIONS')
+      c.drawString(x, y[0], 'KITCHEN NOTES')
       y[0] -= 9
       c.setFont('Helvetica', 6.8)
       c.setFillColor(GREY)

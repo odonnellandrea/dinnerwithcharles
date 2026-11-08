@@ -130,8 +130,11 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
     ${groups}
 
     ${first.special_notes ? `
-      <p style="margin:32px 0 12px 0;font-size:13px;font-weight:600;color:${GREEN};letter-spacing:0.04em;">Special requests</p>
+      <p style="margin:32px 0 12px 0;font-size:13px;font-weight:600;color:${GREEN};letter-spacing:0.04em;">For the kitchen</p>
       <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">${escapeHtml(first.special_notes)}</p>` : ''}
+    ${first.delivery_notes ? `
+      <p style="margin:24px 0 12px 0;font-size:13px;font-weight:600;color:${GREEN};letter-spacing:0.04em;">Delivery notes</p>
+      <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">${escapeHtml(first.delivery_notes)}</p>` : ''}
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:40px 0 0 0;border-top:1px solid ${BORDER};">
       <tr><td colspan="2" style="padding-top:20px;"></td></tr>
@@ -343,7 +346,8 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discoun
       ${detail('Address', profile.delivery_address)}
       ${detail('Gets it by', profile.delivery_option ? deliveryOptionLabel(profile.delivery_option) : '')}
       ${detail('Pays by', profile.payment_method)}
-      ${detail('Special requests', first.special_notes)}
+      ${detail('For the kitchen', first.special_notes)}
+      ${detail('Delivery notes', first.delivery_notes)}
     </table>
 
     ${groups}

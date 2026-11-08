@@ -51,7 +51,8 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   const [orderCloseDatetime, setOrderCloseDatetime] = useState(null)
   const [noLiveMenu, setNoLiveMenu] = useState(false)
   const [deliveryTimeSlot, setDeliveryTimeSlot] = useState([])
-  const [specialNotes, setSpecialNotes] = useState('')
+  const [specialNotes, setSpecialNotes] = useState('') // for the kitchen
+  const [deliveryNotes, setDeliveryNotes] = useState('') // for the drop-off
   const [survey, setSurvey] = useState(null)
   const [surveyResponse, setSurveyResponse] = useState('')
   const [surveySubmitted, setSurveySubmitted] = useState(false)
@@ -378,6 +379,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             delivery_date: deliveryDate,
             delivery_time_slot: serializeWindows(deliveryTimeSlot),
             special_notes: specialNotes,
+            delivery_notes: deliveryNotes,
             total_order_price: 0,
             status: 'pending',
             created_at: orderDate
@@ -398,6 +400,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             delivery_date: deliveryDate,
             delivery_time_slot: serializeWindows(deliveryTimeSlot),
             special_notes: specialNotes,
+            delivery_notes: deliveryNotes,
             total_order_price: 0,
             status: 'pending',
             created_at: orderDate
@@ -418,6 +421,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             delivery_date: deliveryDate,
             delivery_time_slot: serializeWindows(deliveryTimeSlot),
             special_notes: specialNotes,
+            delivery_notes: deliveryNotes,
             // price plus any jar deposit, so the emails and admin totals include it. A number; the old text value ("20.00") is refused by a whole-number column
             total_order_price: (item.price + (item.deposit || 0)) / 100,
             status: 'pending',
@@ -427,6 +431,10 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
       })
 
       let { error } = await supabase.from('Orders').insert(orders)
+      // Until 20261108_delivery_notes.sql is run there is no delivery_notes column; fold it into the kitchen note
+      if (error && /delivery_notes/.test(error.message || '')) {
+        ;({ error } = await supabase.from('Orders').insert(orders.map(({ delivery_notes, ...o }) => ({ ...o, special_notes: [o.special_notes, delivery_notes && `Delivery: ${delivery_notes}`].filter(Boolean).join('\n') }))))
+      }
       // While Orders.total_order_price is still a whole-number column, a price with cents
       // (like $12.50) is refused. Nothing was saved, so retry in whole dollars rather than
       // lose the order; 20261021_order_price_numeric.sql makes the column exact.
@@ -457,6 +465,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
         setSelectedAddOns({})
         setDeliveryTimeSlot([])
         setSpecialNotes('')
+        setDeliveryNotes('')
         setSurveyResponse('')
         await fetchOrderHistory()
         fetchPendingDiscount()
@@ -685,7 +694,12 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             </p>
             {specialNotes && (
               <p style={{ color: '#666', margin: '8px 0' }}>
-                <strong>Special Requests:</strong> {specialNotes}
+                <strong>For the kitchen:</strong> {specialNotes}
+              </p>
+            )}
+            {deliveryNotes && (
+              <p style={{ color: '#666', margin: '8px 0' }}>
+                <strong>Delivery notes:</strong> {deliveryNotes}
               </p>
             )}
           </div>
@@ -926,12 +940,21 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '12px' }}>Special Requests</h3>
+              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '4px' }}>Anything for the kitchen?</h3>
+              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Just for this week's cooking: a dish to go lighter on, something to leave out, a request. Standing allergies and preferences live in your Settings.</p>
               <textarea
                 value={specialNotes}
                 onChange={(e) => setSpecialNotes(e.target.value)}
-                placeholder="Any special requests for the week?"
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #e0dbd1', minHeight: '80px', boxSizing: 'border-box' }}
+                placeholder="e.g. No cilantro on the salmon this week"
+                style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '70px', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }}
+              />
+              <h3 style={{ color: '#1a441f', margin: '18px 0 4px 0' }}>Anything for the delivery?</h3>
+              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Doorman, buzzer, a different time this week.</p>
+              <textarea
+                value={deliveryNotes}
+                onChange={(e) => setDeliveryNotes(e.target.value)}
+                placeholder="e.g. Leave with the doorman after 10"
+                style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '60px', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }}
               />
             </div>
 

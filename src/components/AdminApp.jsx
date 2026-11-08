@@ -1068,7 +1068,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                           <td data-label="Customer" style={{ padding: '12px', fontSize: '14px' }}>
                             {order.customer_name}
                             {formatWindows(order.delivery_time_slot) && (
-                              <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>{order.delivery_date} · {formatWindows(order.delivery_time_slot)}</div>
+                              <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>{order.delivery_date} · {formatWindows(order.delivery_time_slot)}{order.rows[0]?.delivery_notes ? <span style={{ color: '#b8923f' }}> · {order.rows[0].delivery_notes}</span> : null}</div>
                             )}
                           </td>
                           <td data-label="Items" style={{ padding: '12px', fontSize: '13px', color: '#666' }}>

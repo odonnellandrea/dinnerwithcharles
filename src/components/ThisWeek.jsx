@@ -54,7 +54,7 @@ export default function ThisWeek({ onOpenOrders }) {
     // One card per order
     const orders = Object.values((ordersRes.data || []).reduce((acc, row) => {
       const key = row.order_id
-      acc[key] ||= { order_id: key, email: String(row.email).toLowerCase(), name: row.customer_name, delivery_time_slot: row.delivery_time_slot, special_notes: row.special_notes, status: row.status, rows: [] }
+      acc[key] ||= { order_id: key, email: String(row.email).toLowerCase(), name: row.customer_name, delivery_time_slot: row.delivery_time_slot, special_notes: row.special_notes, delivery_notes: row.delivery_notes, status: row.status, rows: [] }
       acc[key].rows.push(row)
       return acc
     }, {})).map(o => {
@@ -214,16 +214,26 @@ export default function ThisWeek({ onOpenOrders }) {
                 </div>
                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
                   {o.entrees} entrée{o.entrees === 1 ? '' : 's'} · {o.sides} side{o.sides === 1 ? '' : 's'}{o.addons ? ` · ${o.addons} add-on${o.addons === 1 ? '' : 's'}` : ''}
-                  {formatWindows(o.delivery_time_slot) ? ` · ${formatWindows(o.delivery_time_slot)}` : ''}
                   {o.status === 'delivered' ? ' · delivered' : ''}
                 </p>
-                {o.special_notes && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#b8923f' }}>“{o.special_notes}”</p>}
               </div>
             ))}
             {ordered.length > 0 && onOpenOrders && (
               <button onClick={onOpenOrders} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Open the full Orders tab</button>
             )}
           </div>
+
+          {ordered.length > 0 && (
+            <div style={card}>
+              <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Delivery windows</h3>
+              {ordered.map(o => (
+                <div key={o.order_id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '6px 0', borderTop: '1px solid #f0ece3', fontSize: '13px' }}>
+                  <span style={{ color: '#333' }}>{o.name}{o.delivery_notes && <span style={{ display: 'block', color: '#b8923f', fontSize: '12px' }}>{o.delivery_notes}</span>}</span>
+                  <span style={{ color: '#1a441f', fontWeight: '600', whiteSpace: 'nowrap' }}>{formatWindows(o.delivery_time_slot) || '—'}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {away.length > 0 && (
             <div style={card}>

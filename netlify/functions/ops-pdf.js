@@ -91,7 +91,7 @@ export default async (req) => {
       return {
         name: customer.name,
         address: profile.delivery_address || '',
-        delivery: [slots(first.delivery_time_slot), rob.has(customer.email) ? 'Rob delivers' : ''].filter(Boolean).join(' · '),
+        delivery: [slots(first.delivery_time_slot), rob.has(customer.email) ? 'Rob delivers' : '', ...new Set(customer.rows.map(r => (r.delivery_notes || '').trim()).filter(Boolean))].filter(Boolean).join(' · '),
         entrees: groups.entree,
         salads: groups.salad,
         addons: groups.addon,
