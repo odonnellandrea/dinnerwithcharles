@@ -65,8 +65,8 @@ export default async (req) => {
     const packed = customers.filter(c => !family.has(c.email))
     if (!packed.length) return json(409, { error: 'Everyone who ordered is marked as Andrea / parents, so there is nothing to pack' })
     const emails = packed.map(c => c.email)
-    const { data: profiles } = await supabase.from('users').select('email, delivery_address').in('email', emails)
-    const addressOf = Object.fromEntries((profiles || []).map(p => [String(p.email).toLowerCase(), p.delivery_address]))
+    const { data: profiles } = await supabase.from('users').select('email, delivery_address, allergies, health_restrictions, preference_restrictions').in('email', emails)
+    const profileOf = Object.fromEntries((profiles || []).map(p => [String(p.email).toLowerCase(), p]))
 
     const clients = packed.map(customer => {
       const groups = { entree: [], salad: [], addon: [] }
@@ -78,11 +78,19 @@ export default async (req) => {
         }
       }
       const first = customer.rows[0]
-      const notes = [...new Set(customer.rows.map(r => (r.special_notes || '').trim()).filter(Boolean))]
+      const requests = [...new Set(customer.rows.map(r => (r.special_notes || '').trim()).filter(Boolean))]
         .flatMap(note => note.split(/\r?\n/).map(line => line.trim()).filter(Boolean))
+      // Standing notes from the profile come first, then this order's requests
+      const profile = profileOf[customer.email] || {}
+      const notes = [
+        ...(profile.allergies?.trim() ? [`ALLERGIES: ${profile.allergies.trim()}`] : []),
+        ...(profile.health_restrictions?.trim() ? [`Health: ${profile.health_restrictions.trim()}`] : []),
+        ...(profile.preference_restrictions?.trim() ? [`Preferences: ${profile.preference_restrictions.trim()}`] : []),
+        ...requests
+      ]
       return {
         name: customer.name,
-        address: addressOf[customer.email] || '',
+        address: profile.delivery_address || '',
         delivery: [slots(first.delivery_time_slot), rob.has(customer.email) ? 'Rob delivers' : ''].filter(Boolean).join(' · '),
         entrees: groups.entree,
         salads: groups.salad,
@@ -117,6 +125,16 @@ export default async (req) => {
     return pdfResponse(file, `Order Grid - ${date}.pdf`)
   }
 
+  // Kitchen notes for the chef: allergies, restrictions and requests from everyone who ordered
+  const { data: noteProfiles } = await supabase.from('users').select('email, allergies, health_restrictions, preference_restrictions').in('email', customers.map(c => c.email))
+  const noteProfileOf = Object.fromEntries((noteProfiles || []).map(p => [String(p.email).toLowerCase(), p]))
+  const kitchenNotes = customers.map(customer => {
+    const p = noteProfileOf[customer.email] || {}
+    const requests = [...new Set(customer.rows.map(r => (r.special_notes || '').trim()).filter(Boolean))]
+      .flatMap(note => note.split(/\r?\n/).map(line => line.trim()).filter(Boolean))
+    return { name: customer.name, allergies: (p.allergies || '').trim(), health: (p.health_restrictions || '').trim(), preferences: (p.preference_restrictions || '').trim(), requests }
+  }).filter(n => n.allergies || n.health || n.preferences || n.requests.length)
+
   // Chef reference: count real customer orders per dish
   const dishes = new Map()
   for (const customer of customers) {
@@ -140,6 +158,6 @@ export default async (req) => {
       qty,
       parentsWant
     }))
-  const file = await makeChefReference({ weekLabel: `${weekLabel} — Chef Reference`, entrees: ofType('entree'), salads: ofType('salad'), addons: ofType('addon') })
+  const file = await makeChefReference({ weekLabel: `${weekLabel} — Chef Reference`, entrees: ofType('entree'), salads: ofType('salad'), addons: ofType('addon'), notes: kitchenNotes })
   return pdfResponse(file, `Chef Reference - ${date}.pdf`)
 }

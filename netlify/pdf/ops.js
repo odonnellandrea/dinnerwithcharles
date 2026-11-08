@@ -385,6 +385,31 @@ export function makeChefReference(data) {
   // Add-ons are few, so they follow the salads instead of taking a page of their own
   section('ADD-ONS', '', data.addons || [], !data.entrees.length && !data.salads.length, !data.salads.length)
 
+  // Kitchen notes: one page, one block per customer with anything to flag
+  if (data.notes?.length) {
+    newPage()
+    sectionHeader('KITCHEN NOTES', `${data.notes.length} ${data.notes.length === 1 ? 'customer' : 'customers'}`)
+    for (const n of data.notes) {
+      const lines = []
+      if (n.allergies) lines.push(['Helvetica-Bold', `ALLERGIES: ${n.allergies}`])
+      if (n.health) lines.push(['Helvetica', `Health: ${n.health}`])
+      if (n.preferences) lines.push(['Helvetica', `Preferences: ${n.preferences}`])
+      for (const r of n.requests) lines.push(['Helvetica-Oblique', `This order: ${r}`])
+      const wrappedLines = lines.flatMap(([font, text]) => wrap(text, font, 7.3, contentW - 14).map(t => [font, t]))
+      ensureSpace(12 + 9.3 * wrappedLines.length + 8)
+      c.setFont('Helvetica-Bold', 9.5)
+      c.setFillColor(BLACK)
+      c.drawString(margin, y[0], n.name)
+      y[0] -= 12
+      for (const [font, text] of wrappedLines) {
+        c.setFont(font, 7.3)
+        c.drawString(margin + 14, y[0], text)
+        y[0] -= 9.3
+      }
+      y[0] -= 8
+    }
+  }
+
   return c.finish()
 }
 
