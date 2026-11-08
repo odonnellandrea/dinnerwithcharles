@@ -102,8 +102,8 @@ export default function ThisWeek({ onOpenOrders }) {
     <div style={{ marginBottom: '18px' }}>
       <p style={{ margin: '0 0 8px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{title}</p>
       {items.map(d => (
-        <div key={d.name} title={d.who.join(', ')} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 2fr', gap: '10px', alignItems: 'center', padding: '4px 0' }}>
-          <span style={{ fontSize: '13px', color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</span>
+        <div key={d.name} title={d.who.join(', ')} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 46%) 1fr', gap: '10px', alignItems: 'center', padding: '5px 0' }}>
+          <span style={{ fontSize: '13px', color: '#333', lineHeight: 1.3 }}>{d.name}</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span role="img" aria-label={`${d.count} order${d.count === 1 ? '' : 's'}`} style={{ display: 'block', height: '10px', width: `${(d.count / maxCount) * 100}%`, minWidth: '4px', background: '#1a441f' }} />
             <span style={{ fontSize: '12px', color: '#666', fontVariantNumeric: 'tabular-nums' }}>{d.count}</span>
