@@ -63,7 +63,8 @@ export default function ThisWeek({ onOpenOrders }) {
       const { basePrice, complimentary } = pricingFor(profile)
       const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: messengerFeeFor(profile), discount: discounts[o.order_id] || 0, basePrice, complimentary })
       const pay = payments[o.order_id]?.status || (complimentary ? 'free' : 'unpaid')
-      return { ...o, name: profile ? displayName(profile) : (o.name && !o.name.includes('@') ? o.name : o.email), entrees: count('entree'), sides: count('salad'), addons: count('addon'), total: price.total, food: price.complimentary ? 0 : price.total - price.messengerFee, complimentary, pay }
+      return { ...o, name: profile ? displayName(profile) : (o.name && !o.name.includes('@') ? o.name : o.email), entrees: count('entree'), sides: count('salad'), addons: count('addon'), total: price.total, food: price.complimentary ? 0 : price.total - price.messengerFee, complimentary, pay,
+        allergies: (profile?.allergies || '').trim(), health: (profile?.health_restrictions || '').trim(), preferences: (profile?.preference_restrictions || '').trim() }
     }).sort((a, b) => a.name.localeCompare(b.name))
 
     const orderedEmails = new Set(orders.map(o => o.email))
@@ -147,6 +148,22 @@ export default function ThisWeek({ onOpenOrders }) {
               {barList('Entrées', dishes.entree)}
               {barList('Sides', dishes.salad)}
               {barList('Add-ons', dishes.addon)}
+            </div>
+          )}
+
+          {ordered.some(o => o.special_notes || o.allergies || o.health || o.preferences) && (
+            <div style={{ ...card, borderLeft: '4px solid #D4A373' }}>
+              <h3 style={{ color: '#1a441f', margin: '0 0 4px 0', fontSize: '16px' }}>Notes for the kitchen</h3>
+              <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#999' }}>Allergies, restrictions and special requests from everyone who ordered this week.</p>
+              {ordered.filter(o => o.special_notes || o.allergies || o.health || o.preferences).map(o => (
+                <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '600', color: '#333' }}>{o.name}</p>
+                  {o.allergies && <p style={{ margin: '2px 0', fontSize: '13px', color: '#c62828' }}><strong>Allergies:</strong> {o.allergies}</p>}
+                  {o.health && <p style={{ margin: '2px 0', fontSize: '13px', color: '#333' }}><strong>Health:</strong> {o.health}</p>}
+                  {o.preferences && <p style={{ margin: '2px 0', fontSize: '13px', color: '#333' }}><strong>Preferences:</strong> {o.preferences}</p>}
+                  {o.special_notes && <p style={{ margin: '2px 0', fontSize: '13px', color: '#b8923f' }}><strong>This order:</strong> {o.special_notes}</p>}
+                </div>
+              ))}
             </div>
           )}
 
