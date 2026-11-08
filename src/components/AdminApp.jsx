@@ -14,6 +14,7 @@ import { priceOrder, messengerFeeFor, pricingFor } from '../lib/pricing'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
 import { orderNumber } from '../lib/orderNumber'
 import { nextMonday } from '../lib/deliveryDate'
+import { awaySummary, isAwayOn } from '../lib/awayDates'
 import { fetchSheetMenu, MENU_SHEET_URL } from '../lib/sheetMenu'
 
 // The sheet itself, for editing (the URL above is its CSV export)
@@ -52,6 +53,7 @@ export default function AdminApp({ onLogout, onOrder }) {
   const [menuImage, setMenuImage] = useState(null) // this week's menu JPEG, picked from the phone
   const [shareNote, setShareNote] = useState('')
   const [loginStats, setLoginStats] = useState({}) // user id -> { last_sign_in_at, login_count }
+  const [awayByUser, setAwayByUser] = useState({}) // user id -> [{ starts_on, ends_on, note }]
   const [sendingMenuEmail, setSendingMenuEmail] = useState(false)
   const [sheetMenu, setSheetMenu] = useState(null) // what customers see right now, read from the Google Sheet
   const [sheetError, setSheetError] = useState('')
@@ -135,6 +137,7 @@ export default function AdminApp({ onLogout, onOrder }) {
     const sms = texters.filter(p => p.phone_number || p.delivery_phone).map(p => ({ id: p.id, name: displayName(p), phone: formatUsPhone(p.phone_number || p.delivery_phone) })).sort(byName)
     const smsNoNumber = texters.filter(p => !p.phone_number && !p.delivery_phone).map(p => ({ id: p.id, name: displayName(p), email: p.email })).sort(byName)
     setNotifyLists({ email, sms, smsNoNumber })
+    fetchAwayDates()
   }
 
   // Emails this week's menu to every approved customer who opted in. The function refuses
@@ -340,6 +343,13 @@ export default function AdminApp({ onLogout, onOrder }) {
     // Sign-in history for each card. Needs 20261027_admin_tools.sql; without it there's just nothing to show.
     const { data: stats } = await supabase.rpc('admin_login_stats')
     if (stats) setLoginStats(Object.fromEntries(stats.map(s => [s.id, s])))
+    fetchAwayDates()
+  }
+
+  // Everyone's upcoming away dates (20261108_away_dates.sql); nothing to show until it's run
+  const fetchAwayDates = async () => {
+    const { data } = await supabase.from('away_dates').select('*').gte('ends_on', new Date().toISOString().slice(0, 10))
+    setAwayByUser((data || []).reduce((acc, r) => { (acc[r.user_id] ||= []).push(r); return acc }, {}))
   }
 
   const saveMenuText = (text) => {
@@ -586,6 +596,9 @@ export default function AdminApp({ onLogout, onOrder }) {
                           </p>
                           <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
                           <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status === 'paused' ? 'on hold' : customer.approval_status}</strong>{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
+                          {awaySummary(awayByUser[customer.id]) && (
+                            <p style={{ margin: '4px 0 0 0', color: '#b8923f', fontSize: '12px', fontWeight: '600' }}>✈ {awaySummary(awayByUser[customer.id])}</p>
+                          )}
                           {loginStats[customer.id] && (
                             <p style={{ margin: '4px 0 0 0', color: '#999', fontSize: '12px' }}>
                               {loginStats[customer.id].last_sign_in_at
@@ -904,7 +917,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                   {notifyLists.sms.length === 0 && <p style={{ margin: 0, color: '#666' }}>Nobody has opted in to texts yet.</p>}
                   {notifyLists.sms.map(p => (
                     <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', borderTop: '1px solid #f0ece3', padding: '6px 0' }}>
-                      <span>{p.name} <span style={{ color: '#999' }}>· {p.phone}</span></span>
+                      <span>{p.name} <span style={{ color: '#999' }}>· {p.phone}</span>{isAwayOn(awayByUser[p.id], deliveryDate) && <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', fontWeight: '600', background: '#faf8f3', border: '1px solid #D4A373', color: '#b8923f' }}>away</span>}</span>
                       <span style={{ display: 'flex', gap: '6px' }}>
                         {canShareImage() && (
                           <button onClick={() => shareWithImage(p)} style={{ padding: '4px 12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>

@@ -5,6 +5,8 @@ import NotificationSettings from './NotificationSettings'
 import PasswordForm from './PasswordForm'
 import ProfileDetails from './ProfileDetails'
 import GuestHeader from './GuestHeader'
+import AwayDates from './AwayDates'
+import { formatRange } from '../lib/awayDates'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
 import { priceOrder, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, messengerFeeFor, pricingFor } from '../lib/pricing'
@@ -65,6 +67,8 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   // Outside the walking range: orders come by Uber messenger and the fee is added
   const [messengerFee, setMessengerFee] = useState(0)
   const [pricing, setPricing] = useState(pricingFor(null)) // base package price and complimentary, from the profile
+  const [awayRanges, setAwayRanges] = useState([]) // their away dates, for "not ordering this week"
+  const [skipBusy, setSkipBusy] = useState(false)
   // From the referral_codes migration: { newCents, creditCents } this customer could take off an order
   const [pendingDiscount, setPendingDiscount] = useState({ newCents: 0, creditCents: 0, hasCode: false })
   const [checkoutCode, setCheckoutCode] = useState('')
@@ -77,6 +81,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
     fetchOrderHistory()
     checkNotificationPrefs()
     fetchPendingDiscount()
+    fetchAwayRanges()
 
     // Deep link from the delivered email: /?reheat=YYYY-MM-DD
     const reheat = new URLSearchParams(window.location.search).get('reheat')
@@ -157,6 +162,23 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  // If the away_dates table isn't there yet, the skip link simply doesn't show
+  const fetchAwayRanges = async () => {
+    const { data, error } = await supabase.from('away_dates').select('*').eq('user_id', user.id)
+    setAwayRanges(error ? null : (data || []))
+  }
+
+  // One tap: "not ordering this week" adds an away entry for the delivery day; tapping again removes it
+  const toggleSkipWeek = async () => {
+    if (!deliveryDate || skipBusy) return
+    setSkipBusy(true)
+    const mine = (awayRanges || []).filter(r => r.starts_on === deliveryDate && r.ends_on === deliveryDate)
+    if (mine.length) await supabase.from('away_dates').delete().in('id', mine.map(r => r.id))
+    else await supabase.from('away_dates').insert({ user_id: user.id, email: user.email, starts_on: deliveryDate, ends_on: deliveryDate, note: 'Not ordering this week' })
+    await fetchAwayRanges()
+    setSkipBusy(false)
   }
 
   // What a referral code or earned credit would take off. If the migration isn't run, no discount.
@@ -569,6 +591,9 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
           <NotificationSettings user={user} onClose={() => setScreen('menu')} />
         </div>
         <div style={{ marginTop: '20px' }}>
+          <AwayDates user={user} />
+        </div>
+        <div style={{ marginTop: '20px' }}>
           <PasswordForm title="Password" intro="Choose a new password for signing in." />
         </div>
       </>
@@ -915,6 +940,19 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               {renderOrderTotals()}
             </div>
 
+            {awayRanges !== null && deliveryDate && (() => {
+              const covering = awayRanges.filter(r => r.starts_on <= deliveryDate && deliveryDate <= r.ends_on)
+              const longer = covering.find(r => r.starts_on !== r.ends_on)
+              return (
+                <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+                  {longer
+                    ? <>✓ You've told us you're away {formatRange(longer)}, so we won't expect an order. Plans changed? Update your dates in Settings.</>
+                    : covering.length
+                      ? <>✓ Noted, we won't expect an order this week. Changed your mind? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>The menu is still open.</button></>
+                      : <>Not ordering this week? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Let us know</button>, and we won't expect one. Away longer? Add your dates in Settings.</>}
+                </p>
+              )
+            })()}
             <button
               onClick={handleCheckout}
               style={{ width: '100%', padding: '16px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
