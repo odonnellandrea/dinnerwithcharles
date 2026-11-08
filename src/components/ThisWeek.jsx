@@ -20,6 +20,7 @@ export default function ThisWeek({ onOpenOrders }) {
   const [dishes, setDishes] = useState({ entree: [], salad: [], addon: [] }) // what's been ordered, per dish
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [fullNotes, setFullNotes] = useState(false)
 
   // The live delivery date if one is open, else the coming Monday
   useEffect(() => {
@@ -151,21 +152,36 @@ export default function ThisWeek({ onOpenOrders }) {
             </div>
           )}
 
-          {ordered.some(o => o.special_notes || o.allergies || o.health || o.preferences) && (
-            <div style={{ ...card, borderLeft: '4px solid #D4A373' }}>
-              <h3 style={{ color: '#1a441f', margin: '0 0 4px 0', fontSize: '16px' }}>Notes for the kitchen</h3>
-              <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#999' }}>Allergies, restrictions and special requests from everyone who ordered this week.</p>
-              {ordered.filter(o => o.special_notes || o.allergies || o.health || o.preferences).map(o => (
-                <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
-                  <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '600', color: '#333' }}>{o.name}</p>
-                  {o.allergies && <p style={{ margin: '2px 0', fontSize: '13px', color: '#c62828' }}><strong>Allergies:</strong> {o.allergies}</p>}
-                  {o.health && <p style={{ margin: '2px 0', fontSize: '13px', color: '#333' }}><strong>Health:</strong> {o.health}</p>}
-                  {o.preferences && <p style={{ margin: '2px 0', fontSize: '13px', color: '#333' }}><strong>Preferences:</strong> {o.preferences}</p>}
-                  {o.special_notes && <p style={{ margin: '2px 0', fontSize: '13px', color: '#b8923f' }}><strong>This order:</strong> {o.special_notes}</p>}
+          {ordered.some(o => o.special_notes || o.allergies || o.health || o.preferences) && (() => {
+            const flagged = ordered.filter(o => o.special_notes || o.allergies || o.health || o.preferences)
+            const clip = (text, n = 48) => text.length > n ? text.slice(0, n - 1).trimEnd() + '…' : text
+            return (
+              <div style={{ ...card, borderLeft: '4px solid #D4A373' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+                  <h3 style={{ color: '#1a441f', margin: '0 0 10px 0', fontSize: '16px' }}>Notes for the kitchen ({flagged.length})</h3>
+                  <button onClick={() => setFullNotes(v => !v)} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>{fullNotes ? 'Short version' : 'Full notes'}</button>
                 </div>
-              ))}
-            </div>
-          )}
+                {flagged.map(o => fullNotes ? (
+                  <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '600', color: '#333' }}>{o.name}</p>
+                    {o.allergies && <p style={{ margin: '2px 0', fontSize: '13px', color: '#c62828' }}><strong>Allergies:</strong> {o.allergies}</p>}
+                    {o.health && <p style={{ margin: '2px 0', fontSize: '13px', color: '#333' }}><strong>Health:</strong> {o.health}</p>}
+                    {o.preferences && <p style={{ margin: '2px 0', fontSize: '13px', color: '#333' }}><strong>Preferences:</strong> {o.preferences}</p>}
+                    {o.special_notes && <p style={{ margin: '2px 0', fontSize: '13px', color: '#b8923f' }}><strong>This order:</strong> {o.special_notes}</p>}
+                  </div>
+                ) : (
+                  <p key={o.order_id} style={{ margin: 0, padding: '5px 0', borderTop: '1px solid #f0ece3', fontSize: '13px', color: '#333', lineHeight: 1.5 }}>
+                    <strong>{o.name.split(' ')[0]}:</strong>{' '}
+                    {o.allergies && <span style={{ color: '#c62828' }}>{clip(o.allergies)}</span>}
+                    {o.allergies && (o.health || o.preferences || o.special_notes) ? ' · ' : ''}
+                    {[o.health, o.preferences].filter(Boolean).map(t => clip(t)).join(' · ')}
+                    {(o.health || o.preferences) && o.special_notes ? ' · ' : ''}
+                    {o.special_notes && <span style={{ color: '#b8923f' }}>{clip(o.special_notes)}</span>}
+                  </p>
+                ))}
+              </div>
+            )
+          })()}
 
           <div style={card}>
             <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
