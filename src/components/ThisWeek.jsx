@@ -17,6 +17,7 @@ export default function ThisWeek({ onOpenOrders }) {
   const [ordered, setOrdered] = useState([])
   const [waiting, setWaiting] = useState([])
   const [away, setAway] = useState([])
+  const [dishes, setDishes] = useState({ entree: [], salad: [], addon: [] }) // what's been ordered, per dish
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -62,13 +63,22 @@ export default function ThisWeek({ onOpenOrders }) {
       const { basePrice, complimentary } = pricingFor(profile)
       const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: messengerFeeFor(profile), discount: discounts[o.order_id] || 0, basePrice, complimentary })
       const pay = payments[o.order_id]?.status || (complimentary ? 'free' : 'unpaid')
-      return { ...o, name: profile ? displayName(profile) : (o.name && !o.name.includes('@') ? o.name : o.email), entrees: count('entree'), sides: count('salad'), addons: count('addon'), total: price.total, complimentary, pay }
+      return { ...o, name: profile ? displayName(profile) : (o.name && !o.name.includes('@') ? o.name : o.email), entrees: count('entree'), sides: count('salad'), addons: count('addon'), total: price.total, food: price.complimentary ? 0 : price.total - price.messengerFee, complimentary, pay }
     }).sort((a, b) => a.name.localeCompare(b.name))
 
     const orderedEmails = new Set(orders.map(o => o.email))
     const notOrdered = people.filter(p => !orderedEmails.has(String(p.email).toLowerCase()))
     const awayPeople = notOrdered.filter(p => isAwayOn(awayByUser[p.id], deliveryDate)).map(p => ({ ...p, awayText: awaySummary(awayByUser[p.id]) }))
     const stillWaiting = notOrdered.filter(p => !isAwayOn(awayByUser[p.id], deliveryDate))
+    // Dish tallies: how many of each, and who, for the bars
+    const tally = { entree: {}, salad: {}, addon: {} }
+    orders.forEach(o => o.rows.forEach(r => {
+      const bucket = tally[r.item_type]; if (!bucket) return
+      const entry = bucket[r.item_name] ||= { name: r.item_name, count: 0, who: [] }
+      entry.count += Number(r.quantity || 0)
+      entry.who.push(o.name + (Number(r.quantity) > 1 ? ` ×${r.quantity}` : ''))
+    }))
+    setDishes(Object.fromEntries(Object.entries(tally).map(([type, byName]) => [type, Object.values(byName).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))])))
     setOrdered(orders)
     setWaiting(stillWaiting.sort((a, b) => displayName(a).localeCompare(displayName(b))))
     setAway(awayPeople.sort((a, b) => displayName(a).localeCompare(displayName(b))))
@@ -83,7 +93,25 @@ export default function ThisWeek({ onOpenOrders }) {
     </div>
   )
   const unpaid = ordered.filter(o => o.pay === 'unpaid').length
-  const expected = ordered.reduce((n, o) => n + o.total, 0)
+  // Food only: the courier fee is passed through at cost, so it isn't income
+  const expected = ordered.reduce((n, o) => n + o.food, 0)
+  const maxCount = Math.max(1, ...Object.values(dishes).flat().map(d => d.count))
+
+  // One thin bar per dish, all on the same scale, the count at the end, names on hover
+  const barList = (title, items) => items.length > 0 && (
+    <div style={{ marginBottom: '18px' }}>
+      <p style={{ margin: '0 0 8px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{title}</p>
+      {items.map(d => (
+        <div key={d.name} title={d.who.join(', ')} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 2fr', gap: '10px', alignItems: 'center', padding: '4px 0' }}>
+          <span style={{ fontSize: '13px', color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span role="img" aria-label={`${d.count} order${d.count === 1 ? '' : 's'}`} style={{ display: 'block', height: '10px', width: `${(d.count / maxCount) * 100}%`, minWidth: '4px', background: '#1a441f' }} />
+            <span style={{ fontSize: '12px', color: '#666', fontVariantNumeric: 'tabular-nums' }}>{d.count}</span>
+          </span>
+        </div>
+      ))}
+    </div>
+  )
 
   return (
     <div>
@@ -111,6 +139,16 @@ export default function ThisWeek({ onOpenOrders }) {
             {chip('Unpaid', unpaid)}
             {chip('Expected', `$${Math.round(expected)}`)}
           </div>
+
+          {ordered.length > 0 && (
+            <div style={card}>
+              <h3 style={{ color: '#1a441f', margin: '0 0 4px 0', fontSize: '16px' }}>What's been ordered</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#999' }}>Orders per dish. Hover or hold a bar to see who.</p>
+              {barList('Entrées', dishes.entree)}
+              {barList('Sides', dishes.salad)}
+              {barList('Add-ons', dishes.addon)}
+            </div>
+          )}
 
           <div style={card}>
             <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
