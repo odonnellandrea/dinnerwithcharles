@@ -49,7 +49,7 @@ export default function AwayDates({ user }) {
     <div style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
       <h3 style={{ color: '#1a441f', margin: '0 0 6px 0' }}>Away dates</h3>
       <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#666', lineHeight: 1.6 }}>
-        Travelling, or taking a few weeks off? Let us know the dates. It helps us plan the kitchen, and we won't retire a dish you love while you're gone. You'll still hear about each week's menu, and you can order any week you're home.
+        Travelling, or taking a few weeks off? Let us know the dates. It helps us plan the kitchen, and we won't drop a dish you love while you're gone. You'll still hear about each week's menu, and you can change your mind at any time: remove the dates here, or simply order.
       </p>
 
       {ranges.length > 0 && (
