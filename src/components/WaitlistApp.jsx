@@ -13,7 +13,7 @@ export default function WaitlistApp({ user, onLogout }) {
           We don't deliver to your neighborhood for now, and we're growing one block at a time. You're on our list, and this account will be ready the moment we reach you.
         </p>
         <p style={{ fontSize: '16px', color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
-          In the meantime, if you'd like to pick up in NoMad some week, write to us at <a href="mailto:info@dinnerwithcharles.com" style={{ color: '#1a441f' }}>info@dinnerwithcharles.com</a>.
+          In the meantime, you're welcome to pick up in NoMad, or to have your order brought anywhere in Manhattan by messenger, at cost. Write to us at <a href="mailto:info@dinnerwithcharles.com" style={{ color: '#1a441f' }}>info@dinnerwithcharles.com</a> and we'll set you up.
         </p>
         <p style={{ fontSize: '14px', color: '#999', marginBottom: '20px' }}>
           Signed in as: <strong>{user?.email}</strong>
