@@ -46,3 +46,31 @@ export function formatWindows(value) {
   if (windows.length <= 1) return windows[0] || ''
   return `${windows.slice(0, -1).join(', ')} or ${windows[windows.length - 1]}`
 }
+
+// Short form for a dashboard: touching windows merge into one span, so
+// ["9:00 AM - 11:00 AM","11:00 AM - 1:00 PM","5:00 PM - 7:00 PM"] -> "9 AM - 1 PM or 5 - 7 PM",
+// and all five windows -> "Any time, 9 AM - 9 PM".
+export function summarizeWindows(value) {
+  const windows = parseWindows(value)
+  if (windows.length === 0) return ''
+  const indexed = windows.map(w => TIME_SLOTS.indexOf(w))
+  if (indexed.some(i => i === -1)) return formatWindows(value)
+  if (indexed.length === TIME_SLOTS.length) return 'Any time, 9 AM - 9 PM'
+  const bounds = (slot) => {
+    const [start, end] = slot.split(' - ').map(part => part.trim())
+    return { start, end }
+  }
+  const spans = []
+  for (const i of indexed) {
+    const last = spans[spans.length - 1]
+    if (last && last.lastIndex === i - 1) { last.end = bounds(TIME_SLOTS[i]).end; last.lastIndex = i }
+    else spans.push({ start: bounds(TIME_SLOTS[i]).start, end: bounds(TIME_SLOTS[i]).end, lastIndex: i })
+  }
+  const tidy = (t) => t.replace(':00', '')
+  const span = ({ start, end }) => {
+    const [sh, sm] = tidy(start).split(' '), [eh, em] = tidy(end).split(' ')
+    return sm === em ? `${sh} - ${eh} ${em}` : `${sh} ${sm} - ${eh} ${em}`
+  }
+  const parts = spans.map(span)
+  return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(', ')} or ${parts[parts.length - 1]}`
+}

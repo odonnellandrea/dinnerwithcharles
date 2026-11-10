@@ -1099,8 +1099,8 @@ export default function AdminApp({ onLogout, onOrder }) {
                                   </div>
                                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                                     {pay.status !== 'paid' && <button onClick={() => setPayment(order, 'paid')} style={{ padding: '4px 10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
-                                    {pay.status !== 'unpaid' && <button onClick={() => setPayment(order, 'unpaid')} style={{ padding: '4px 10px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Unpaid</button>}
-                                    {pay.status !== 'free' && <button onClick={() => setPayment(order, 'free')} style={{ padding: '4px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Free</button>}
+                                    {pay.status !== 'unpaid' && <button onClick={() => setPayment(order, 'unpaid')} style={{ padding: '4px 10px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
+                                    {pay.status !== 'free' && <button onClick={() => setPayment(order, 'free')} style={{ padding: '4px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark free</button>}
                                   </div>
                                 </div>
                               )

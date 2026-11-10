@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { formatWindows } from '../lib/deliveryWindows'
+import { summarizeWindows } from '../lib/deliveryWindows'
 import { formatUsPhone } from '../lib/notificationConsent'
 import { priceOrder, messengerFeeFor, pricingFor } from '../lib/pricing'
 import { awaySummary, isAwayOn } from '../lib/awayDates'
@@ -21,6 +21,7 @@ export default function ThisWeek({ onOpenOrders }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [fullNotes, setFullNotes] = useState(false)
+  const [payments, setPayments] = useState({}) // order_id -> order_payments row
 
   // The live delivery date if one is open, else the coming Monday
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function ThisWeek({ onOpenOrders }) {
     const awayRows = awayRes.data || []
     const awayByUser = awayRows.reduce((acc, r) => { (acc[r.user_id] ||= []).push(r); return acc }, {})
     const payments = Object.fromEntries((payRes.data || []).map(p => [p.order_id, p]))
+    setPayments(payments)
     const discounts = (discountRes.data || []).reduce((acc, d) => { acc[d.order_id] = (acc[d.order_id] || 0) + d.amount_cents / 100; return acc }, {})
 
     // One card per order
@@ -63,7 +65,7 @@ export default function ThisWeek({ onOpenOrders }) {
       const addOnsCost = o.rows.filter(r => r.item_type === 'addon').reduce((n, r) => n + Number(r.total_order_price || 0) * Number(r.quantity || 0), 0)
       const { basePrice, complimentary } = pricingFor(profile)
       const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: messengerFeeFor(profile), discount: discounts[o.order_id] || 0, basePrice, complimentary })
-      const pay = payments[o.order_id]?.status || (complimentary ? 'free' : 'unpaid')
+      const pay = complimentary ? 'free' : 'unpaid' // default; the saved row wins at render time
       return { ...o, name: profile ? displayName(profile) : (o.name && !o.name.includes('@') ? o.name : o.email), entrees: count('entree'), sides: count('salad'), addons: count('addon'), total: price.total, food: price.complimentary ? 0 : price.total - price.messengerFee, complimentary, pay,
         allergies: (profile?.allergies || '').trim(), health: (profile?.health_restrictions || '').trim(), preferences: (profile?.preference_restrictions || '').trim() }
     }).sort((a, b) => a.name.localeCompare(b.name))
@@ -94,7 +96,16 @@ export default function ThisWeek({ onOpenOrders }) {
       <p style={{ margin: '6px 0 0 0', fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', color: strong ? '#D4A373' : '#666' }}>{label}</p>
     </div>
   )
-  const unpaid = ordered.filter(o => o.pay === 'unpaid').length
+  // Paid / unpaid / free: the saved row, else free for a complimentary customer, else unpaid
+  const payOf = (o) => payments[o.order_id]?.status || o.pay
+  const paidOn = (o) => payments[o.order_id]?.paid_at
+  const setPayment = async (o, status) => {
+    const row = { order_id: o.order_id, email: o.email, status, amount_cents: status === 'paid' ? Math.round(o.total * 100) : null, paid_at: status === 'paid' ? new Date().toISOString() : null, updated_at: new Date().toISOString() }
+    const { error: saveError } = await supabase.from('order_payments').upsert(row, { onConflict: 'order_id' })
+    if (saveError) { alert('Could not save the payment: ' + saveError.message); return }
+    setPayments(prev => ({ ...prev, [o.order_id]: row }))
+  }
+  const unpaid = ordered.filter(o => payOf(o) === 'unpaid').length
   // Food only: the courier fee is passed through at cost, so it isn't income
   const expected = ordered.reduce((n, o) => n + o.food, 0)
   const maxCount = Math.max(1, ...Object.values(dishes).flat().map(d => d.count))
@@ -209,8 +220,15 @@ export default function ThisWeek({ onOpenOrders }) {
                   <span style={{ fontSize: '14px', color: '#333', fontWeight: '600' }}>{o.name}</span>
                   <span style={{ fontSize: '13px', color: '#1a441f', fontWeight: '600' }}>
                     {o.complimentary ? 'Complimentary' : `$${o.total.toFixed(2)}`}
-                    <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', background: o.pay === 'paid' ? '#1a441f' : o.pay === 'free' ? '#e0dbd1' : '#ffebee', color: o.pay === 'paid' ? '#faf8f3' : o.pay === 'free' ? '#1a441f' : '#c62828' }}>{o.pay === 'paid' ? 'Paid' : o.pay === 'free' ? 'Free' : 'Unpaid'}</span>
+                    <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', background: payOf(o) === 'paid' ? '#1a441f' : payOf(o) === 'free' ? '#e0dbd1' : '#ffebee', color: payOf(o) === 'paid' ? '#faf8f3' : payOf(o) === 'free' ? '#1a441f' : '#c62828' }}>
+                      {payOf(o) === 'paid' ? `Paid${paidOn(o) ? ' ' + new Date(paidOn(o)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}` : payOf(o) === 'free' ? 'Free' : 'Unpaid'}
+                    </span>
                   </span>
+                </div>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
+                  {payOf(o) !== 'paid' && <button onClick={() => setPayment(o, 'paid')} style={{ padding: '3px 10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
+                  {payOf(o) !== 'unpaid' && <button onClick={() => setPayment(o, 'unpaid')} style={{ padding: '3px 10px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
+                  {payOf(o) !== 'free' && <button onClick={() => setPayment(o, 'free')} style={{ padding: '3px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark free</button>}
                 </div>
                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
                   {o.entrees} entrée{o.entrees === 1 ? '' : 's'} · {o.sides} side{o.sides === 1 ? '' : 's'}{o.addons ? ` · ${o.addons} add-on${o.addons === 1 ? '' : 's'}` : ''}
@@ -227,9 +245,9 @@ export default function ThisWeek({ onOpenOrders }) {
             <div style={card}>
               <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Delivery windows</h3>
               {ordered.map(o => (
-                <div key={o.order_id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '6px 0', borderTop: '1px solid #f0ece3', fontSize: '13px' }}>
+                <div key={o.order_id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', padding: '6px 0', borderTop: '1px solid #f0ece3', fontSize: '13px' }}>
                   <span style={{ color: '#333' }}>{o.name}{o.delivery_notes && <span style={{ display: 'block', color: '#b8923f', fontSize: '12px' }}>{o.delivery_notes}</span>}</span>
-                  <span style={{ color: '#1a441f', fontWeight: '600', whiteSpace: 'nowrap' }}>{formatWindows(o.delivery_time_slot) || '—'}</span>
+                  <span style={{ color: '#1a441f', fontWeight: '600', textAlign: 'right', lineHeight: 1.4 }}>{summarizeWindows(o.delivery_time_slot) || '—'}</span>
                 </div>
               ))}
             </div>
