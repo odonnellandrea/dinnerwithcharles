@@ -105,6 +105,27 @@ export default function ThisWeek({ onOpenOrders }) {
     if (saveError) { alert('Could not save the payment: ' + saveError.message); return }
     setPayments(prev => ({ ...prev, [o.order_id]: row }))
   }
+  // Same as the Orders tab: mark delivered, then email the reheat guide (once per order)
+  const markDelivered = async (o, delivered) => {
+    const { error: updateError } = await supabase.from('Orders').update({ status: delivered ? 'delivered' : 'pending' }).eq('order_id', o.order_id)
+    if (updateError) { alert('Could not update the order: ' + updateError.message); return }
+    setOrdered(prev => prev.map(x => x.order_id === o.order_id ? { ...x, status: delivered ? 'delivered' : 'pending' } : x))
+    if (!delivered) return
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ type: 'reheat_link', order_id: o.order_id })
+      })
+      if (!res.ok) {
+        const { error: message } = await res.json().catch(() => ({}))
+        alert('Marked delivered, but the reheat email failed: ' + (message || res.status))
+      }
+    } catch (err) {
+      alert('Marked delivered, but the reheat email failed: ' + err.message)
+    }
+  }
   const unpaid = ordered.filter(o => payOf(o) === 'unpaid').length
   // Food only: the courier fee is passed through at cost, so it isn't income
   const expected = ordered.reduce((n, o) => n + o.food, 0)
@@ -226,13 +247,16 @@ export default function ThisWeek({ onOpenOrders }) {
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
+                  {o.status === 'delivered'
+                    ? <button onClick={() => markDelivered(o, false)} style={{ padding: '3px 10px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark undelivered</button>
+                    : <button onClick={() => markDelivered(o, true)} style={{ padding: '3px 10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark delivered</button>}
                   {payOf(o) !== 'paid' && <button onClick={() => setPayment(o, 'paid')} style={{ padding: '3px 10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
                   {payOf(o) !== 'unpaid' && <button onClick={() => setPayment(o, 'unpaid')} style={{ padding: '3px 10px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
                   {payOf(o) !== 'free' && <button onClick={() => setPayment(o, 'free')} style={{ padding: '3px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark free</button>}
                 </div>
                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
                   {o.entrees} entrée{o.entrees === 1 ? '' : 's'} · {o.sides} side{o.sides === 1 ? '' : 's'}{o.addons ? ` · ${o.addons} add-on${o.addons === 1 ? '' : 's'}` : ''}
-                  {o.status === 'delivered' ? ' · delivered' : ''}
+                  {o.status === 'delivered' ? ' · ✓ delivered' : ''}
                 </p>
               </div>
             ))}
