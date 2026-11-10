@@ -80,10 +80,10 @@ export default function DocumentGenerationDashboard() {
 
   return (
     <div>
-      <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Documents</h2>
+      <h2 style={{ color: '#083525', marginBottom: '20px' }}>Documents</h2>
 
       <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>Delivery Date</label>
+        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#083525' }}>Delivery Date</label>
         <input
           type="date"
           value={deliveryDate}
@@ -96,7 +96,7 @@ export default function DocumentGenerationDashboard() {
 
       {hasOrders && (
         <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-          <h3 style={{ color: '#1a441f', margin: '0 0 6px 0', fontSize: '15px' }}>Who ordered</h3>
+          <h3 style={{ color: '#083525', margin: '0 0 6px 0', fontSize: '15px' }}>Who ordered</h3>
           <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
             Andrea and her parents get no packing page and are not counted for the chef (a :) shows instead). "Rob delivers" only adds that note to the family's packing page. Everyone else is a normal customer. Remembered on this device.
           </p>
@@ -118,11 +118,11 @@ export default function DocumentGenerationDashboard() {
 
       {guessed.length > 0 && (
         <div style={{ background: '#faf8f3', padding: '16px', marginBottom: '20px', border: '1px solid #D4A373' }}>
-          <h4 style={{ margin: '0 0 8px 0', color: '#1a441f', fontSize: '14px' }}>Check the containers for these dishes</h4>
-          <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#1a441f', lineHeight: 1.6 }}>
+          <h4 style={{ margin: '0 0 8px 0', color: '#083525', fontSize: '14px' }}>Check the containers for these dishes</h4>
+          <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#083525', lineHeight: 1.6 }}>
             The menu sheet has no packing info for them yet, so the lists use a guess made from the reheat steps or the sides. To set it, add a <strong>containers</strong> column to the sheet and put one container per line in each dish's cell.
           </p>
-          <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#1a441f', lineHeight: 1.6 }}>
+          <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#083525', lineHeight: 1.6 }}>
             {guessed.map(name => <li key={name}>{name}</li>)}
           </ul>
         </div>
@@ -136,12 +136,12 @@ export default function DocumentGenerationDashboard() {
         {DOCUMENTS.map(doc => (
           <div key={doc.id} style={{ background: 'white', padding: '20px', border: '1px solid #e0dbd1', display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>{doc.icon}</div>
-            <h3 style={{ color: '#1a441f', margin: '0 0 6px 0', fontSize: '15px', fontWeight: '600' }}>{doc.title}</h3>
+            <h3 style={{ color: '#083525', margin: '0 0 6px 0', fontSize: '15px', fontWeight: '600' }}>{doc.title}</h3>
             <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#666', lineHeight: '1.4', flexGrow: 1 }}>{doc.description}</p>
             <button
               onClick={() => generate(doc)}
               disabled={!!busy || !hasOrders}
-              style={{ padding: '10px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: busy || !hasOrders ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit', opacity: busy || !hasOrders ? 0.6 : 1 }}
+              style={{ padding: '10px 16px', background: '#083525', color: '#faf8f3', border: 'none', cursor: busy || !hasOrders ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit', opacity: busy || !hasOrders ? 0.6 : 1 }}
             >
               {busy === doc.id ? 'Preparing...' : 'Download PDF'}
             </button>

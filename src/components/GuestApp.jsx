@@ -538,16 +538,16 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Jar deposit: ${depositCost.toFixed(2)}</p>
         )}
         {codeOff > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#1a441f' }}>Referral code: −${codeOff.toFixed(2)}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#083525' }}>Referral code: −${codeOff.toFixed(2)}</p>
         )}
         {creditOff > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#1a441f' }}>Credit: −${creditOff.toFixed(2)}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#083525' }}>Credit: −${creditOff.toFixed(2)}</p>
         )}
         {messengerFee > 0 && (
           <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>
         )}
         {pricing.complimentary && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#1a441f' }}>Complimentary: no charge for this order</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#083525' }}>Complimentary: no charge for this order</p>
         )}
         <div style={{ paddingTop: '8px', borderTop: '2px solid #D4A373' }}>
           <p style={{ margin: '0', fontSize: '16px', fontWeight: '700', color: '#D4A373' }}>Total: ${grandTotal.toFixed(2)}</p>
@@ -557,15 +557,15 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   }
 
   const deliveryBanner = (
-    <div style={{ background: 'white', border: '1px solid #e0dbd1', borderLeft: '4px solid #1a441f', padding: '14px 18px', marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '10px 40px' }}>
+    <div style={{ background: 'white', border: '1px solid #e0dbd1', borderLeft: '4px solid #083525', padding: '14px 18px', marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '10px 40px' }}>
       <div>
         <p style={{ margin: '0 0 3px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#b8923f' }}>Delivery</p>
-        <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1a441f' }}>{formatDeliveryDate(deliveryDate)}</p>
+        <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#083525' }}>{formatDeliveryDate(deliveryDate)}</p>
       </div>
       {orderCloseDatetime && (
         <div>
           <p style={{ margin: '0 0 3px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#b8923f' }}>Orders close</p>
-          <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1a441f' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
+          <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#083525' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
         </div>
       )}
     </div>
@@ -612,14 +612,14 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   if (screen === 'history') {
     return page(
         <>
-          <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Order History</h2>
+          <h2 style={{ color: '#083525', marginBottom: '20px' }}>Order History</h2>
           {orderHistory.length === 0 ? (
             <p style={{ color: '#666' }}>No orders yet</p>
           ) : (
             orderHistory.map(order => (
               <div key={order.order_id} style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1', opacity: order.status === 'cancelled' ? 0.6 : 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
-                  <h3 style={{ color: '#1a441f', margin: 0 }}>{formatDeliveryDate(order.delivery_date)}</h3>
+                  <h3 style={{ color: '#083525', margin: 0 }}>{formatDeliveryDate(order.delivery_date)}</h3>
                   <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: order.status === 'cancelled' ? '#c62828' : '#D4A373', fontWeight: '600' }}>{customerStatusLabel(order.status)}</span>
                 </div>
                 {order.items.map((item, idx) => (
@@ -633,7 +633,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                 {order.status === 'delivered' && (
                   <button
                     onClick={() => { setReheatDate(order.delivery_date); setScreen('reheat') }}
-                    style={{ marginTop: '12px', padding: '8px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
+                    style={{ marginTop: '12px', padding: '8px 16px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
                   >
                     View Reheat Guide
                   </button>
@@ -652,10 +652,10 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   if (screen === 'review') {
     return page(
         <>
-          <h1 style={{ color: '#1a441f', marginTop: '0' }}>Review Your Order</h1>
+          <h1 style={{ color: '#083525', marginTop: '0' }}>Review Your Order</h1>
 
           <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0dbd1', marginBottom: '20px' }}>
-            <h3 style={{ color: '#1a441f', marginTop: '0' }}>Entrées</h3>
+            <h3 style={{ color: '#083525', marginTop: '0' }}>Entrées</h3>
             {Object.entries(selectedEntrees).map(([itemId, qty]) => {
               const item = menuItems.entrees.find(e => e.id === itemId)
               return item ? (
@@ -665,7 +665,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               ) : null
             })}
 
-            <h3 style={{ color: '#1a441f', marginTop: '16px' }}>Sides</h3>
+            <h3 style={{ color: '#083525', marginTop: '16px' }}>Sides</h3>
             {Object.entries(selectedSalads).map(([itemId, qty]) => {
               const item = menuItems.salads.find(s => s.id === itemId)
               return item ? (
@@ -677,7 +677,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
 
             {Object.keys(selectedAddOns).length > 0 && (
               <>
-                <h3 style={{ color: '#1a441f', marginTop: '16px' }}>Add-ons</h3>
+                <h3 style={{ color: '#083525', marginTop: '16px' }}>Add-ons</h3>
                 {Object.entries(selectedAddOns).map(([itemId, qty]) => {
                   const item = menuItems.addOns.find(a => a.id === itemId)
                   return item ? (
@@ -705,7 +705,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
           </div>
 
           <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-            <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '16px' }}>Order Total</h3>
+            <h3 style={{ color: '#083525', marginTop: '0', marginBottom: '16px' }}>Order Total</h3>
             {(!pendingDiscount.hasCode || checkoutCodeNote) && (
               <div style={{ margin: '0 0 16px' }}>
                 {!pendingDiscount.hasCode && (
@@ -724,14 +724,14 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                       type="button"
                       onClick={applyCheckoutCode}
                       disabled={applyingCode || !normalizeCode(checkoutCode)}
-                      style={{ padding: '10px 18px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: applyingCode ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', opacity: applyingCode || !normalizeCode(checkoutCode) ? 0.6 : 1 }}
+                      style={{ padding: '10px 18px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: applyingCode ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', opacity: applyingCode || !normalizeCode(checkoutCode) ? 0.6 : 1 }}
                     >
                       {applyingCode ? 'Checking...' : 'Apply'}
                     </button>
                   </div>
                 )}
                 {checkoutCodeNote && (
-                  <p style={{ margin: '8px 0 0', fontSize: '13px', color: checkoutCodeNote.ok ? '#1a441f' : '#c62828' }}>{checkoutCodeNote.text}</p>
+                  <p style={{ margin: '8px 0 0', fontSize: '13px', color: checkoutCodeNote.ok ? '#083525' : '#c62828' }}>{checkoutCodeNote.text}</p>
                 )}
               </div>
             )}
@@ -747,7 +747,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             </button>
             <button
               onClick={handleConfirmOrder}
-              style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+              style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
             >
               Confirm Order
             </button>
@@ -767,7 +767,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             {deliveryBanner}
             <div style={{ background: 'white', padding: '32px', border: '1px solid #e0dbd1', marginBottom: '20px' }}>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Order placed</p>
-              <h2 style={{ color: '#1a441f', margin: '0 0 16px 0' }}>You're all set for this week</h2>
+              <h2 style={{ color: '#083525', margin: '0 0 16px 0' }}>You're all set for this week</h2>
               {placedOrder.items.map((item, idx) => (
                 <p key={idx} style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>{item.quantity}x {item.item_name}</p>
               ))}
@@ -780,7 +780,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
         {!loading && !error && !placedOrder && menuClosed && (
           <div style={{ background: 'white', padding: '56px 40px', border: '1px solid #e0dbd1', textAlign: 'center' }}>
             <p style={{ margin: '0 0 12px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{betweenMenus ? 'Coming soon' : 'Ordering closed'}</p>
-            <h2 style={{ color: '#1a441f', margin: '0 0 16px 0', fontSize: '26px' }}>{betweenMenus ? "Next week's menu is on its way" : "This week's menu is closed"}</h2>
+            <h2 style={{ color: '#083525', margin: '0 0 16px 0', fontSize: '26px' }}>{betweenMenus ? "Next week's menu is on its way" : "This week's menu is closed"}</h2>
             <p style={{ color: '#666', margin: '0 auto 32px', maxWidth: '460px', lineHeight: '1.7', fontSize: '15px' }}>
               {betweenMenus
                 ? "We're putting the finishing touches on it. Stay tuned."
@@ -790,7 +790,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               href={INSTAGRAM_DM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: 'inline-block', padding: '14px 28px', background: '#1a441f', color: '#faf8f3', textDecoration: 'none', fontSize: '14px', fontWeight: '600', letterSpacing: '0.04em' }}
+              style={{ display: 'inline-block', padding: '14px 28px', background: '#083525', color: '#faf8f3', textDecoration: 'none', fontSize: '14px', fontWeight: '600', letterSpacing: '0.04em' }}
             >
               Message @dinnerwithcharles on Instagram
             </a>
@@ -799,14 +799,14 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
 
         {!loading && !error && !placedOrder && !menuClosed && menuEmpty && (
           <div style={{ background: 'white', padding: '56px 40px', border: '1px solid #e0dbd1', textAlign: 'center' }}>
-            <h2 style={{ color: '#1a441f', margin: 0, fontSize: '26px' }}>Menu coming soon.</h2>
+            <h2 style={{ color: '#083525', margin: 0, fontSize: '26px' }}>Menu coming soon.</h2>
           </div>
         )}
 
         {!loading && !error && !placedOrder && !menuClosed && !menuEmpty && (
           <>
             <div style={{ margin: '0 0 20px 0' }}>
-              <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: '#1a441f', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
+              <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: '#083525', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
               <p style={{ margin: '4px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>cooked by Chef Robert, your private chef</p>
             </div>
 
@@ -827,14 +827,14 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                 setDownloadingMenu(false)
               }}
               disabled={downloadingMenu}
-              style={{ margin: '0 0 24px 0', padding: '8px 14px', background: 'transparent', color: '#1a441f', border: '1px solid #1a441f', cursor: downloadingMenu ? 'wait' : 'pointer', fontSize: '12px', fontWeight: '600', letterSpacing: '0.06em', fontFamily: 'inherit' }}
+              style={{ margin: '0 0 24px 0', padding: '8px 14px', background: 'transparent', color: '#083525', border: '1px solid #083525', cursor: downloadingMenu ? 'wait' : 'pointer', fontSize: '12px', fontWeight: '600', letterSpacing: '0.06em', fontFamily: 'inherit' }}
             >
               {downloadingMenu ? 'Preparing PDF…' : 'Download menu PDF'}
             </button>
 
             {survey?.question && (
               <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-                <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#1a441f' }}>Quick Feedback</p>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#083525' }}>Quick Feedback</p>
                 <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666' }}>{survey.question}</p>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input
@@ -856,7 +856,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                   <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#c62828' }}>{surveyError}</p>
                 )}
                 {surveySubmitted && (
-                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#1a441f', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
+                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#083525', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
                 )}
               </div>
             )}
@@ -870,12 +870,12 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               const selected = { entree: selectedEntrees, salad: selectedSalads, addon: selectedAddOns }[section.type] || {}
               return (
                 <div key={sectionIdx} style={{ background: 'white', padding: '24px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px', borderBottom: '2px solid #1a441f' }}>
-                    <h2 style={{ color: '#1a441f', margin: 0, fontSize: '24px', fontWeight: '700', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.title}</h2>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px', borderBottom: '2px solid #083525' }}>
+                    <h2 style={{ color: '#083525', margin: 0, fontSize: '24px', fontWeight: '700', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.title}</h2>
                     {section.note && (
                       section.type === 'addon'
                         ? <span style={{ fontSize: '13px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.note}</span>
-                        : <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#faf8f3', background: '#1a441f', padding: '5px 10px', fontFamily: "'Courier New', Courier, monospace" }}>{section.note}</span>
+                        : <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#faf8f3', background: '#083525', padding: '5px 10px', fontFamily: "'Courier New', Courier, monospace" }}>{section.note}</span>
                     )}
                   </div>
                   {section.items.map((item, itemIdx) => (
@@ -887,7 +887,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                           </span>
                         )}
                         <div style={{ minWidth: 0 }}>
-                          <p style={{ margin: '0', fontSize: '18px', fontWeight: '700', fontStyle: 'italic', color: '#1a441f', lineHeight: 1.3, fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>
+                          <p style={{ margin: '0', fontSize: '18px', fontWeight: '700', fontStyle: 'italic', color: '#083525', lineHeight: 1.3, fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>
                             {item.name}{section.type === 'addon' && <span style={{ color: '#b8923f', fontStyle: 'normal', marginLeft: '10px' }}>${(item.price / 100).toFixed(0)}</span>}
                           </p>
                           {item.sides && <p style={{ margin: '5px 0 0 0', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8a8470', fontFamily: "'Courier New', Courier, monospace" }}>{item.sides}</p>}
@@ -907,7 +907,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                         {selected[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selected[item.id]}</span>}
                         <button
                           onClick={() => handleAddToCart(item.id, section.type)}
-                          style={{ width: '32px', height: '32px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontFamily: 'inherit' }}
+                          style={{ width: '32px', height: '32px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontFamily: 'inherit' }}
                         >
                           +
                         </button>
@@ -919,7 +919,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             })}
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '12px' }}>Please select delivery windows that work for your family *</h3>
+              <h3 style={{ color: '#083525', marginTop: '0', marginBottom: '12px' }}>Please select delivery windows that work for your family *</h3>
               {TIME_SLOTS.map(slot => (
                 <label key={slot} style={{ display: 'block', marginBottom: '10px', cursor: 'pointer' }}>
                   <input
@@ -940,7 +940,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             </div>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '4px' }}>Special notes for the kitchen</h3>
+              <h3 style={{ color: '#083525', marginTop: '0', marginBottom: '4px' }}>Special notes for the kitchen</h3>
               <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Anything the kitchen should know for this week's cooking.</p>
               <textarea
                 value={specialNotes}
@@ -948,7 +948,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                 placeholder="e.g. No cilantro on the salmon this week"
                 style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '70px', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }}
               />
-              <h3 style={{ color: '#1a441f', margin: '18px 0 4px 0' }}>Special notes for delivery</h3>
+              <h3 style={{ color: '#083525', margin: '18px 0 4px 0' }}>Special notes for delivery</h3>
               <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Anything that helps us get it to your door this week: a different address, the doorman, a buzzer, or any other request.</p>
               <textarea
                 value={deliveryNotes}
@@ -959,7 +959,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             </div>
 
             <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#1a441f', marginTop: '0', marginBottom: '16px' }}>Order Summary</h3>
+              <h3 style={{ color: '#083525', marginTop: '0', marginBottom: '16px' }}>Order Summary</h3>
               {renderOrderTotals()}
             </div>
 
@@ -971,14 +971,14 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                   {longer
                     ? <>✓ You've told us you're away {formatRange(longer)}, so we'll plan around you. Plans changed? Update your dates in Settings.</>
                     : covering.length
-                      ? <>✓ Noted, thank you. That helps us plan. Changed your mind? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>The menu is still open.</button></>
-                      : <>Not ordering this week? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Let us know</button>, so we can plan the kitchen and keep your favorites in rotation for when you're back. Away longer? Add your dates in Settings.</>}
+                      ? <>✓ Noted, thank you. That helps us plan. Changed your mind? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>The menu is still open.</button></>
+                      : <>Not ordering this week? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Let us know</button>, so we can plan the kitchen and keep your favorites in rotation for when you're back. Away longer? Add your dates in Settings.</>}
                 </p>
               )
             })()}
             <button
               onClick={handleCheckout}
-              style={{ width: '100%', padding: '16px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
+              style={{ width: '100%', padding: '16px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
             >
               Review & Checkout
             </button>

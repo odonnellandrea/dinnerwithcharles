@@ -13,7 +13,7 @@ const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 const randomCode = () => Array.from(crypto.getRandomValues(new Uint32Array(6)), n => ALPHABET[n % ALPHABET.length]).join('')
 
 const field = { width: '100%', padding: '10px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px', background: 'white' }
-const label = { display: 'block', margin: '14px 0 6px', fontSize: '13px', fontWeight: '600', color: '#1a441f' }
+const label = { display: 'block', margin: '14px 0 6px', fontSize: '13px', fontWeight: '600', color: '#083525' }
 const card = { background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }
 
 const toCents = (dollars) => Math.round(parseFloat(String(dollars).replace(/[$,]/g, '') || '0') * 100)
@@ -114,7 +114,7 @@ export default function ReferralCodesDashboard() {
   if (status) {
     return (
       <div>
-        <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Codes</h2>
+        <h2 style={{ color: '#083525', marginBottom: '20px' }}>Codes</h2>
         <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6 }}>{status}</p>
       </div>
     )
@@ -122,10 +122,10 @@ export default function ReferralCodesDashboard() {
 
   return (
     <div>
-      <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Codes</h2>
+      <h2 style={{ color: '#083525', marginBottom: '20px' }}>Codes</h2>
 
       <div style={card}>
-        <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '4px' }}>New code</h3>
+        <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '4px' }}>New code</h3>
         <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
           Customers type it on the join form. The new customer's discount comes off their first order, automatically. If someone earns credit from it, that credit comes off their next order.
         </p>
@@ -139,7 +139,7 @@ export default function ReferralCodesDashboard() {
         <label style={label}>Code</label>
         <div style={{ display: 'flex', gap: '8px' }}>
           <input value={form.code} onChange={(e) => setField('code', e.target.value)} placeholder="e.g. JIAQI10" autoCapitalize="characters" style={{ ...field, textTransform: 'uppercase' }} />
-          <button type="button" onClick={() => setField('code', randomCode())} style={{ padding: '10px 14px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Make one</button>
+          <button type="button" onClick={() => setField('code', randomCode())} style={{ padding: '10px 14px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Make one</button>
         </div>
 
         <label style={label}>Note for yourself</label>
@@ -165,23 +165,23 @@ export default function ReferralCodesDashboard() {
           </div>
         </div>
 
-        <button onClick={createCode} disabled={saving} style={{ width: '100%', marginTop: '20px', padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: saving ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}>
+        <button onClick={createCode} disabled={saving} style={{ width: '100%', marginTop: '20px', padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: saving ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}>
           {saving ? 'Saving...' : 'Create code'}
         </button>
       </div>
 
       <div style={card}>
-        <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '12px' }}>All codes</h3>
+        <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '12px' }}>All codes</h3>
         {codes.length === 0 && <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>No codes yet.</p>}
         {codes.map(code => {
           const { joined, given } = usage(code)
           return (
             <div key={code.id} style={{ padding: '14px 0', borderTop: '1px solid #f0ece3', opacity: code.active ? 1 : 0.55 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
-                <p style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#1a441f', letterSpacing: '0.04em' }}>
+                <p style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#083525', letterSpacing: '0.04em' }}>
                   {code.code} <span style={{ fontSize: '11px', fontWeight: '600', color: '#D4A373', letterSpacing: '0.12em', textTransform: 'uppercase', marginLeft: '6px' }}>{KINDS[code.kind]?.label || code.kind}{code.active ? '' : ' · paused'}</span>
                 </p>
-                <button onClick={() => toggleActive(code)} style={{ padding: '4px 12px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>
+                <button onClick={() => toggleActive(code)} style={{ padding: '4px 12px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>
                   {code.active ? 'Pause' : 'Resume'}
                 </button>
               </div>
@@ -206,7 +206,7 @@ export default function ReferralCodesDashboard() {
       </div>
 
       <div style={card}>
-        <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '4px' }}>Credits</h3>
+        <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '4px' }}>Credits</h3>
         <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
           Credit comes off the owner's next order, automatically, up to what the food costs. The rest waits for the order after.
         </p>
@@ -217,18 +217,18 @@ export default function ReferralCodesDashboard() {
           </p>
         ))}
 
-        <h4 style={{ margin: '20px 0 0', color: '#1a441f', fontSize: '14px' }}>Add credit by hand</h4>
+        <h4 style={{ margin: '20px 0 0', color: '#083525', fontSize: '14px' }}>Add credit by hand</h4>
         <label style={label}>Customer email</label>
         <input type="email" value={creditForm.email} onChange={(e) => setCreditForm(f => ({ ...f, email: e.target.value }))} style={field} />
         <label style={label}>Amount ($)</label>
         <input value={creditForm.dollars} onChange={(e) => setCreditForm(f => ({ ...f, dollars: e.target.value }))} inputMode="decimal" style={field} />
         <label style={label}>Note</label>
         <input value={creditForm.note} onChange={(e) => setCreditForm(f => ({ ...f, note: e.target.value }))} placeholder="e.g. Team lunch deposit" style={field} />
-        <button onClick={addCredit} style={{ marginTop: '14px', padding: '10px 20px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}>Add credit</button>
+        <button onClick={addCredit} style={{ marginTop: '14px', padding: '10px 20px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}>Add credit</button>
 
         {credits.length > 0 && (
           <div style={{ marginTop: '24px' }}>
-            <h4 style={{ margin: '0 0 8px', color: '#1a441f', fontSize: '14px' }}>History</h4>
+            <h4 style={{ margin: '0 0 8px', color: '#083525', fontSize: '14px' }}>History</h4>
             {credits.slice(0, 30).map(c => (
               <p key={c.id} style={{ margin: '0 0 6px', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>
                 {new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · {c.owner_email} · {formatCents(c.amount_cents)} · {c.spent_order_id ? 'used on an order' : 'waiting'}{c.note ? ` · ${c.note}` : ''}

@@ -35,17 +35,17 @@ export default function SurveyResponses({ deliveryDate: currentDate, refreshKey 
   return (
     <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e0dbd1' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-        <h4 style={{ margin: 0, color: '#1a441f', fontSize: '14px' }}>
+        <h4 style={{ margin: 0, color: '#083525', fontSize: '14px' }}>
           Responses{!status && ` (${responses.length})`}
         </h4>
         <button
           onClick={load}
-          style={{ padding: '4px 12px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}
+          style={{ padding: '4px 12px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}
         >
           Refresh
         </button>
       </div>
-      <label style={{ display: 'block', margin: '0 0 6px 0', fontSize: '12px', fontWeight: '600', color: '#1a441f' }}>Delivery date</label>
+      <label style={{ display: 'block', margin: '0 0 6px 0', fontSize: '12px', fontWeight: '600', color: '#083525' }}>Delivery date</label>
       <input
         type="date"
         value={deliveryDate}

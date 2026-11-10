@@ -41,7 +41,7 @@ export default function PasswordForm({ title, intro, submitLabel = 'Update Passw
 
   return (
     <form onSubmit={handleSubmit} style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#1a441f', margin: '0 0 6px 0' }}>{title}</h3>
+      <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>{title}</h3>
       {intro && <p style={{ fontSize: '13px', color: '#666', margin: '0 0 20px 0' }}>{intro}</p>}
 
       <div style={{ position: 'relative', marginBottom: '12px' }}>
@@ -78,11 +78,11 @@ export default function PasswordForm({ title, intro, submitLabel = 'Update Passw
         <button
           type="submit"
           disabled={saving}
-          style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
+          style={{ padding: '12px 24px', background: '#083525', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
         >
           {saving ? 'Saving...' : submitLabel}
         </button>
-        {saved && <span style={{ color: '#1a441f', fontSize: '13px', fontWeight: '500' }}>✓ Password updated</span>}
+        {saved && <span style={{ color: '#083525', fontSize: '13px', fontWeight: '500' }}>✓ Password updated</span>}
       </div>
     </form>
   )

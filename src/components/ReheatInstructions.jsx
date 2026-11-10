@@ -91,7 +91,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
         </div>
 
         {/* Title */}
-        <h1 style={{ color: '#1a441f', fontSize: '28px', marginTop: '0', marginBottom: '8px' }}>
+        <h1 style={{ color: '#083525', fontSize: '28px', marginTop: '0', marginBottom: '8px' }}>
           Reheat Guide
         </h1>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
@@ -102,7 +102,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
             <button
               onClick={handleDownload}
               disabled={downloading}
-              style={{ padding: '10px 18px', background: 'transparent', color: '#1a441f', border: '1px solid #1a441f', cursor: downloading ? 'wait' : 'pointer', fontSize: '13px', fontWeight: '600', letterSpacing: '0.04em', fontFamily: 'inherit', opacity: downloading ? 0.6 : 1 }}
+              style={{ padding: '10px 18px', background: 'transparent', color: '#083525', border: '1px solid #083525', cursor: downloading ? 'wait' : 'pointer', fontSize: '13px', fontWeight: '600', letterSpacing: '0.04em', fontFamily: 'inherit', opacity: downloading ? 0.6 : 1 }}
             >
               {downloading ? 'Preparing PDF…' : 'Download PDF'}
             </button>
@@ -120,7 +120,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
                 <p style={{ margin: '0 0 4px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>
                   {dish.type === 'salad' ? 'Side' : dish.type === 'addon' ? 'Add-on' : 'Entrée'}
                 </p>
-                <h2 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: '500', color: '#1a441f', lineHeight: 1.3 }}>
+                <h2 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: '500', color: '#083525', lineHeight: 1.3 }}>
                   {dish.name}
                 </h2>
 
@@ -132,7 +132,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
                 {dish.components.map((comp, compIdx) => (
                   <div key={compIdx} style={{ padding: '14px 0 0 0', marginTop: '14px', borderTop: '1px solid #e0dbd1' }}>
                     {comp.name && (
-                      <p style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '500', color: '#1a441f' }}>{comp.name}</p>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '500', color: '#083525' }}>{comp.name}</p>
                     )}
                     <p style={{ margin: 0, fontSize: '15px', lineHeight: 1.6, color: '#333' }}>{comp.instruction}</p>
                   </div>

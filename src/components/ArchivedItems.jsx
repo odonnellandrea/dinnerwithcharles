@@ -75,14 +75,14 @@ export default function ArchivedItems({ onBack }) {
         </button>
       </div>
 
-      <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Archived Items</h2>
+      <h2 style={{ color: '#083525', marginBottom: '20px' }}>Archived Items</h2>
 
       <div style={{ background: 'white', padding: '16px', marginBottom: '20px', border: '1px solid #e0dbd1', display: 'flex', gap: '8px' }}>
         <button
           onClick={() => setFilter('all')}
           style={{
             padding: '8px 16px',
-            background: filter === 'all' ? '#1a441f' : '#e0dbd1',
+            background: filter === 'all' ? '#083525' : '#e0dbd1',
             color: filter === 'all' ? 'white' : '#666',
             border: 'none',
             cursor: 'pointer',
@@ -96,7 +96,7 @@ export default function ArchivedItems({ onBack }) {
           onClick={() => setFilter('entree')}
           style={{
             padding: '8px 16px',
-            background: filter === 'entree' ? '#1a441f' : '#e0dbd1',
+            background: filter === 'entree' ? '#083525' : '#e0dbd1',
             color: filter === 'entree' ? 'white' : '#666',
             border: 'none',
             cursor: 'pointer',
@@ -110,7 +110,7 @@ export default function ArchivedItems({ onBack }) {
           onClick={() => setFilter('salad')}
           style={{
             padding: '8px 16px',
-            background: filter === 'salad' ? '#1a441f' : '#e0dbd1',
+            background: filter === 'salad' ? '#083525' : '#e0dbd1',
             color: filter === 'salad' ? 'white' : '#666',
             border: 'none',
             cursor: 'pointer',
@@ -124,7 +124,7 @@ export default function ArchivedItems({ onBack }) {
           onClick={() => setFilter('addon')}
           style={{
             padding: '8px 16px',
-            background: filter === 'addon' ? '#1a441f' : '#e0dbd1',
+            background: filter === 'addon' ? '#083525' : '#e0dbd1',
             color: filter === 'addon' ? 'white' : '#666',
             border: 'none',
             cursor: 'pointer',
@@ -145,7 +145,7 @@ export default function ArchivedItems({ onBack }) {
           {filteredItems.map(item => (
             <div key={item.id} style={{ background: 'white', padding: '16px', border: '1px solid #e0dbd1', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#1a441f' }}>
+                <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#083525' }}>
                   {item.name}
                   <span style={{ marginLeft: '8px', fontSize: '12px', color: '#999', fontWeight: '400' }}>
                     ({item.type === 'entree' ? 'Entrée' : item.type === 'salad' ? 'Side' : 'Add-on'})
@@ -161,7 +161,7 @@ export default function ArchivedItems({ onBack }) {
               </div>
               <button
                 onClick={() => handleRestore(item.id, item.type)}
-                style={{ padding: '8px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', marginLeft: '12px' }}
+                style={{ padding: '8px 16px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', marginLeft: '12px' }}
               >
                 Restore
               </button>

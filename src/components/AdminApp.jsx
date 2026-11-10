@@ -535,14 +535,14 @@ export default function AdminApp({ onLogout, onOrder }) {
             {onOrder && (
               <button
                 onClick={onOrder}
-                style={{ padding: '10px 16px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ padding: '10px 16px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 Order food
               </button>
             )}
             <button 
               onClick={onLogout} 
-              style={{ padding: '10px 16px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ padding: '10px 16px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
             >
               Logout
             </button>
@@ -578,7 +578,7 @@ export default function AdminApp({ onLogout, onOrder }) {
 
         {screen === 'approvals' && (
           <div>
-            <h2 style={{ color: '#1a441f', marginBottom: '20px' }}>Approvals</h2>
+            <h2 style={{ color: '#083525', marginBottom: '20px' }}>Approvals</h2>
             {loading ? (
               <p>Loading...</p>
             ) : (
@@ -590,12 +590,12 @@ export default function AdminApp({ onLogout, onOrder }) {
                     <div key={customer.id} className="admin-card">
                       <div className="admin-card-row">
                         <div className="admin-card-text">
-                          <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#1a441f' }}>
+                          <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#083525' }}>
                             {customer.name || 'Name not provided'}
                             <button
                               onClick={() => setEditingCustomer(customer)}
                               title="Edit customer details"
-                              style={{ marginLeft: '10px', padding: '2px 8px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'inherit', verticalAlign: 'middle' }}
+                              style={{ marginLeft: '10px', padding: '2px 8px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'inherit', verticalAlign: 'middle' }}
                             >
                               Edit
                             </button>
@@ -613,7 +613,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                               {Number(loginStats[customer.id].login_count) > 0 && <> &middot; {loginStats[customer.id].login_count} sign-in{Number(loginStats[customer.id].login_count) === 1 ? '' : 's'} since Oct 27</>}
                             </p>
                           )}
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0 0 0', fontSize: '12px', color: '#1a441f', cursor: 'pointer' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0 0 0', fontSize: '12px', color: '#083525', cursor: 'pointer' }}>
                             <input
                               type="checkbox"
                               checked={customer.messenger_delivery === true}
@@ -636,7 +636,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                             <CustomerPricing customer={customer} onSaved={(changes) => setPendingCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, ...changes } : c))} />
                           )}
                           {customer.resubmitted_at && (
-                            <p style={{ margin: '8px 0 0 0', display: 'inline-block', padding: '3px 8px', background: '#faf8f3', border: '1px solid #D4A373', color: '#1a441f', fontSize: '12px', fontWeight: '600' }}>
+                            <p style={{ margin: '8px 0 0 0', display: 'inline-block', padding: '3px 8px', background: '#faf8f3', border: '1px solid #D4A373', color: '#083525', fontSize: '12px', fontWeight: '600' }}>
                               Resubmitted {new Date(customer.resubmitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                             </p>
                           )}
@@ -652,7 +652,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                           {customer.approval_status !== 'approved' && (
                             <button 
                               onClick={() => handleApprove(customer.id)} 
-                              style={{ background: '#1a441f' }}
+                              style={{ background: '#083525' }}
                             >
                               Approve
                             </button>
@@ -660,7 +660,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                           {customer.approval_status === 'approved' && (
                             <button
                               onClick={() => { if (window.confirm(`Pause ${customer.name || customer.email}? They can still sign in but won't see the menu or be able to order until you resume them.`)) setApprovalStatus(customer.id, 'paused') }}
-                              style={{ background: 'white', color: '#1a441f', border: '1px solid #1a441f' }}
+                              style={{ background: 'white', color: '#083525', border: '1px solid #083525' }}
                             >
                               Pause
                             </button>
@@ -668,7 +668,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                           {(customer.approval_status === 'pending' || customer.approval_status === 'rejected') && (
                             <button
                               onClick={() => { if (window.confirm(`Put ${customer.name || customer.email} on the neighborhood waitlist? They'll see a note that we don't deliver to them yet, and you can approve them when you do.`)) setApprovalStatus(customer.id, 'waitlisted') }}
-                              style={{ background: 'white', color: '#1a441f', border: '1px solid #1a441f' }}
+                              style={{ background: 'white', color: '#083525', border: '1px solid #083525' }}
                             >
                               Waitlist
                             </button>
@@ -676,7 +676,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                           {customer.approval_status === 'paused' && (
                             <button
                               onClick={() => setApprovalStatus(customer.id, 'approved')}
-                              style={{ background: '#1a441f' }}
+                              style={{ background: '#083525' }}
                             >
                               Resume
                             </button>
@@ -724,16 +724,16 @@ export default function AdminApp({ onLogout, onOrder }) {
 
         {screen === 'menu' && (
           <div>
-            <h2 style={{ color: '#1a441f', marginBottom: '6px' }}>This Week</h2>
+            <h2 style={{ color: '#083525', marginBottom: '6px' }}>This Week</h2>
             <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#666' }}>Edit the menu in the sheet, then work down this page.</p>
             
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 1 · Check the sheet</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px 16px', marginBottom: '6px' }}>
-                <h3 style={{ color: '#1a441f', margin: 0 }}>This Week's Menu</h3>
+                <h3 style={{ color: '#083525', margin: 0 }}>This Week's Menu</h3>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <a href={MENU_SHEET_EDIT_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#1a441f', fontWeight: '600' }}>Open the menu sheet ↗</a>
-                  <button onClick={loadSheetMenu} style={{ padding: '6px 12px', background: 'none', border: '1px solid #e0dbd1', color: '#1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
+                  <a href={MENU_SHEET_EDIT_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#083525', fontWeight: '600' }}>Open the menu sheet ↗</a>
+                  <button onClick={loadSheetMenu} style={{ padding: '6px 12px', background: 'none', border: '1px solid #e0dbd1', color: '#083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
                 </div>
               </div>
               <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
@@ -747,7 +747,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                 </p>
               )}
               {sheetMenu && sheetMenu.weeks.length === 1 && (
-                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#1a441f' }}>Showing week {sheetMenu.weeks[0]}{sheetMenu.weekOf ? `, week of ${sheetMenu.weekOf}` : ''}.</p>
+                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#083525' }}>Showing week {sheetMenu.weeks[0]}{sheetMenu.weekOf ? `, week of ${sheetMenu.weekOf}` : ''}.</p>
               )}
               {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).length === 0 && (
                 <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>Nothing is visible in the sheet right now, so customers see "Menu coming soon".</p>
@@ -764,7 +764,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                   {sec.items.map(item => (
                     <div key={item.id} style={{ margin: '0 0 10px 0' }}>
                       <p style={{ margin: 0, fontSize: '14px', color: '#333' }}>
-                        <strong style={{ color: '#1a441f' }}>{item.name}</strong>
+                        <strong style={{ color: '#083525' }}>{item.name}</strong>
                         {item.sides ? <span style={{ color: '#999' }}> · {item.sides}</span> : null}
                         {sec.type === 'addon' && Number.isFinite(item.price) ? <span style={{ color: '#999' }}> · ${(item.price / 100).toFixed(2)}</span> : null}
                         {item.note ? <span style={{ color: '#999' }}> · {item.note}</span> : null}
@@ -780,7 +780,7 @@ export default function AdminApp({ onLogout, onOrder }) {
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 2 · Set the dates</p>
-              <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#1a441f' }}>Delivery Date</label>
+              <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#083525' }}>Delivery Date</label>
               <input
                 type="date"
                 value={deliveryDate}
@@ -788,7 +788,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                 style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px' }}
               />
 
-              <label style={{ display: 'block', margin: '20px 0 10px', fontWeight: '600', color: '#1a441f' }}>Orders Close</label>
+              <label style={{ display: 'block', margin: '20px 0 10px', fontWeight: '600', color: '#083525' }}>Orders Close</label>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <input
                   type="datetime-local"
@@ -798,7 +798,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                 />
                 <button
                   onClick={saveOrderClose}
-                  style={{ padding: '8px 20px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
+                  style={{ padding: '8px 20px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
                 >
                   Save Close Time
                 </button>
@@ -808,9 +808,9 @@ export default function AdminApp({ onLogout, onOrder }) {
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 3 · Ask a question</p>
-              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '12px' }}>Customer Survey Question</h3>
+              <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '12px' }}>Customer Survey Question</h3>
               <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#1a441f' }}>Question</label>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#083525' }}>Question</label>
                 <textarea
                   value={surveyQuestion}
                   onChange={(e) => setSurveyQuestion(e.target.value)}
@@ -826,7 +826,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                   onChange={(e) => setIsSurveyActive(e.target.checked)}
                   style={{ cursor: 'pointer' }}
                 />
-                <label htmlFor="surveyActive" style={{ fontSize: '13px', color: '#1a441f', fontWeight: '500', cursor: 'pointer' }}>
+                <label htmlFor="surveyActive" style={{ fontSize: '13px', color: '#083525', fontWeight: '500', cursor: 'pointer' }}>
                   Active (show to customers)
                 </label>
               </div>
@@ -848,7 +848,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                     alert('✓ Survey question saved!')
                   }
                 }}
-                style={{ width: '100%', padding: '10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ width: '100%', padding: '10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Save Survey Question
               </button>
@@ -857,18 +857,18 @@ export default function AdminApp({ onLogout, onOrder }) {
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 4 · Go live</p>
-              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Ordering</h3>
+              <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '8px' }}>Ordering</h3>
               <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
                 {menuLive
-                  ? <>Ordering is <strong style={{ color: '#1a441f' }}>open</strong> for delivery on {deliveryDate}. Customers see the sheet menu above.</>
-                  : <>Ordering is <strong style={{ color: '#1a441f' }}>closed</strong> for {deliveryDate}. Check the sheet above and the close time, then go live.</>}
+                  ? <>Ordering is <strong style={{ color: '#083525' }}>open</strong> for delivery on {deliveryDate}. Customers see the sheet menu above.</>
+                  : <>Ordering is <strong style={{ color: '#083525' }}>closed</strong> for {deliveryDate}. Check the sheet above and the close time, then go live.</>}
               </p>
               <button
                 onClick={() => {
                   const warn = !menuLive && sheetMenu?.weeks.length > 1 ? `Weeks ${sheetMenu.weeks.join(' and ')} are both visible in the sheet. Hide last week first?\n\nPress OK to go live anyway, or Cancel to fix the sheet.\n\n` : ''
                   if (window.confirm(warn + (menuLive ? 'Take ordering offline for ' + deliveryDate + '?' : 'Open ordering for delivery on ' + deliveryDate + '?'))) toggleMenuLive()
                 }}
-                style={{ padding: '12px 24px', background: menuLive ? '#D4A373' : '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}
+                style={{ padding: '12px 24px', background: menuLive ? '#D4A373' : '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}
               >
                 {menuLive ? 'Take Offline' : 'Go Live'}
               </button>
@@ -877,7 +877,7 @@ export default function AdminApp({ onLogout, onOrder }) {
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 5 · Tell customers</p>
-              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Menu Email</h3>
+              <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '8px' }}>Menu Email</h3>
               <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
                 Tells every approved customer who opted in to menu emails that the menu is up, with the delivery date and close time, and sends them to the site
                 {menuEmailRecipients != null && <> ({menuEmailRecipients} right now)</>}.
@@ -887,13 +887,13 @@ export default function AdminApp({ onLogout, onOrder }) {
                 <button
                   onClick={sendMenuEmail}
                   disabled={!menuLive || sendingMenuEmail}
-                  style={{ padding: '8px 20px', background: menuEmailSentAt ? '#D4A373' : '#1a441f', color: '#faf8f3', border: 'none', cursor: !menuLive || sendingMenuEmail ? 'not-allowed' : 'pointer', fontSize: '14px', fontFamily: 'inherit', opacity: !menuLive || sendingMenuEmail ? 0.6 : 1 }}
+                  style={{ padding: '8px 20px', background: menuEmailSentAt ? '#D4A373' : '#083525', color: '#faf8f3', border: 'none', cursor: !menuLive || sendingMenuEmail ? 'not-allowed' : 'pointer', fontSize: '14px', fontFamily: 'inherit', opacity: !menuLive || sendingMenuEmail ? 0.6 : 1 }}
                 >
                   {sendingMenuEmail ? 'Sending...' : menuEmailSentAt ? 'Resend Menu Email' : 'Send Menu Email'}
                 </button>
-                {menuEmailSentAt && <span style={{ fontSize: '13px', color: '#1a441f' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
+                {menuEmailSentAt && <span style={{ fontSize: '13px', color: '#083525' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
               </div>
-              <button onClick={() => setShowEmailList(v => !v)} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>
+              <button onClick={() => setShowEmailList(v => !v)} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>
                 {showEmailList ? 'Hide' : 'Show'} who gets the email ({notifyLists.email.length})
               </button>
               {showEmailList && (
@@ -906,11 +906,11 @@ export default function AdminApp({ onLogout, onOrder }) {
 
             <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 6 · Text customers</p>
-              <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Menu Text</h3>
+              <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '8px' }}>Menu Text</h3>
               <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
                 Nothing is sent automatically. Write the message once, add this week's menu image, then tap Text next to each person: your phone's Messages app opens with the message filled in.
               </p>
-              <label htmlFor="menuText" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#1a441f' }}>Message</label>
+              <label htmlFor="menuText" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#083525' }}>Message</label>
               <textarea
                 id="menuText"
                 value={menuText}
@@ -921,15 +921,15 @@ export default function AdminApp({ onLogout, onOrder }) {
               <p style={{ margin: '6px 0 14px 0', fontSize: '12px', color: '#999', lineHeight: 1.6 }}>
                 {'{first}'} becomes their first name, {'{date}'} the delivery date and {'{close}'} the order close time. Preview: <em>{personalMenuText('Jiaqi Chen')}</em>
               </p>
-              <label htmlFor="menuImage" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#1a441f' }}>Menu image (optional)</label>
+              <label htmlFor="menuImage" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#083525' }}>Menu image (optional)</label>
               <input id="menuImage" type="file" accept="image/*" onChange={(e) => setMenuImage(e.target.files?.[0] || null)} style={{ fontSize: '13px', marginBottom: '4px' }} />
               <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#999', lineHeight: 1.6 }}>
                 {menuImage ? (canShareImage() ? `✓ ${menuImage.name} goes with each text through your phone's share sheet.` : `${menuImage.name} is picked, but this browser can't share images. Use the Text link and attach it by hand.`) : 'Pick this week\'s menu JPEG from your photos. On an iPhone it goes with the message through the share sheet.'}
               </p>
-              <button onClick={() => setShowSmsList(v => !v)} style={{ padding: '8px 20px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>
+              <button onClick={() => setShowSmsList(v => !v)} style={{ padding: '8px 20px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>
                 {showSmsList ? 'Hide the list' : `Who to text (${notifyLists.sms.length})`}
               </button>
-              {shareNote && <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#1a441f' }}>{shareNote}</p>}
+              {shareNote && <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#083525' }}>{shareNote}</p>}
               {showSmsList && (
                 <div style={{ marginTop: '12px', fontSize: '13px', color: '#333', lineHeight: 1.8 }}>
                   {notifyLists.sms.length === 0 && <p style={{ margin: 0, color: '#666' }}>Nobody has opted in to texts yet.</p>}
@@ -938,11 +938,11 @@ export default function AdminApp({ onLogout, onOrder }) {
                       <span>{p.name} <span style={{ color: '#999' }}>· {p.phone}</span>{isAwayOn(awayByUser[p.id], deliveryDate) && <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', fontWeight: '600', background: '#faf8f3', border: '1px solid #D4A373', color: '#b8923f' }}>away</span>}</span>
                       <span style={{ display: 'flex', gap: '6px' }}>
                         {canShareImage() && (
-                          <button onClick={() => shareWithImage(p)} style={{ padding: '4px 12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                          <button onClick={() => shareWithImage(p)} style={{ padding: '4px 12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                             Text with image
                           </button>
                         )}
-                        <a href={smsLink(p)} style={{ padding: '4px 12px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', fontSize: '12px', fontWeight: '600', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                        <a href={smsLink(p)} style={{ padding: '4px 12px', background: 'white', color: '#083525', border: '1px solid #083525', fontSize: '12px', fontWeight: '600', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                           Text
                         </a>
                       </span>
@@ -961,7 +961,7 @@ export default function AdminApp({ onLogout, onOrder }) {
         {screen === 'orders' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
-              <h2 style={{ color: '#1a441f' }}>Orders</h2>
+              <h2 style={{ color: '#083525' }}>Orders</h2>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                 <button 
                   onClick={() => exportToCSV(visibleOrders.flatMap(o => o.rows))} 
@@ -1021,13 +1021,13 @@ export default function AdminApp({ onLogout, onOrder }) {
               <span>
                 Showing {visibleOrders.length} of {groupedOrders.length} orders
                 {' · '}
-                <button onClick={fetchOrders} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Refresh</button>
+                <button onClick={fetchOrders} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Refresh</button>
                 {visibleOrders.some(o => o.status === 'cancelled') && !includeCancelledInExport ? ' · cancelled orders won\'t be exported' : ''}
               </span>
               {filtersActive && (
                 <button
                   onClick={() => { setOrderSearch(''); setOrderDateFilter('all'); setOrderStatusFilter('all'); setPaymentFilter('all') }}
-                  style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}
+                  style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}
                 >
                   Clear filters
                 </button>
@@ -1039,7 +1039,7 @@ export default function AdminApp({ onLogout, onOrder }) {
             ) : ordersError ? (
               <div style={{ color: '#c62828', background: '#ffebee', border: '1px solid #ffcdd2', padding: '20px' }}>
                 <p style={{ margin: '0 0 12px 0', fontSize: '14px' }}>Couldn't load the orders: {ordersError}</p>
-                <button onClick={fetchOrders} style={{ padding: '8px 18px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>Try again</button>
+                <button onClick={fetchOrders} style={{ padding: '8px 18px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>Try again</button>
               </div>
             ) : visibleOrders.length === 0 ? (
               <p style={{ color: '#666', background: 'white', border: '1px solid #e0dbd1', padding: '20px' }}>
@@ -1050,19 +1050,19 @@ export default function AdminApp({ onLogout, onOrder }) {
                 <table className="admin-orders-table" style={{ width: '100%', borderCollapse: 'collapse', background: 'white' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid #e0dbd1' }}>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Order ID</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Customer</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Items</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Status</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Payment</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#1a441f', fontWeight: '600' }}>Action</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Order ID</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Customer</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Items</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Status</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Payment</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleOrders.map(order => (
                         <tr key={order.order_id} style={{ borderBottom: '1px solid #e0dbd1' }}>
                           <td data-label="Order ID" style={{ padding: '12px', fontSize: '14px' }}>
-                            <strong style={{ color: '#1a441f' }}>{orderNumber(order.order_id)}</strong>
+                            <strong style={{ color: '#083525' }}>{orderNumber(order.order_id)}</strong>
                             <div style={{ fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>{order.order_id}</div>
                           </td>
                           <td data-label="Customer" style={{ padding: '12px', fontSize: '14px' }}>
@@ -1079,7 +1079,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                           <td data-label="Status" style={{ padding: '12px', fontSize: '14px' }}>
                             <span style={{ 
                               padding: '4px 8px', 
-                              background: order.status === 'delivered' ? '#1a441f' : order.status === 'cancelled' ? '#ffebee' : '#D4A373',
+                              background: order.status === 'delivered' ? '#083525' : order.status === 'cancelled' ? '#ffebee' : '#D4A373',
                               color: order.status === 'cancelled' ? '#c62828' : '#faf8f3',
                               fontWeight: '600'
                             }}>
@@ -1094,12 +1094,12 @@ export default function AdminApp({ onLogout, onOrder }) {
                               return (
                                 <div>
                                   <div style={{ marginBottom: '6px' }}>
-                                    <strong style={{ color: '#1a441f' }}>{total.complimentary ? 'Complimentary' : `$${total.total.toFixed(2)}`}</strong>
-                                    <span style={{ marginLeft: '8px', padding: '2px 8px', fontSize: '12px', fontWeight: '600', background: pay.status === 'paid' ? '#1a441f' : pay.status === 'free' ? '#e0dbd1' : '#ffebee', color: pay.status === 'paid' ? '#faf8f3' : pay.status === 'free' ? '#1a441f' : '#c62828' }}>{label}</span>
+                                    <strong style={{ color: '#083525' }}>{total.complimentary ? 'Complimentary' : `$${total.total.toFixed(2)}`}</strong>
+                                    <span style={{ marginLeft: '8px', padding: '2px 8px', fontSize: '12px', fontWeight: '600', background: pay.status === 'paid' ? '#083525' : pay.status === 'free' ? '#e0dbd1' : '#ffebee', color: pay.status === 'paid' ? '#faf8f3' : pay.status === 'free' ? '#083525' : '#c62828' }}>{label}</span>
                                   </div>
                                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                    {pay.status !== 'paid' && <button onClick={() => setPayment(order, 'paid')} style={{ padding: '4px 10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
-                                    {pay.status !== 'unpaid' && <button onClick={() => setPayment(order, 'unpaid')} style={{ padding: '4px 10px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
+                                    {pay.status !== 'paid' && <button onClick={() => setPayment(order, 'paid')} style={{ padding: '4px 10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
+                                    {pay.status !== 'unpaid' && <button onClick={() => setPayment(order, 'unpaid')} style={{ padding: '4px 10px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
                                     {pay.status !== 'free' && <button onClick={() => setPayment(order, 'free')} style={{ padding: '4px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark free</button>}
                                   </div>
                                 </div>
@@ -1116,7 +1116,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                                   fetchOrders()
                                   sendReheatEmail(order.order_id)
                                 }}
-                                style={{ padding: '6px 12px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                                style={{ padding: '6px 12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
                               >
                                 Mark Delivered
                               </button>
@@ -1137,7 +1137,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                                     if (!window.confirm(`Send ${order.customer_name} the reheat guide email again?`)) return
                                     sendReheatEmail(order.order_id, { resend: true })
                                   }}
-                                  style={{ padding: '6px 12px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px' }}
+                                  style={{ padding: '6px 12px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px' }}
                                 >
                                   Resend Reheat Email
                                 </button>

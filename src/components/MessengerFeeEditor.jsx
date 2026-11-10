@@ -33,7 +33,7 @@ export default function MessengerFeeEditor({ customer, onSaved }) {
 
   return (
     <div style={{ margin: '6px 0 0 24px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#1a441f', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#083525', flexWrap: 'wrap' }}>
         <label htmlFor={`fee-${customer.id}`}>Messenger fee $</label>
         <input
           id={`fee-${customer.id}`}
@@ -50,12 +50,12 @@ export default function MessengerFeeEditor({ customer, onSaved }) {
           type="button"
           onClick={save}
           disabled={!dirty || saving}
-          style={{ padding: '4px 12px', background: dirty ? '#1a441f' : 'white', color: dirty ? '#faf8f3' : '#999', border: '1px solid ' + (dirty ? '#1a441f' : '#e0dbd1'), cursor: dirty && !saving ? 'pointer' : 'default', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit' }}
+          style={{ padding: '4px 12px', background: dirty ? '#083525' : 'white', color: dirty ? '#faf8f3' : '#999', border: '1px solid ' + (dirty ? '#083525' : '#e0dbd1'), cursor: dirty && !saving ? 'pointer' : 'default', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit' }}
         >
           {saving ? 'Saving...' : 'Save'}
         </button>
       </div>
-      {note && <p style={{ margin: '6px 0 0', fontSize: '12px', color: note.ok ? '#1a441f' : '#c62828' }}>{note.text}</p>}
+      {note && <p style={{ margin: '6px 0 0', fontSize: '12px', color: note.ok ? '#083525' : '#c62828' }}>{note.text}</p>}
     </div>
   )
 }

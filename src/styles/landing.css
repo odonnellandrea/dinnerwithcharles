@@ -1,5 +1,5 @@
 .landing {
-  --green: #1a441f;
+  --green: #083525;
   --gold: #D4A373;
   --cream: #faf8f3;
   --border: #e0dbd1;
@@ -49,7 +49,7 @@
   text-decoration: none;
   font-family: inherit;
 }
-.landing-btn:hover { background: #12321a; }
+.landing-btn:hover { background: #05271b; }
 .landing-btn--outline { background: transparent; color: var(--green); }
 .landing-btn--outline:hover { background: var(--green); color: var(--cream); }
 .landing-btn--light { background: var(--cream); border-color: var(--cream); color: var(--green); }

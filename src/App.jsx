@@ -198,11 +198,11 @@ function LoginForm({ onSuccess, onBack, expiredLink = false }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
       <div style={{ background: 'white', padding: '40px', borderRadius: '12px', maxWidth: '400px', width: '90%' }}>
-        <h2 style={{ color: '#1a441f', marginBottom: '24px' }}>{mode === 'forgot' ? 'Reset Password' : 'Sign In'}</h2>
+        <h2 style={{ color: '#083525', marginBottom: '24px' }}>{mode === 'forgot' ? 'Reset Password' : 'Sign In'}</h2>
 
         {mode === 'forgot' ? (
           <form onSubmit={handleForgot}>
-            {notice && <p style={{ color: '#1a441f', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px 0' }}>{notice}</p>}
+            {notice && <p style={{ color: '#083525', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px 0' }}>{notice}</p>}
             {!sent && (
             <>
             <p style={{ color: '#666', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px 0' }}>
@@ -220,7 +220,7 @@ function LoginForm({ onSuccess, onBack, expiredLink = false }) {
             <button
               type="submit"
               disabled={sending}
-              style={{ width: '100%', padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: sending ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px', opacity: sending ? 0.6 : 1 }}
+              style={{ width: '100%', padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: sending ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px', opacity: sending ? 0.6 : 1 }}
             >
               {sending ? 'Sending...' : 'Send Reset Link'}
             </button>
@@ -266,7 +266,7 @@ function LoginForm({ onSuccess, onBack, expiredLink = false }) {
           <button
             type="button"
             onClick={() => { setMode('forgot'); setError('') }}
-            style={{ display: 'block', margin: '-4px 0 16px auto', background: 'none', border: 'none', padding: 0, color: '#1a441f', fontSize: '13px', textDecoration: 'underline', cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ display: 'block', margin: '-4px 0 16px auto', background: 'none', border: 'none', padding: 0, color: '#083525', fontSize: '13px', textDecoration: 'underline', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             Forgot password?
           </button>
@@ -275,7 +275,7 @@ function LoginForm({ onSuccess, onBack, expiredLink = false }) {
           
           <button 
             type="submit" 
-            style={{ width: '100%', padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}
+            style={{ width: '100%', padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}
           >
             Sign In
           </button>

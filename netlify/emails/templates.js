@@ -3,7 +3,7 @@ import { formatWindows } from '../../src/lib/deliveryWindows.js'
 import { deliveryOptionLabel } from '../../src/lib/deliveryOptions.js'
 import { orderNumber } from '../../src/lib/orderNumber.js'
 
-const GREEN = '#1a441f'
+const GREEN = '#083525'
 const GOLD = '#D4A373'
 const CREAM = '#faf8f3'
 const BORDER = '#e0dbd1'

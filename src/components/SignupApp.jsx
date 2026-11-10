@@ -349,7 +349,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         <div style={{ maxWidth: '600px', textAlign: 'center', background: 'white', padding: '40px', borderRadius: '12px', border: '1px solid #e0dbd1' }}>
           <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px' }} />
           
-          <h1 style={{ color: '#1a441f', marginBottom: '16px' }}>Request Received</h1>
+          <h1 style={{ color: '#083525', marginBottom: '16px' }}>Request Received</h1>
           
           <p style={{ fontSize: '16px', color: '#666', marginBottom: '12px', lineHeight: '1.6' }}>
             Thank you for your request to join Dinner with Charles. We'll review it and be in touch once you're approved.
@@ -361,7 +361,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           
           <button
             onClick={onBack}
-            style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '500', fontFamily: 'inherit' }}
+            style={{ padding: '12px 24px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '500', fontFamily: 'inherit' }}
           >
             Back to Home
           </button>
@@ -392,7 +392,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
             </div>
           )}
 
-          <h2 style={{ color: '#1a441f', marginBottom: '24px' }}>Step {step - firstStep + 1} of {5 - firstStep + 1}</h2>
+          <h2 style={{ color: '#083525', marginBottom: '24px' }}>Step {step - firstStep + 1} of {5 - firstStep + 1}</h2>
 
           {loadingProfile && <p style={{ color: '#666', marginBottom: '16px', fontSize: '14px' }}>Loading your answers...</p>}
 
@@ -419,7 +419,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
                 style={{ width: '100%', padding: '12px', marginBottom: codeStatus ? '8px' : '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }}
               />
               {codeStatus && (
-                <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: codeStatus.valid ? '#1a441f' : '#c62828' }}>{codeStatus.message}</p>
+                <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: codeStatus.valid ? '#083525' : '#c62828' }}>{codeStatus.message}</p>
               )}
             </div>
           )}
@@ -432,7 +432,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
               </p>
               <input type="text" placeholder="Delivery address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <div style={{ border: '1px solid #e0dbd1', borderRadius: '6px', padding: '12px', marginBottom: '12px' }}>
-                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#1a441f' }}>How would you like to get your order? <span style={{ fontWeight: '400', color: '#999' }}>Tick all that work for you.</span></p>
+                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#083525' }}>How would you like to get your order? <span style={{ fontWeight: '400', color: '#999' }}>Tick all that work for you.</span></p>
                 {DELIVERY_OPTIONS.map(o => {
                   const chosen = parseDeliveryOptions(formData.deliveryOption)
                   const checked = chosen.includes(o.value)
@@ -484,14 +484,14 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
 
           {step === 5 && (
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#1a441f', fontSize: '14px' }}>How do you prefer to reheat?</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#083525', fontSize: '14px' }}>How do you prefer to reheat?</label>
               <select value={formData.reheatingPreference} onChange={(e) => updateField('reheatingPreference', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
                 <option value="">Select an option</option>
                 <option value="Toaster oven/Oven">Toaster oven/Oven</option>
                 <option value="Microwave">Microwave</option>
                 <option value="Both">Both</option>
               </select>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#1a441f', fontSize: '14px' }}>How did you hear about us?</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#083525', fontSize: '14px' }}>How did you hear about us?</label>
               <select value={formData.heardAbout} onChange={(e) => updateField('heardAbout', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
                 <option value="">Select an option</option>
                 <option value="A friend or family member">A friend or family member</option>
@@ -506,7 +506,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
               <textarea placeholder="Is there anything else we should know to better understand your family's needs and preferences?" value={formData.anythingElse} onChange={(e) => updateField('anythingElse', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
 
               <div style={{ marginBottom: '24px', paddingTop: '8px', borderTop: '1px solid #e0dbd1' }}>
-                <h3 style={{ color: '#1a441f', fontSize: '17px', margin: '16px 0 4px 0' }}>Stay in touch (optional)</h3>
+                <h3 style={{ color: '#083525', fontSize: '17px', margin: '16px 0 4px 0' }}>Stay in touch (optional)</h3>
                 <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.6' }}>Choose either, both or neither.</p>
                 <NotificationChoices
                   emailOptIn={formData.emailOptIn}
@@ -529,11 +529,11 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
               Back
             </button>
             {step < 5 ? (
-              <button onClick={handleNext} disabled={checkingEmail} style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: checkingEmail ? 'wait' : 'pointer', fontSize: '16px', fontWeight: '500', opacity: checkingEmail ? 0.7 : 1 }}>
+              <button onClick={handleNext} disabled={checkingEmail} style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: checkingEmail ? 'wait' : 'pointer', fontSize: '16px', fontWeight: '500', opacity: checkingEmail ? 0.7 : 1 }}>
                 Next
               </button>
             ) : (
-              <button onClick={handleSubmit} disabled={loading || loadingProfile} style={{ flex: 1, padding: '12px', background: '#1a441f', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
+              <button onClick={handleSubmit} disabled={loading || loadingProfile} style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
                 {loading ? 'Submitting...' : isResubmit ? 'Resubmit Request' : 'Request to Join'}
               </button>
             )}

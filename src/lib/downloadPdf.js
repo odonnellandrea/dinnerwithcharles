@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 
 const WAITING_PAGE = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Preparing your PDF</title>
-<body style="margin:0;background:#faf8f3;color:#1a441f;font-family:Georgia,'Times New Roman',serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center">
+<body style="margin:0;background:#faf8f3;color:#083525;font-family:Georgia,'Times New Roman',serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center">
 <p style="font-size:20px;font-style:italic">Preparing your PDF&hellip;</p></body>`
 
 // Fetches a PDF from one of our functions with the customer's session and shows it in a NEW

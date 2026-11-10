@@ -36,7 +36,7 @@
 }
 
 .admin-tab.is-active {
-  background: #1a441f;
+  background: #083525;
 }
 
 /* Approval cards: text left, buttons right; stacks when narrow */
@@ -81,8 +81,8 @@
 
 .admin-card-actions .admin-button-outline {
   background: white;
-  color: #1a441f;
-  border: 1px solid #1a441f;
+  color: #083525;
+  border: 1px solid #083525;
 }
 
 /* Request-to-join answers */
@@ -170,7 +170,7 @@
 
 .admin-filter select.admin-input {
   cursor: pointer;
-  background-image: linear-gradient(45deg, transparent 50%, #1a441f 50%), linear-gradient(135deg, #1a441f 50%, transparent 50%);
+  background-image: linear-gradient(45deg, transparent 50%, #083525 50%), linear-gradient(135deg, #083525 50%, transparent 50%);
   background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
   background-size: 5px 5px;
   background-repeat: no-repeat;

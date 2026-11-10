@@ -5,7 +5,7 @@ import { nameColumns, namesFrom, joinName, isMissingNameColumns, withoutNameColu
 import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions } from '../lib/deliveryOptions'
 
 const inputStyle = { width: '100%', padding: '12px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }
-const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#1a441f', margin: '0 0 6px 0' }
+const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#083525', margin: '0 0 6px 0' }
 
 // Name, delivery address, phone and delivery preferences, editable by the customer.
 // (The messenger fee itself stays admin-controlled.) onSaved gets the new name
@@ -84,14 +84,14 @@ export default function ProfileDetails({ user, onSaved }) {
 
   return (
     <form onSubmit={handleSave} style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#1a441f', margin: '0 0 6px 0' }}>Your Details</h3>
+      <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>Your Details</h3>
       <p style={{ fontSize: '13px', color: '#666', margin: '0 0 20px 0' }}>
         We use these for your deliveries.
       </p>
 
       {savedAs && (
         <p style={{ fontSize: '13px', color: '#666', margin: '0 0 12px 0' }}>
-          We have your name as <strong style={{ color: '#1a441f' }}>{savedAs}</strong>. Please enter it as first and last name below.
+          We have your name as <strong style={{ color: '#083525' }}>{savedAs}</strong>. Please enter it as first and last name below.
         </p>
       )}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -138,11 +138,11 @@ export default function ProfileDetails({ user, onSaved }) {
         <button
           type="submit"
           disabled={saving}
-          style={{ padding: '12px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
+          style={{ padding: '12px 24px', background: '#083525', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
         >
           {saving ? 'Saving...' : 'Save Details'}
         </button>
-        {saved && <span style={{ color: '#1a441f', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>}
+        {saved && <span style={{ color: '#083525', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>}
       </div>
     </form>
   )

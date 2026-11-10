@@ -10,7 +10,7 @@ const linkStyle = {
   borderBottom: '1px solid #e0dbd1',
   cursor: 'pointer',
   fontSize: '15px',
-  color: '#1a441f',
+  color: '#083525',
   fontWeight: '500',
   fontFamily: 'inherit'
 }
@@ -41,7 +41,7 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin }) {
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={menuOpen}
-        style={{ padding: '12px', background: '#1a441f', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
+        style={{ padding: '12px', background: '#083525', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
       >
         <span style={{ display: 'block', width: '22px', height: '2px', background: '#faf8f3' }} />
         <span style={{ display: 'block', width: '22px', height: '2px', background: '#faf8f3' }} />
@@ -64,7 +64,7 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin }) {
             {onAdmin && (
               <button
                 onClick={() => { setMenuOpen(false); onAdmin() }}
-                style={{ ...linkStyle, borderLeft: '3px solid transparent', color: '#1a441f' }}
+                style={{ ...linkStyle, borderLeft: '3px solid transparent', color: '#083525' }}
               >
                 Admin dashboard
               </button>

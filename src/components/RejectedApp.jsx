@@ -13,7 +13,7 @@ export default function RejectedApp({ user, onLogout, onResubmitted }) {
       <div style={{ maxWidth: '600px', textAlign: 'center', background: 'white', padding: '40px', border: '1px solid #e0dbd1' }}>
         <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px' }} />
         
-        <h1 style={{ color: '#1a441f', marginBottom: '16px' }}>Request Not Approved</h1>
+        <h1 style={{ color: '#083525', marginBottom: '16px' }}>Request Not Approved</h1>
         
         <p style={{ fontSize: '16px', color: '#666', marginBottom: '12px', lineHeight: '1.6' }}>
           Unfortunately, we're unable to approve your request to join at this time.
@@ -25,7 +25,7 @@ export default function RejectedApp({ user, onLogout, onResubmitted }) {
 
         <button
           onClick={() => setUpdating(true)}
-          style={{ display: 'block', width: '100%', maxWidth: '320px', margin: '0 auto 12px', padding: '14px 24px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '600', fontFamily: 'inherit' }}
+          style={{ display: 'block', width: '100%', maxWidth: '320px', margin: '0 auto 12px', padding: '14px 24px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '600', fontFamily: 'inherit' }}
         >
           Update and resubmit
         </button>
@@ -36,7 +36,7 @@ export default function RejectedApp({ user, onLogout, onResubmitted }) {
         
         <button 
           onClick={onLogout} 
-          style={{ padding: '10px 20px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '14px', fontWeight: '500', fontFamily: 'inherit' }}
+          style={{ padding: '10px 20px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '14px', fontWeight: '500', fontFamily: 'inherit' }}
         >
           Logout
         </button>

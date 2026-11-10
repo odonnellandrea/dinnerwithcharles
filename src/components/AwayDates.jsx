@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { formatRange, upcoming, todayIso } from '../lib/awayDates'
 
 const inputStyle = { padding: '10px 12px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px', width: '100%' }
-const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#1a441f', margin: '0 0 6px 0' }
+const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#083525', margin: '0 0 6px 0' }
 
 // "We're away from ... to ...": as many ranges as they like. Nothing is held back because of
 // it; it just tells the kitchen not to expect an order those weeks.
@@ -47,7 +47,7 @@ export default function AwayDates({ user }) {
 
   return (
     <div style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#1a441f', margin: '0 0 6px 0' }}>Away dates</h3>
+      <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>Away dates</h3>
       <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#666', lineHeight: 1.6 }}>
         Travelling, or taking a few weeks off? Let us know the dates. It helps us plan the kitchen, and we won't drop a dish you love while you're gone. You'll still hear about each week's menu, and you can change your mind at any time: remove the dates here, or simply order.
       </p>
@@ -57,7 +57,7 @@ export default function AwayDates({ user }) {
           {ranges.map(r => (
             <li key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
               <span style={{ fontSize: '14px', color: '#333' }}>
-                <strong style={{ color: '#1a441f' }}>{formatRange(r)}</strong>{r.note && <span style={{ color: '#666' }}> · {r.note}</span>}
+                <strong style={{ color: '#083525' }}>{formatRange(r)}</strong>{r.note && <span style={{ color: '#666' }}> · {r.note}</span>}
               </span>
               <button type="button" onClick={() => remove(r.id)} aria-label={`Remove ${formatRange(r)}`} style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '4px', fontFamily: 'inherit' }}>✕</button>
             </li>
@@ -81,7 +81,7 @@ export default function AwayDates({ user }) {
           <input id="awayNote" type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Thanksgiving with family" style={inputStyle} />
         </div>
         {error && <p style={{ color: '#c62828', fontSize: '13px', margin: '12px 0 0 0' }}>{error}</p>}
-        <button type="submit" disabled={saving} style={{ marginTop: '14px', padding: '10px 20px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: saving ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}>
+        <button type="submit" disabled={saving} style={{ marginTop: '14px', padding: '10px 20px', background: '#083525', color: '#faf8f3', border: 'none', cursor: saving ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}>
           {saving ? 'Saving...' : ranges.length ? 'Add more dates' : 'Add dates'}
         </button>
       </form>

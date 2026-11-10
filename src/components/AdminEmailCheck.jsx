@@ -42,19 +42,19 @@ export default function AdminEmailCheck() {
 
   return (
     <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#1a441f', marginTop: 0, marginBottom: '8px' }}>Admin Email Check</h3>
+      <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '8px' }}>Admin Email Check</h3>
       <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
         Sends a sample "New order" email to the address that gets your order and join-request notices, then tells you what Resend did with it.
       </p>
       <button
         onClick={run}
         disabled={sending}
-        style={{ padding: '10px 20px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: sending ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: sending ? 0.6 : 1 }}
+        style={{ padding: '10px 20px', background: '#083525', color: '#faf8f3', border: 'none', cursor: sending ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: sending ? 0.6 : 1 }}
       >
         {sending ? 'Sending, this takes about 5 seconds...' : 'Send a test order email'}
       </button>
       {result && (
-        <p style={{ margin: '14px 0 0 0', fontSize: '14px', lineHeight: 1.6, color: result.ok ? '#1a441f' : '#c62828' }}>
+        <p style={{ margin: '14px 0 0 0', fontSize: '14px', lineHeight: 1.6, color: result.ok ? '#083525' : '#c62828' }}>
           {result.ok ? '✓ ' : '✗ '}{result.text}
         </p>
       )}

@@ -6,7 +6,7 @@ import { EMAIL_CONSENT_TEXT, SMS_CONSENT_TEXT, SMS_MARKETING_CONSENT_TEXT, SMS_T
 // pre-check a box.
 export default function NotificationChoices({ emailOptIn, smsOptIn, smsMarketingOptIn = false, phoneNumber, onChange, phoneError }) {
   const wantsTexts = smsOptIn === true || smsMarketingOptIn === true
-  const boxStyle = { width: '18px', height: '18px', marginTop: '2px', flexShrink: 0, accentColor: '#1a441f', cursor: 'pointer' }
+  const boxStyle = { width: '18px', height: '18px', marginTop: '2px', flexShrink: 0, accentColor: '#083525', cursor: 'pointer' }
   const textStyle = { fontSize: '14px', lineHeight: '1.6', color: '#333' }
 
   return (
@@ -26,7 +26,7 @@ export default function NotificationChoices({ emailOptIn, smsOptIn, smsMarketing
 
       <div style={{ padding: '16px 0', borderBottom: '1px solid #e0dbd1' }}>
         <p style={{ margin: '0 0 10px 0', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Text messages</p>
-        <label htmlFor="smsPhoneNumber" style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#1a441f', marginBottom: '6px' }}>
+        <label htmlFor="smsPhoneNumber" style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#083525', marginBottom: '6px' }}>
           Mobile number{wantsTexts ? ' *' : ' (only needed for texts)'}
         </label>
         <input

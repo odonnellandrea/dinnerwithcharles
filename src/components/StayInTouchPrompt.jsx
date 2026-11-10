@@ -70,7 +70,7 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
   return (
     <div style={{ background: 'white', padding: '32px', border: '1px solid #e0dbd1', maxWidth: '640px', margin: '0 auto' }}>
       <p style={{ margin: '0 0 8px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>One quick question</p>
-      <h2 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '24px' }}>How should we stay in touch?</h2>
+      <h2 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '24px' }}>How should we stay in touch?</h2>
       <p style={{ margin: 0, fontSize: '15px', color: '#666', lineHeight: '1.6' }}>
         We've added email and text updates. Choose either, both or neither. You can change this anytime in Settings.
       </p>
@@ -88,7 +88,7 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
         <button
           onClick={handleSave}
           disabled={saving}
-          style={{ padding: '14px 28px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '15px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
+          style={{ padding: '14px 28px', background: '#083525', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '15px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
         >
           {saving ? 'Saving...' : 'Save my choices'}
         </button>

@@ -91,8 +91,8 @@ export default function ThisWeek({ onOpenOrders }) {
 
   const card = { background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }
   const chip = (label, value, strong) => (
-    <div style={{ flex: '1 1 110px', padding: '14px 16px', background: strong ? '#1a441f' : '#faf8f3', border: '1px solid #e0dbd1' }}>
-      <p style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: strong ? '#faf8f3' : '#1a441f', lineHeight: 1 }}>{value}</p>
+    <div style={{ flex: '1 1 110px', padding: '14px 16px', background: strong ? '#083525' : '#faf8f3', border: '1px solid #e0dbd1' }}>
+      <p style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: strong ? '#faf8f3' : '#083525', lineHeight: 1 }}>{value}</p>
       <p style={{ margin: '6px 0 0 0', fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', color: strong ? '#D4A373' : '#666' }}>{label}</p>
     </div>
   )
@@ -139,7 +139,7 @@ export default function ThisWeek({ onOpenOrders }) {
         <div key={d.name} title={d.who.join(', ')} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 46%) 1fr', gap: '10px', alignItems: 'center', padding: '5px 0' }}>
           <span style={{ fontSize: '13px', color: '#333', lineHeight: 1.3 }}>{d.name}</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span role="img" aria-label={`${d.count} order${d.count === 1 ? '' : 's'}`} style={{ display: 'block', height: '10px', width: `${(d.count / maxCount) * 100}%`, minWidth: '4px', background: '#1a441f' }} />
+            <span role="img" aria-label={`${d.count} order${d.count === 1 ? '' : 's'}`} style={{ display: 'block', height: '10px', width: `${(d.count / maxCount) * 100}%`, minWidth: '4px', background: '#083525' }} />
             <span style={{ fontSize: '12px', color: '#666', fontVariantNumeric: 'tabular-nums' }}>{d.count}</span>
           </span>
         </div>
@@ -151,7 +151,7 @@ export default function ThisWeek({ onOpenOrders }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ color: '#1a441f', margin: '0 0 4px 0' }}>This Week</h2>
+          <h2 style={{ color: '#083525', margin: '0 0 4px 0' }}>This Week</h2>
           <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
             Delivery {deliveryDate ? niceDate(deliveryDate) : '…'}{live ? (live.is_live ? ' · ordering is open' : '') : ' · no menu is live yet'}
           </p>
@@ -159,7 +159,7 @@ export default function ThisWeek({ onOpenOrders }) {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <label htmlFor="weekDate" style={{ fontSize: '12px', color: '#666' }}>Other week</label>
           <input id="weekDate" type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} style={{ padding: '6px 10px', border: '1px solid #e0dbd1', fontFamily: 'inherit' }} />
-          <button onClick={load} style={{ padding: '6px 12px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
+          <button onClick={load} style={{ padding: '6px 12px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
         </div>
       </div>
 
@@ -176,7 +176,7 @@ export default function ThisWeek({ onOpenOrders }) {
 
           {ordered.length > 0 && (
             <div style={card}>
-              <h3 style={{ color: '#1a441f', margin: '0 0 4px 0', fontSize: '16px' }}>What's been ordered</h3>
+              <h3 style={{ color: '#083525', margin: '0 0 4px 0', fontSize: '16px' }}>What's been ordered</h3>
               <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#999' }}>Orders per dish. Hover or hold a bar to see who.</p>
               {barList('Entrées', dishes.entree)}
               {barList('Sides', dishes.salad)}
@@ -190,8 +190,8 @@ export default function ThisWeek({ onOpenOrders }) {
             return (
               <div style={{ ...card, borderLeft: '4px solid #D4A373' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
-                  <h3 style={{ color: '#1a441f', margin: '0 0 10px 0', fontSize: '16px' }}>Notes for the kitchen ({flagged.length})</h3>
-                  <button onClick={() => setFullNotes(v => !v)} style={{ background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>{fullNotes ? 'Short version' : 'Full notes'}</button>
+                  <h3 style={{ color: '#083525', margin: '0 0 10px 0', fontSize: '16px' }}>Notes for the kitchen ({flagged.length})</h3>
+                  <button onClick={() => setFullNotes(v => !v)} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>{fullNotes ? 'Short version' : 'Full notes'}</button>
                 </div>
                 {flagged.map(o => fullNotes ? (
                   <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
@@ -216,7 +216,7 @@ export default function ThisWeek({ onOpenOrders }) {
           })()}
 
           <div style={card}>
-            <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
+            <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
             {waiting.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>Everyone who's home has ordered.</p>}
             {waiting.map(p => {
               const phone = p.phone_number || p.delivery_phone
@@ -224,8 +224,8 @@ export default function ThisWeek({ onOpenOrders }) {
                 <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '8px 0', borderTop: '1px solid #f0ece3' }}>
                   <span style={{ fontSize: '14px', color: '#333' }}>{displayName(p)}<span style={{ color: '#999', fontSize: '12px' }}> · {p.email}</span></span>
                   <span style={{ display: 'flex', gap: '8px', fontSize: '12px' }}>
-                    {p.sms_opt_in === true && phone && <a href={`sms:${String(phone).replace(/[^\d+]/g, '')}`} style={{ color: '#1a441f', fontWeight: '600', textDecoration: 'none', border: '1px solid #1a441f', padding: '3px 10px' }}>Text</a>}
-                    <a href={`mailto:${p.email}`} style={{ color: '#1a441f', fontWeight: '600', textDecoration: 'none', border: '1px solid #e0dbd1', padding: '3px 10px' }}>Email</a>
+                    {p.sms_opt_in === true && phone && <a href={`sms:${String(phone).replace(/[^\d+]/g, '')}`} style={{ color: '#083525', fontWeight: '600', textDecoration: 'none', border: '1px solid #083525', padding: '3px 10px' }}>Text</a>}
+                    <a href={`mailto:${p.email}`} style={{ color: '#083525', fontWeight: '600', textDecoration: 'none', border: '1px solid #e0dbd1', padding: '3px 10px' }}>Email</a>
                   </span>
                 </div>
               )
@@ -233,15 +233,15 @@ export default function ThisWeek({ onOpenOrders }) {
           </div>
 
           <div style={card}>
-            <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Ordered ({ordered.length})</h3>
+            <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Ordered ({ordered.length})</h3>
             {ordered.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>No orders yet for this date.</p>}
             {ordered.map(o => (
               <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '14px', color: '#333', fontWeight: '600' }}>{o.name}</span>
-                  <span style={{ fontSize: '13px', color: '#1a441f', fontWeight: '600' }}>
+                  <span style={{ fontSize: '13px', color: '#083525', fontWeight: '600' }}>
                     {o.complimentary ? 'Complimentary' : `$${o.total.toFixed(2)}`}
-                    <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', background: payOf(o) === 'paid' ? '#1a441f' : payOf(o) === 'free' ? '#e0dbd1' : '#ffebee', color: payOf(o) === 'paid' ? '#faf8f3' : payOf(o) === 'free' ? '#1a441f' : '#c62828' }}>
+                    <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', background: payOf(o) === 'paid' ? '#083525' : payOf(o) === 'free' ? '#e0dbd1' : '#ffebee', color: payOf(o) === 'paid' ? '#faf8f3' : payOf(o) === 'free' ? '#083525' : '#c62828' }}>
                       {payOf(o) === 'paid' ? `Paid${paidOn(o) ? ' ' + new Date(paidOn(o)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}` : payOf(o) === 'free' ? 'Free' : 'Unpaid'}
                     </span>
                   </span>
@@ -249,9 +249,9 @@ export default function ThisWeek({ onOpenOrders }) {
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
                   {o.status === 'delivered'
                     ? <button onClick={() => markDelivered(o, false)} style={{ padding: '3px 10px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark undelivered</button>
-                    : <button onClick={() => markDelivered(o, true)} style={{ padding: '3px 10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark delivered</button>}
-                  {payOf(o) !== 'paid' && <button onClick={() => setPayment(o, 'paid')} style={{ padding: '3px 10px', background: '#1a441f', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
-                  {payOf(o) !== 'unpaid' && <button onClick={() => setPayment(o, 'unpaid')} style={{ padding: '3px 10px', background: 'white', color: '#1a441f', border: '1px solid #1a441f', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
+                    : <button onClick={() => markDelivered(o, true)} style={{ padding: '3px 10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark delivered</button>}
+                  {payOf(o) !== 'paid' && <button onClick={() => setPayment(o, 'paid')} style={{ padding: '3px 10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
+                  {payOf(o) !== 'unpaid' && <button onClick={() => setPayment(o, 'unpaid')} style={{ padding: '3px 10px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
                   {payOf(o) !== 'free' && <button onClick={() => setPayment(o, 'free')} style={{ padding: '3px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark free</button>}
                 </div>
                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
@@ -261,17 +261,17 @@ export default function ThisWeek({ onOpenOrders }) {
               </div>
             ))}
             {ordered.length > 0 && onOpenOrders && (
-              <button onClick={onOpenOrders} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#1a441f', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Open the full Orders tab</button>
+              <button onClick={onOpenOrders} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Open the full Orders tab</button>
             )}
           </div>
 
           {ordered.length > 0 && (
             <div style={card}>
-              <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Delivery windows</h3>
+              <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Delivery windows</h3>
               {ordered.map(o => (
                 <div key={o.order_id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', padding: '6px 0', borderTop: '1px solid #f0ece3', fontSize: '13px' }}>
                   <span style={{ color: '#333' }}>{o.name}{o.delivery_notes && <span style={{ display: 'block', color: '#b8923f', fontSize: '12px' }}>{o.delivery_notes}</span>}</span>
-                  <span style={{ color: '#1a441f', fontWeight: '600', textAlign: 'right', lineHeight: 1.4 }}>{summarizeWindows(o.delivery_time_slot) || '—'}</span>
+                  <span style={{ color: '#083525', fontWeight: '600', textAlign: 'right', lineHeight: 1.4 }}>{summarizeWindows(o.delivery_time_slot) || '—'}</span>
                 </div>
               ))}
             </div>
@@ -279,7 +279,7 @@ export default function ThisWeek({ onOpenOrders }) {
 
           {away.length > 0 && (
             <div style={card}>
-              <h3 style={{ color: '#1a441f', margin: '0 0 12px 0', fontSize: '16px' }}>Away this week ({away.length})</h3>
+              <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Away this week ({away.length})</h3>
               {away.map(p => (
                 <div key={p.id} style={{ padding: '8px 0', borderTop: '1px solid #f0ece3', fontSize: '14px', color: '#333' }}>
                   {displayName(p)} <span style={{ color: '#b8923f', fontSize: '12px' }}>· ✈ {p.awayText}</span>
