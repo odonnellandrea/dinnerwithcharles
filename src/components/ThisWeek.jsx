@@ -235,31 +235,43 @@ export default function ThisWeek({ onOpenOrders }) {
           <div style={card}>
             <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Ordered ({ordered.length})</h3>
             {ordered.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>No orders yet for this date.</p>}
-            {ordered.map(o => (
-              <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '14px', color: '#333', fontWeight: '600' }}>{o.name}</span>
-                  <span style={{ fontSize: '13px', color: '#083525', fontWeight: '600' }}>
-                    {o.complimentary ? 'Complimentary' : `$${o.total.toFixed(2)}`}
-                    <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', background: payOf(o) === 'paid' ? '#083525' : payOf(o) === 'free' ? '#e0dbd1' : '#ffebee', color: payOf(o) === 'paid' ? '#faf8f3' : payOf(o) === 'free' ? '#083525' : '#c62828' }}>
-                      {payOf(o) === 'paid' ? `Paid${paidOn(o) ? ' ' + new Date(paidOn(o)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}` : payOf(o) === 'free' ? 'Free' : 'Unpaid'}
-                    </span>
-                  </span>
+            {ordered.map(o => {
+              const pay = payOf(o)
+              const delivered = o.status === 'delivered'
+              const done = delivered && pay !== 'unpaid'
+              const pill = (text, tone) => (
+                <span style={{ padding: '2px 8px', fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap',
+                  background: tone === 'done' ? '#e6efe9' : tone === 'warn' ? '#ffebee' : '#fff6e5',
+                  color: tone === 'done' ? '#083525' : tone === 'warn' ? '#c62828' : '#9a6b14' }}>{text}</span>
+              )
+              const quiet = { background: 'none', border: 'none', padding: 0, color: '#8a8378', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }
+              const primary = { padding: '5px 12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit' }
+              return (
+                <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3', opacity: done ? 0.62 : 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'baseline' }}>
+                    <span style={{ fontSize: '14px', color: '#333', fontWeight: '600' }}>{done ? '✓ ' : ''}{o.name}</span>
+                    <span style={{ fontSize: '13px', color: '#083525', fontWeight: '600' }}>{o.complimentary ? 'Complimentary' : `$${o.total.toFixed(2)}`}</span>
+                  </div>
+                  <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#666' }}>
+                    {o.entrees} entrée{o.entrees === 1 ? '' : 's'} · {o.sides} side{o.sides === 1 ? '' : 's'}{o.addons ? ` · ${o.addons} add-on${o.addons === 1 ? '' : 's'}` : ''}
+                  </p>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '7px', alignItems: 'center' }}>
+                    {delivered ? pill('Delivered', 'done') : pill('Not delivered', 'soft')}
+                    {pay === 'paid' ? pill(`Paid${paidOn(o) ? ' ' + new Date(paidOn(o)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`, 'done')
+                      : pay === 'free' ? pill('Free', 'done') : pill('Unpaid', 'warn')}
+                  </div>
+                  {/* Solid buttons only for what is still to do; everything else is a quiet link */}
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '7px', alignItems: 'center' }}>
+                    {!delivered && <button onClick={() => markDelivered(o, true)} style={primary}>Mark delivered</button>}
+                    {pay === 'unpaid' && <button onClick={() => setPayment(o, 'paid')} style={primary}>Mark paid</button>}
+                    {delivered && <button onClick={() => markDelivered(o, false)} style={quiet}>Mark undelivered</button>}
+                    {pay !== 'unpaid' && <button onClick={() => setPayment(o, 'unpaid')} style={quiet}>Mark unpaid</button>}
+                    {pay === 'free' && <button onClick={() => setPayment(o, 'paid')} style={quiet}>Mark paid</button>}
+                    {pay !== 'free' && <button onClick={() => setPayment(o, 'free')} style={quiet}>Mark free</button>}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
-                  {o.status === 'delivered'
-                    ? <button onClick={() => markDelivered(o, false)} style={{ padding: '3px 10px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark undelivered</button>
-                    : <button onClick={() => markDelivered(o, true)} style={{ padding: '3px 10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark delivered</button>}
-                  {payOf(o) !== 'paid' && <button onClick={() => setPayment(o, 'paid')} style={{ padding: '3px 10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
-                  {payOf(o) !== 'unpaid' && <button onClick={() => setPayment(o, 'unpaid')} style={{ padding: '3px 10px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
-                  {payOf(o) !== 'free' && <button onClick={() => setPayment(o, 'free')} style={{ padding: '3px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark free</button>}
-                </div>
-                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
-                  {o.entrees} entrée{o.entrees === 1 ? '' : 's'} · {o.sides} side{o.sides === 1 ? '' : 's'}{o.addons ? ` · ${o.addons} add-on${o.addons === 1 ? '' : 's'}` : ''}
-                  {o.status === 'delivered' ? ' · ✓ delivered' : ''}
-                </p>
-              </div>
-            ))}
+              )
+            })}
             {ordered.length > 0 && onOpenOrders && (
               <button onClick={onOpenOrders} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Open the full Orders tab</button>
             )}
