@@ -17,6 +17,7 @@ export default function ThisWeek({ onOpenOrders }) {
   const [ordered, setOrdered] = useState([])
   const [waiting, setWaiting] = useState([])
   const [away, setAway] = useState([])
+  const [inactive, setInactive] = useState([])
   const [dishes, setDishes] = useState({ entree: [], salad: [], addon: [] }) // what's been ordered, per dish
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -71,7 +72,10 @@ export default function ThisWeek({ onOpenOrders }) {
     }).sort((a, b) => a.name.localeCompare(b.name))
 
     const orderedEmails = new Set(orders.map(o => o.email))
-    const notOrdered = people.filter(p => !orderedEmails.has(String(p.email).toLowerCase()))
+    const everyoneNotOrdered = people.filter(p => !orderedEmails.has(String(p.email).toLowerCase()))
+    // Inactive customers (set on the Approvals tab) aren't expected to order, so they don't count as waiting
+    const inactivePeople = everyoneNotOrdered.filter(p => p.inactive === true)
+    const notOrdered = everyoneNotOrdered.filter(p => p.inactive !== true)
     const awayPeople = notOrdered.filter(p => isAwayOn(awayByUser[p.id], deliveryDate)).map(p => ({ ...p, awayText: awaySummary(awayByUser[p.id]) }))
     const stillWaiting = notOrdered.filter(p => !isAwayOn(awayByUser[p.id], deliveryDate))
     // Dish tallies: how many of each, and who, for the bars
@@ -86,6 +90,7 @@ export default function ThisWeek({ onOpenOrders }) {
     setOrdered(orders)
     setWaiting(stillWaiting.sort((a, b) => displayName(a).localeCompare(displayName(b))))
     setAway(awayPeople.sort((a, b) => displayName(a).localeCompare(displayName(b))))
+    setInactive(inactivePeople.sort((a, b) => displayName(a).localeCompare(displayName(b))))
     setLoading(false)
   }
 
@@ -230,6 +235,11 @@ export default function ThisWeek({ onOpenOrders }) {
                 </div>
               )
             })}
+            {inactive.length > 0 && (
+              <p style={{ margin: '12px 0 0 0', fontSize: '12px', color: '#999' }} title={inactive.map(p => displayName(p)).join(', ')}>
+                Not counted: {inactive.length} inactive customer{inactive.length === 1 ? '' : 's'} ({inactive.map(p => displayName(p)).join(', ')}).
+              </p>
+            )}
           </div>
 
           <div style={card}>

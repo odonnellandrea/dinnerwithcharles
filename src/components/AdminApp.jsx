@@ -387,6 +387,14 @@ export default function AdminApp({ onLogout, onOrder }) {
     fetchPendingCustomers()
   }
 
+  // Inactive: still approved, still gets the standard emails and can order any time, but
+  // This Week stops counting them as "not yet ordered"
+  const setInactive = async (userId, inactive) => {
+    const { error } = await supabase.from('users').update({ inactive }).eq('id', userId)
+    if (error) alert('Failed to save: ' + error.message)
+    fetchPendingCustomers()
+  }
+
   // Request-to-join answers, in the order the form asks them
   const ANSWER_FIELDS = [
     ['Referral code', 'referral_code'],
@@ -601,7 +609,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                             </button>
                           </p>
                           <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
-                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status === 'paused' ? 'on hold' : customer.approval_status === 'waitlisted' ? 'on the waitlist' : customer.approval_status}</strong>{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
+                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status === 'paused' ? 'on hold' : customer.approval_status === 'waitlisted' ? 'on the waitlist' : customer.approval_status}</strong>{customer.approval_status === 'approved' && customer.inactive ? <> &middot; <strong style={{ color: '#b8923f' }}>inactive</strong></> : null}{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
                           {awaySummary(awayByUser[customer.id]) && (
                             <p style={{ margin: '4px 0 0 0', color: '#b8923f', fontSize: '12px', fontWeight: '600' }}>✈ {awaySummary(awayByUser[customer.id])}</p>
                           )}
@@ -655,6 +663,15 @@ export default function AdminApp({ onLogout, onOrder }) {
                               style={{ background: '#083525' }}
                             >
                               Approve
+                            </button>
+                          )}
+                          {customer.approval_status === 'approved' && (
+                            <button
+                              onClick={() => setInactive(customer.id, !customer.inactive)}
+                              title={customer.inactive ? 'Count them as expected to order again' : "They keep their login and emails, but This Week won't count them as not yet ordered"}
+                              style={{ background: 'white', color: '#083525', border: '1px solid #e0dbd1' }}
+                            >
+                              {customer.inactive ? 'Mark active' : 'Mark inactive'}
                             </button>
                           )}
                           {customer.approval_status === 'approved' && (
