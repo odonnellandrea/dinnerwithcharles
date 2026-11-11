@@ -117,7 +117,7 @@ export default function ReheatInstructions({ user, deliveryDate, onClose, embedd
           <div>
             {/* One gentle note for the whole guide, not repeated per dish */}
             <p style={{ margin: '0 0 20px 0', fontSize: '13px', fontStyle: 'italic', color: '#6b6b6b', lineHeight: 1.6 }}>
-              Our reheating times are estimates. Every microwave is different, and power levels vary from kitchen to kitchen. The way you portion your food, and your own preferences, will also change what's just right for your household. We suggest beginning with the time listed and adjusting from there to your taste.
+              Our reheating times are estimates. Every microwave and oven are different, and power levels vary from kitchen to kitchen. The way you portion your food, and your own preferences, will also change what's just right for your household. We suggest beginning with the time listed and adjusting from there to your taste.
             </p>
             {instructions.map((dish, dishIdx) => (
               <div key={dishIdx} style={{ background: 'white', border: '1px solid #e0dbd1', padding: '22px 24px', marginBottom: '16px' }}>
