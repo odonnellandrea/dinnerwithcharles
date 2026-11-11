@@ -23,3 +23,16 @@ body {
     font-size: 16px !important;
   }
 }
+
+/* iPhone Safari gives date fields a grey centred style of its own and an intrinsic width that can
+   push past its container. Keep them plain, left-aligned and able to shrink. */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+}
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.4em;
+}
