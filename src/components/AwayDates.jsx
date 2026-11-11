@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { formatRange, upcoming, todayIso } from '../lib/awayDates'
 
-const inputStyle = { padding: '10px 12px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px', width: '100%' }
+// Safari on iPhone gives date fields its own shape and width; these keep them full-width, left-aligned and inside the card
+const inputStyle = { display: 'block', padding: '10px 12px', border: '1px solid #e0dbd1', borderRadius: 0, background: 'white', color: '#333', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '16px', width: '100%', maxWidth: '100%', minWidth: 0, minHeight: '44px', textAlign: 'left', WebkitAppearance: 'none', appearance: 'none' }
 const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#083525', margin: '0 0 6px 0' }
 
 // "We're away from ... to ...": as many ranges as they like. Nothing is held back because of
@@ -56,22 +57,22 @@ export default function AwayDates({ user }) {
         <ul style={{ listStyle: 'none', margin: '0 0 20px 0', padding: 0 }}>
           {ranges.map(r => (
             <li key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
-              <span style={{ fontSize: '14px', color: '#333' }}>
+              <span style={{ fontSize: '14px', color: '#333', minWidth: 0, overflowWrap: 'anywhere' }}>
                 <strong style={{ color: '#083525' }}>{formatRange(r)}</strong>{r.note && <span style={{ color: '#666' }}> · {r.note}</span>}
               </span>
-              <button type="button" onClick={() => remove(r.id)} aria-label={`Remove ${formatRange(r)}`} style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '4px', fontFamily: 'inherit' }}>✕</button>
+              <button type="button" onClick={() => remove(r.id)} aria-label={`Remove ${formatRange(r)}`} style={{ flexShrink: 0, background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '4px', fontFamily: 'inherit' }}>✕</button>
             </li>
           ))}
         </ul>
       )}
 
       <form onSubmit={add}>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 140px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+          <div style={{ minWidth: 0 }}>
             <label htmlFor="awayStart" style={labelStyle}>First day away</label>
             <input id="awayStart" type="date" value={starts} min={todayIso()} onChange={(e) => { setStarts(e.target.value); if (!ends || ends < e.target.value) setEnds(e.target.value) }} style={inputStyle} />
           </div>
-          <div style={{ flex: '1 1 140px' }}>
+          <div style={{ minWidth: 0 }}>
             <label htmlFor="awayEnd" style={labelStyle}>Last day away</label>
             <input id="awayEnd" type="date" value={ends} min={starts || todayIso()} onChange={(e) => setEnds(e.target.value)} style={inputStyle} />
           </div>
