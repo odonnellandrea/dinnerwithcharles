@@ -11,6 +11,7 @@ import CustomerEditModal from './CustomerEditModal'
 import SurveyResponses from './SurveyResponses'
 import MessengerFeeEditor from './MessengerFeeEditor'
 import CustomerPricing from './CustomerPricing'
+import Customers from './Customers'
 import { priceOrder, messengerFeeFor, pricingFor } from '../lib/pricing'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
 import { orderNumber } from '../lib/orderNumber'
@@ -560,7 +561,7 @@ export default function AdminApp({ onLogout, onOrder }) {
         <nav className="admin-tabs">
           {[
             ['week', 'This Week'],
-            ['approvals', 'Approvals'],
+            ['approvals', 'Customers'],
             ['menu', 'Menu'],
             ['orders', 'Orders'],
             ['notifications', 'Notifications'],
@@ -585,158 +586,21 @@ export default function AdminApp({ onLogout, onOrder }) {
         )}
 
         {screen === 'approvals' && (
-          <div>
-            <h2 style={{ color: '#083525', marginBottom: '20px' }}>Approvals</h2>
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              <div style={{ display: 'grid', gap: '16px' }}>
-                {pendingCustomers.length === 0 ? (
-                  <p style={{ color: '#666' }}>No customers to manage</p>
-                ) : (
-                  pendingCustomers.map(customer => (
-                    <div key={customer.id} className="admin-card">
-                      <div className="admin-card-row">
-                        <div className="admin-card-text">
-                          <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: '#083525' }}>
-                            {customer.name || 'Name not provided'}
-                            <button
-                              onClick={() => setEditingCustomer(customer)}
-                              title="Edit customer details"
-                              style={{ marginLeft: '10px', padding: '2px 8px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'inherit', verticalAlign: 'middle' }}
-                            >
-                              Edit
-                            </button>
-                          </p>
-                          <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '14px' }}>{customer.email}</p>
-                          <p style={{ margin: '0', color: '#999', fontSize: '12px' }}>Status: <strong>{customer.approval_status === 'paused' ? 'on hold' : customer.approval_status === 'waitlisted' ? 'on the waitlist' : customer.approval_status}</strong>{customer.approval_status === 'approved' && customer.inactive ? <> &middot; <strong style={{ color: '#b8923f' }}>inactive</strong></> : null}{customer.delivery_option ? <> &middot; {deliveryOptionLabel(customer.delivery_option)}</> : null}</p>
-                          {awaySummary(awayByUser[customer.id]) && (
-                            <p style={{ margin: '4px 0 0 0', color: '#b8923f', fontSize: '12px', fontWeight: '600' }}>✈ {awaySummary(awayByUser[customer.id])}</p>
-                          )}
-                          {loginStats[customer.id] && (
-                            <p style={{ margin: '4px 0 0 0', color: '#999', fontSize: '12px' }}>
-                              {loginStats[customer.id].last_sign_in_at
-                                ? <>Last signed in {new Date(loginStats[customer.id].last_sign_in_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</>
-                                : 'Never signed in'}
-                              {Number(loginStats[customer.id].login_count) > 0 && <> &middot; {loginStats[customer.id].login_count} sign-in{Number(loginStats[customer.id].login_count) === 1 ? '' : 's'} since Oct 27</>}
-                            </p>
-                          )}
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0 0 0', fontSize: '12px', color: '#083525', cursor: 'pointer' }}>
-                            <input
-                              type="checkbox"
-                              checked={customer.messenger_delivery === true}
-                              onChange={async (e) => {
-                                const checked = e.target.checked
-                                // Flip it on screen right away; the refetch below settles it
-                                setPendingCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, messenger_delivery: checked } : c))
-                                const { error } = await supabase.from('users').update({ messenger_delivery: checked }).eq('id', customer.id)
-                                if (error) alert('Failed to save: ' + error.message + (/messenger_delivery/.test(error.message) ? '\n\nRun supabase/migrations/20261020_messenger_delivery.sql in the Supabase SQL editor first.' : ''))
-                                else fetchPendingCustomers()
-                              }}
-                              style={{ cursor: 'pointer' }}
-                            />
-                            Messenger delivery (outside walking range, fee passed through per order)
-                          </label>
-                          {customer.messenger_delivery === true && (
-                            <MessengerFeeEditor customer={customer} onSaved={(fee) => setPendingCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, messenger_fee: fee } : c))} />
-                          )}
-                          {customer.approval_status === 'approved' && (
-                            <CustomerPricing customer={customer} onSaved={(changes) => setPendingCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, ...changes } : c))} />
-                          )}
-                          {customer.resubmitted_at && (
-                            <p style={{ margin: '8px 0 0 0', display: 'inline-block', padding: '3px 8px', background: '#faf8f3', border: '1px solid #D4A373', color: '#083525', fontSize: '12px', fontWeight: '600' }}>
-                              Resubmitted {new Date(customer.resubmitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            </p>
-                          )}
-                        </div>
-                        <div className="admin-card-actions">
-                          <button
-                            onClick={() => setExpandedAnswers(prev => ({ ...prev, [customer.id]: !prev[customer.id] }))}
-                            aria-expanded={!!expandedAnswers[customer.id]}
-                            className="admin-button-outline"
-                          >
-                            {expandedAnswers[customer.id] ? 'Hide answers' : 'View answers'}
-                          </button>
-                          {customer.approval_status !== 'approved' && (
-                            <button 
-                              onClick={() => handleApprove(customer.id)} 
-                              style={{ background: '#083525' }}
-                            >
-                              Approve
-                            </button>
-                          )}
-                          {customer.approval_status === 'approved' && (
-                            <button
-                              onClick={() => setInactive(customer.id, !customer.inactive)}
-                              title={customer.inactive ? 'Count them as expected to order again' : "They keep their login and emails, but This Week won't count them as not yet ordered"}
-                              style={{ background: 'white', color: '#083525', border: '1px solid #e0dbd1' }}
-                            >
-                              {customer.inactive ? 'Mark active' : 'Mark inactive'}
-                            </button>
-                          )}
-                          {customer.approval_status === 'approved' && (
-                            <button
-                              onClick={() => { if (window.confirm(`Pause ${customer.name || customer.email}? They can still sign in but won't see the menu or be able to order until you resume them.`)) setApprovalStatus(customer.id, 'paused') }}
-                              style={{ background: 'white', color: '#083525', border: '1px solid #083525' }}
-                            >
-                              Pause
-                            </button>
-                          )}
-                          {(customer.approval_status === 'pending' || customer.approval_status === 'rejected') && (
-                            <button
-                              onClick={() => { if (window.confirm(`Put ${customer.name || customer.email} on the neighborhood waitlist? They'll see a note that we don't deliver to them yet, and you can approve them when you do.`)) setApprovalStatus(customer.id, 'waitlisted') }}
-                              style={{ background: 'white', color: '#083525', border: '1px solid #083525' }}
-                            >
-                              Waitlist
-                            </button>
-                          )}
-                          {customer.approval_status === 'paused' && (
-                            <button
-                              onClick={() => setApprovalStatus(customer.id, 'approved')}
-                              style={{ background: '#083525' }}
-                            >
-                              Resume
-                            </button>
-                          )}
-                          {customer.approval_status !== 'rejected' && (
-                            <button 
-                              onClick={() => handleReject(customer.id)} 
-                              style={{ background: '#D4A373' }}
-                            >
-                              Reject
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {expandedAnswers[customer.id] && (
-                        <dl className="admin-answers">
-                          {ANSWER_FIELDS.map(([label, field]) => (
-                            <div key={field}>
-                              <dt>{label}</dt>
-                              <dd>{customer[field] ? String(customer[field]) : '—'}</dd>
-                            </div>
-                          ))}
-                          <div>
-                            <dt>Email updates</dt>
-                            <dd>{optInLabel(customer, 'email_opt_in')}</dd>
-                          </div>
-                          <div>
-                            <dt>Order and menu texts</dt>
-                            <dd>{optInLabel(customer, 'sms_opt_in')}{optInLabel(customer, 'sms_opt_in') === 'Yes' && customer.phone_number ? ` · ${formatUsPhone(customer.phone_number)}` : ''}</dd>
-                          </div>
-                          <div>
-                            <dt>News and offers texts</dt>
-                            <dd>{customer.sms_marketing_opt_in === true ? 'Yes' : 'No'}</dd>
-                          </div>
-                        </dl>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
+          <Customers
+            customers={pendingCustomers}
+            loading={loading}
+            loginStats={loginStats}
+            awayByUser={awayByUser}
+            answerFields={ANSWER_FIELDS}
+            optInLabel={optInLabel}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            onSetStatus={setApprovalStatus}
+            onSetInactive={setInactive}
+            onEdit={setEditingCustomer}
+            onPatch={(id, changes) => setPendingCustomers(prev => prev.map(c => c.id === id ? { ...c, ...changes } : c))}
+            onRefresh={fetchPendingCustomers}
+          />
         )}
 
         {screen === 'menu' && (
