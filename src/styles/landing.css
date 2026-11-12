@@ -219,7 +219,7 @@
   padding-top: 0;
   padding-bottom: 14px;
 }
-.landing-footer-copy { padding-bottom: 64px; }
+.landing-footer-copy { padding-bottom: 104px; }
 /* Clear the iPhone home bar when the page is saved to the home screen */
 .landing-footer { padding-bottom: env(safe-area-inset-bottom); }
 .landing-footer img { height: 18px; width: auto; display: block; }
