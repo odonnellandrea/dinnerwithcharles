@@ -28,7 +28,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
     <div className="landing">
       <header className="landing-header">
         <div className="landing-wrap">
-          <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Beige Horizontal Logo.png" alt="Dinner with Charles" /></a>
+          <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Gold Horizontal Logo.png" alt="Dinner with Charles" /></a>
           <div className="landing-header-actions">
             <button className="landing-link" onClick={onSignIn}>Sign In</button>
             <button className="landing-btn" onClick={onJoin}>Request to Join</button>
@@ -211,7 +211,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
           <p className="landing-contact">Questions? Write to us at <a href="mailto:info@dinnerwithcharles.com">info@dinnerwithcharles.com</a>.</p>
         </div>
         <div className="landing-wrap landing-footer-bottom">
-          <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Beige Horizontal Logo.png" alt="Dinner with Charles" /></a>
+          <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Gold Horizontal Logo.png" alt="Dinner with Charles" /></a>
           <button className="landing-link" onClick={onSignIn}>Sign In</button>
         </div>
         <div className="landing-wrap landing-footer-copy">

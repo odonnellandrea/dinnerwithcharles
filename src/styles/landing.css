@@ -69,7 +69,7 @@
   background: var(--green);
 }
 .landing-header .landing-link { color: var(--cream); }
-.landing-header .landing-btn { background: #f7e5d3; border-color: #f7e5d3; color: var(--green); }
+.landing-header .landing-btn { background: var(--gold); border-color: var(--gold); color: var(--green); }
 .landing-header .landing-btn:hover { background: var(--cream); border-color: var(--cream); }
 .landing-header .landing-wrap {
   display: flex;

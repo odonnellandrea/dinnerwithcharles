@@ -539,19 +539,19 @@ export default function AdminApp({ onLogout, onOrder }) {
     <div className="admin-page">
       <div className="admin-bar">
         <div className="admin-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-          <img src="/Beige Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '180px', width: '50%', height: 'auto' }} />
+          <img src="/Gold Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '180px', width: '50%', height: 'auto' }} />
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {onOrder && (
               <button
                 onClick={onOrder}
-                style={{ padding: '9px 14px', background: 'transparent', color: '#f7e5d3', border: '1px solid #f7e5d3', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px' }}
+                style={{ padding: '9px 14px', background: 'transparent', color: '#D4A373', border: '1px solid #D4A373', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px' }}
               >
                 Order food
               </button>
             )}
             <button
               onClick={onLogout}
-              style={{ padding: '9px 14px', background: '#f7e5d3', color: '#083525', border: '1px solid #f7e5d3', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
+              style={{ padding: '9px 14px', background: '#D4A373', color: '#083525', border: '1px solid #D4A373', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
             >
               Logout
             </button>
