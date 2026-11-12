@@ -198,8 +198,14 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <p>New menus, behind-the-scenes moments and the latest from our kitchen.</p>
             <p className="landing-contact">Questions? Write to us at <a href="mailto:info@dinnerwithcharles.com">info@dinnerwithcharles.com</a>.</p>
           </div>
-          <a className="landing-btn landing-btn--ghost-light" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
-            Follow @dinnerwithcharles
+          <a className="landing-ig" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Follow @dinnerwithcharles on Instagram">
+            <span className="landing-ig-tile" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
+            </span>
+            <span>
+              <strong>@dinnerwithcharles</strong>
+              <small>Follow us on Instagram</small>
+            </span>
           </a>
         </div>
         <div className="landing-wrap landing-footer-bottom">

@@ -235,6 +235,13 @@
 .landing-follow h3 { color: var(--cream); font-size: clamp(22px, 2.6vw, 28px); line-height: 1.25; margin-bottom: 10px; }
 .landing-follow p:not(.landing-eyebrow) { color: rgba(250,248,243,0.8); font-size: 15px; line-height: 1.7; margin: 0; }
 .landing-footer small { color: rgba(250,248,243,0.6); font-size: 12px; }
+/* Instagram: an icon tile with the handle beside it */
+.landing-ig { display: inline-flex; align-items: center; gap: 14px; color: var(--cream); text-decoration: none; }
+.landing-ig-tile { width: 48px; height: 48px; flex-shrink: 0; border: 1.5px solid var(--gold); border-radius: 12px; color: var(--gold); display: flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
+.landing-ig-tile svg { width: 24px; height: 24px; }
+.landing-ig:hover .landing-ig-tile { background: var(--gold); color: var(--green); }
+.landing-ig strong { display: block; font-size: 15px; font-weight: 600; color: var(--cream); }
+.landing-ig small { display: block; font-size: 13px; color: rgba(250,248,243,0.7); }
 
 @media (max-width: 900px) {
   .landing-hero .landing-wrap,
@@ -280,7 +287,6 @@
   .landing-price-card { padding: 28px 24px; }
   .landing-join { padding: 80px 0; }
   .landing-follow { padding-top: 48px; padding-bottom: 48px; }
-  .landing-follow .landing-btn { width: 100%; text-align: center; }
 }
 
 .landing-contact { margin-top: 14px !important; }
