@@ -148,8 +148,8 @@ export default function LandingPage({ onSignIn, onJoin }) {
               scratch, nothing we wouldn’t eat ourselves. Our Weekly Kitchen brings that same food to yours.
             </p>
             <p>
-              Chef Robert cooks every dish himself. The menu follows the seasons and the places we’ve traveled, and
-              it’s always made the way he’d make it for us at home.
+              The menu follows the seasons and the places we’ve traveled, and it’s always made the way we’d make
+              it for ourselves at home.
             </p>
           </div>
         </div>

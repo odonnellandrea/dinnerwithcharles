@@ -809,7 +809,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
           <>
             <div style={{ margin: '0 0 20px 0' }}>
               <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: '#083525', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
-              <p style={{ margin: '4px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>cooked by Chef Robert, your private chef</p>
+              <p style={{ margin: '4px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>from our kitchen to your table</p>
             </div>
 
             {deliveryBanner}
