@@ -10,7 +10,8 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-.landing * { box-sizing: border-box; }
+.landing * { box-sizing: border-box; min-width: 0; }
+.landing img { max-width: 100%; }
 
 .landing-wrap {
   max-width: 1120px;
@@ -92,7 +93,7 @@
 /* Hero */
 .landing-hero .landing-wrap {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: 64px;
   align-items: center;
   padding-top: 88px;
@@ -128,7 +129,7 @@
 /* How it works */
 .landing-steps {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   border-top: 1px solid var(--border);
 }
 .landing-step { padding: 32px 28px 0 0; }
@@ -158,7 +159,7 @@
 /* Photo row */
 .landing-gallery {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 .landing-gallery img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }
@@ -169,7 +170,7 @@
 /* Plan & pricing */
 .landing-plan {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 64px;
   align-items: center;
 }
@@ -193,13 +194,13 @@
 /* About */
 .landing-about {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 72px;
   align-items: center;
 }
 .landing-about img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }
 /* Photo on the right instead of the left */
-.landing-about--flip { grid-template-columns: 1.1fr 0.9fr; }
+.landing-about--flip { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
 .landing-about--flip img { order: 2; }
 .landing-about p { font-size: 17px; line-height: 1.8; color: var(--muted); margin: 0 0 20px 0; }
 .landing-about h2 { font-size: clamp(28px, 3.5vw, 38px); line-height: 1.2; margin-bottom: 28px; }
@@ -247,18 +248,18 @@
 @media (max-width: 900px) {
   .landing-hero .landing-wrap,
   .landing-plan,
-  .landing-about { grid-template-columns: 1fr; gap: 40px; }
+  .landing-about { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .landing-hero .landing-wrap { padding-top: 48px; padding-bottom: 72px; }
-  .landing-steps { grid-template-columns: 1fr 1fr; border-top: none; }
+  .landing-steps { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-top: none; }
   .landing-step,
   .landing-step + .landing-step { padding: 28px 0; border-left: none; border-top: 1px solid var(--border); }
   .landing-step:nth-child(even) { padding-left: 24px; border-left: 1px solid var(--border); }
   .landing-section { padding: 72px 0; }
   .landing-band { min-height: 440px; }
   .landing-about img { aspect-ratio: 4 / 3; }
-  .landing-about--flip { grid-template-columns: 1fr; }
+  .landing-about--flip { grid-template-columns: minmax(0, 1fr); }
   .landing-about--flip img { order: 0; }
-  .landing-gallery { grid-template-columns: 1fr 1fr; }
+  .landing-gallery { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .landing-hero-photo { aspect-ratio: 3 / 2; }
 }
 
@@ -268,7 +269,7 @@
   .landing-header img { height: 16px; }
   .landing-header-actions { gap: 16px; }
   .landing-header .landing-btn { display: none; }
-  .landing-steps { grid-template-columns: 1fr; }
+  .landing-steps { grid-template-columns: minmax(0, 1fr); }
   .landing-step:nth-child(even) { padding-left: 0; border-left: none; }
   /* Swipeable row of photos instead of three tall ones stacked */
   .landing-gallery {
