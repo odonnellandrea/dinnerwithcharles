@@ -211,7 +211,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
           <p className="landing-contact">Questions? Write to us at <a href="mailto:info@dinnerwithcharles.com">info@dinnerwithcharles.com</a>.</p>
         </div>
         <div className="landing-wrap landing-footer-bottom">
-          <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Cream Horizontal Logo.png" alt="Dinner with Charles" /></a>
+          <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Beige Horizontal Logo.png" alt="Dinner with Charles" /></a>
           <button className="landing-link" onClick={onSignIn}>Sign In</button>
         </div>
         <div className="landing-wrap landing-footer-copy">
