@@ -196,7 +196,6 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <p className="landing-eyebrow">Follow along</p>
             <h3>See what’s cooking on Instagram.</h3>
             <p>New menus, behind-the-scenes moments and the latest from our kitchen.</p>
-            <p className="landing-contact">Questions? Write to us at <a href="mailto:info@dinnerwithcharles.com">info@dinnerwithcharles.com</a>.</p>
           </div>
           <a className="landing-ig" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Follow @dinnerwithcharles on Instagram">
             <span className="landing-ig-tile" aria-hidden="true">
@@ -207,6 +206,9 @@ export default function LandingPage({ onSignIn, onJoin }) {
               <small>Follow us on Instagram</small>
             </span>
           </a>
+        </div>
+        <div className="landing-wrap">
+          <p className="landing-contact">Questions? Write to us at <a href="mailto:info@dinnerwithcharles.com">info@dinnerwithcharles.com</a>.</p>
         </div>
         <div className="landing-wrap landing-footer-bottom">
           <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Cream Horizontal Logo.png" alt="Dinner with Charles" /></a>

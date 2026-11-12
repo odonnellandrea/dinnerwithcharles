@@ -217,7 +217,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding-top: 8px;
+  padding-top: 0;
   padding-bottom: 36px;
 }
 .landing-footer img { height: 18px; width: auto; display: block; }
@@ -289,7 +289,7 @@
   .landing-follow { padding-top: 48px; padding-bottom: 48px; }
 }
 
-.landing-contact { margin-top: 14px !important; }
+.landing-contact { margin: 0; padding: 0 0 36px; color: rgba(250,248,243,0.8); font-size: 15px; line-height: 1.7; }
 .landing-contact a { color: var(--cream); text-decoration: underline; text-underline-offset: 3px; }
 .landing-about img.landing-about-img--family { object-position: center 38%; }
 @media (max-width: 900px) {
