@@ -37,9 +37,17 @@ input[type="date"]::-webkit-date-and-time-value {
   min-height: 1.4em;
 }
 
-/* Never let the page scroll sideways on phones. Safari lets a single too-wide element shift the
-   whole page to the left, which shows up as a margin on one side only. */
+/* Never let the page grow wider than the phone. iOS Safari widens its whole layout to fit a
+   single too-wide element, which shows up as a margin on the left only, with the right edge cut.
+   Clipping on html/body alone is not enough on iOS; the app root has to be a clipped box too. */
 html, body {
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
-  overflow-x: clip;
+}
+#root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
 }
