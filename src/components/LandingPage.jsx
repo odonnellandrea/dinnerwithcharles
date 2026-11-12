@@ -212,10 +212,10 @@ export default function LandingPage({ onSignIn, onJoin }) {
         </div>
         <div className="landing-wrap landing-footer-bottom">
           <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Cream Horizontal Logo.png" alt="Dinner with Charles" /></a>
-          <div className="landing-footer-links">
-            <button className="landing-link" onClick={onSignIn}>Sign In</button>
-            <small>© {new Date().getFullYear()} Dinner with Charles</small>
-          </div>
+          <button className="landing-link" onClick={onSignIn}>Sign In</button>
+        </div>
+        <div className="landing-wrap landing-footer-copy">
+          <small>© {new Date().getFullYear()} Dinner with Charles</small>
         </div>
       </footer>
     </div>

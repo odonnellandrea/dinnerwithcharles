@@ -213,16 +213,15 @@
 .landing-footer { background: var(--green); }
 .landing-footer-bottom {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
   padding-top: 0;
-  padding-bottom: 36px;
+  padding-bottom: 14px;
 }
+.landing-footer-copy { padding-bottom: 32px; }
 .landing-footer img { height: 18px; width: auto; display: block; }
-.landing-footer-links { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
-.landing-footer-links a, .landing-footer .landing-link { color: rgba(250,248,243,0.85); font-size: 13px; text-decoration: none; letter-spacing: 0.04em; font-weight: 500; }
+.landing-footer .landing-link { color: rgba(250,248,243,0.85); font-size: 13px; text-decoration: none; letter-spacing: 0.04em; font-weight: 500; }
 .landing-follow {
   display: flex;
   flex-wrap: wrap;
