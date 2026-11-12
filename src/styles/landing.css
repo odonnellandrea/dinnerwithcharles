@@ -217,7 +217,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding-top: 36px;
+  padding-top: 8px;
   padding-bottom: 36px;
 }
 .landing-footer img { height: 18px; width: auto; display: block; }
@@ -231,7 +231,6 @@
   gap: 24px 48px;
   padding-top: 56px;
   padding-bottom: 56px;
-  border-bottom: 1px solid rgba(250,248,243,0.15);
 }
 .landing-follow h3 { color: var(--cream); font-size: clamp(22px, 2.6vw, 28px); line-height: 1.25; margin-bottom: 10px; }
 .landing-follow p:not(.landing-eyebrow) { color: rgba(250,248,243,0.8); font-size: 15px; line-height: 1.7; margin: 0; }
