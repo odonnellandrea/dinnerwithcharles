@@ -36,3 +36,10 @@ input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
   min-height: 1.4em;
 }
+
+/* Never let the page scroll sideways on phones. Safari lets a single too-wide element shift the
+   whole page to the left, which shows up as a margin on one side only. */
+html, body {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
