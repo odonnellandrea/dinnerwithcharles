@@ -539,7 +539,7 @@ export default function AdminApp({ onLogout, onOrder }) {
     <div className="admin-page">
       <div className="admin-bar">
         <div className="admin-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-          <img src="/Gold Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '180px', width: '50%', height: 'auto' }} />
+          <img src="/Beige Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '180px', width: '50%', height: 'auto' }} />
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {onOrder && (
               <button

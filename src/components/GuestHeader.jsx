@@ -34,7 +34,7 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin, max
     <div style={{ background: '#083525', padding: '14px 20px' }}>
     <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth, margin: '0 auto' }}>
       <img
-        src="/Gold Horizontal Logo.png"
+        src="/Beige Horizontal Logo.png"
         alt="Dinner with Charles"
         onClick={() => go('menu')}
         style={{ maxWidth: '180px', width: '50%', height: 'auto', cursor: 'pointer' }}
