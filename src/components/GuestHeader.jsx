@@ -43,11 +43,11 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin, max
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={menuOpen}
-        style={{ padding: '11px', background: 'transparent', border: '1px solid #D4A373', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
+        style={{ padding: '11px', background: 'transparent', border: '1px solid #f7e5d3', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
       >
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#D4A373' }} />
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#D4A373' }} />
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#D4A373' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: '#f7e5d3' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: '#f7e5d3' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: '#f7e5d3' }} />
       </button>
 
       {menuOpen && (

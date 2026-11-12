@@ -544,14 +544,14 @@ export default function AdminApp({ onLogout, onOrder }) {
             {onOrder && (
               <button
                 onClick={onOrder}
-                style={{ padding: '9px 14px', background: 'transparent', color: '#faf8f3', border: '1px solid #faf8f3', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px' }}
+                style={{ padding: '9px 14px', background: 'transparent', color: '#f7e5d3', border: '1px solid #f7e5d3', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px' }}
               >
                 Order food
               </button>
             )}
             <button
               onClick={onLogout}
-              style={{ padding: '9px 14px', background: '#D4A373', color: '#083525', border: '1px solid #D4A373', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
+              style={{ padding: '9px 14px', background: '#f7e5d3', color: '#083525', border: '1px solid #f7e5d3', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
             >
               Logout
             </button>
