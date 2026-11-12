@@ -15,7 +15,8 @@ const linkStyle = {
   fontFamily: 'inherit'
 }
 
-export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin }) {
+// The dark green bar across the top of every customer page, with the logo in gold
+export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin, maxWidth = '900px' }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const go = (target) => {
@@ -30,22 +31,23 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin }) {
   ]
 
   return (
-    <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+    <div style={{ background: '#083525', padding: '14px 20px' }}>
+    <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth, margin: '0 auto' }}>
       <img
-        src="/Green Horizontal Logo.png"
+        src="/Gold Horizontal Logo.png"
         alt="Dinner with Charles"
         onClick={() => go('menu')}
-        style={{ maxWidth: '200px', height: 'auto', cursor: 'pointer' }}
+        style={{ maxWidth: '180px', width: '50%', height: 'auto', cursor: 'pointer' }}
       />
       <button
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={menuOpen}
-        style={{ padding: '12px', background: '#083525', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
+        style={{ padding: '11px', background: 'transparent', border: '1px solid #D4A373', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
       >
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#faf8f3' }} />
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#faf8f3' }} />
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#faf8f3' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: '#D4A373' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: '#D4A373' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: '#D4A373' }} />
       </button>
 
       {menuOpen && (
@@ -78,6 +80,7 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin }) {
           </nav>
         </>
       )}
+    </div>
     </div>
   )
 }

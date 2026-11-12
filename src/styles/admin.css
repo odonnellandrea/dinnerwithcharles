@@ -5,7 +5,14 @@
   min-height: 100dvh; /* tracks iOS Safari's collapsing toolbar */
   width: 100%;
   background: #faf8f3;
-  padding: 20px;
+  padding: 0 20px 20px;
+}
+
+/* Dark green bar across the top, bleeding past the page padding, logo in gold */
+.admin-bar {
+  background: #083525;
+  margin: 0 -20px 24px;
+  padding: 14px 20px;
 }
 
 .admin-container {
@@ -194,7 +201,11 @@
 
 
   .admin-page {
-    padding: 16px;
+    padding: 0 16px 16px;
+  }
+  .admin-bar {
+    margin: 0 -16px 20px;
+    padding: 12px 16px;
   }
 
   /* Equal-width tab grid so all five fit without sideways scrolling */

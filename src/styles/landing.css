@@ -59,10 +59,13 @@
 
 .landing-logo { display: inline-block; line-height: 0; }
 
-/* Header */
+/* Header: a dark green bar with the logo in gold */
 .landing-header {
-  border-bottom: 1px solid var(--border);
+  background: var(--green);
 }
+.landing-header .landing-link { color: var(--cream); }
+.landing-header .landing-btn { background: var(--gold); border-color: var(--gold); color: var(--green); }
+.landing-header .landing-btn:hover { background: var(--cream); border-color: var(--cream); }
 .landing-header .landing-wrap {
   display: flex;
   align-items: center;

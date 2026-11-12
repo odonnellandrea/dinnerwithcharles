@@ -537,26 +537,28 @@ export default function AdminApp({ onLogout, onOrder }) {
 
   return (
     <div className="admin-page">
-      <div className="admin-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '30px' }}>
-          <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', width: '55%', height: 'auto' }} />
+      <div className="admin-bar">
+        <div className="admin-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+          <img src="/Gold Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '180px', width: '50%', height: 'auto' }} />
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {onOrder && (
               <button
                 onClick={onOrder}
-                style={{ padding: '10px 16px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ padding: '9px 14px', background: 'transparent', color: '#faf8f3', border: '1px solid #faf8f3', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px' }}
               >
                 Order food
               </button>
             )}
-            <button 
-              onClick={onLogout} 
-              style={{ padding: '10px 16px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+            <button
+              onClick={onLogout}
+              style={{ padding: '9px 14px', background: '#D4A373', color: '#083525', border: '1px solid #D4A373', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
             >
               Logout
             </button>
           </div>
         </div>
+      </div>
+      <div className="admin-container">
 
         <nav className="admin-tabs">
           {[

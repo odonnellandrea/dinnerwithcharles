@@ -572,10 +572,12 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   )
 
   const page = (children, maxWidth = '900px') => (
-    <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '20px' }}>
-      <div style={{ maxWidth, margin: '0 auto' }}>
-        <GuestHeader screen={screen} onNavigate={setScreen} onLogout={onLogout} onAdmin={onAdmin} />
-        {children}
+    <div style={{ minHeight: '100vh', background: '#faf8f3' }}>
+      <GuestHeader screen={screen} onNavigate={setScreen} onLogout={onLogout} onAdmin={onAdmin} maxWidth={maxWidth} />
+      <div style={{ padding: '24px 20px 20px' }}>
+        <div style={{ maxWidth, margin: '0 auto' }}>
+          {children}
+        </div>
       </div>
     </div>
   )
