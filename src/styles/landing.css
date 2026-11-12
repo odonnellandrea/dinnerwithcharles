@@ -78,12 +78,13 @@
   gap: 16px;
   height: 80px;
 }
-.landing-header img { height: 22px; width: auto; display: block; }
+.landing-header img { height: 19px; width: auto; display: block; }
 .landing-header-actions { display: flex; align-items: center; gap: 24px; }
 .landing-link {
   background: none;
   border: none;
   padding: 0;
+  line-height: 1; /* a tight box, so it centres against the logo */
   color: var(--green);
   font-size: 14px;
   font-weight: 600;
@@ -226,7 +227,7 @@
 .landing-footer-copy { padding-bottom: 104px; }
 /* Clear the iPhone home bar when the page is saved to the home screen */
 .landing-footer { padding-bottom: env(safe-area-inset-bottom); }
-.landing-footer img { height: 18px; width: auto; display: block; }
+.landing-footer img { height: 15px; width: auto; display: block; }
 .landing-footer .landing-link { color: rgba(250,248,243,0.85); font-size: 13px; text-decoration: none; letter-spacing: 0.04em; font-weight: 500; }
 .landing-follow {
   display: flex;
@@ -269,7 +270,7 @@
 @media (max-width: 560px) {
   .landing-wrap { padding: 0 16px; }
   .landing-header .landing-wrap { height: 68px; }
-  .landing-header img { height: 16px; }
+  .landing-header img { height: 14px; }
   .landing-header-actions { gap: 16px; }
   .landing-header .landing-btn { display: none; }
   .landing-steps { grid-template-columns: minmax(0, 1fr); }
