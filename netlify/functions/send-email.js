@@ -165,9 +165,13 @@ export default async (req) => {
   let message
   let adminNotice = null // set for a new order: the admin hears about it too
   if (type === 'order_confirmation') {
-    if (customerEmail.toLowerCase() !== user.email.toLowerCase()) return json(403, { error: 'Not your order' })
-    // Customers outside the walking range pay the messenger fee; their own row, so RLS allows it
-    const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).maybeSingle()
+    // The customer sends their own; an admin can send it for an order added by hand
+    const byAdmin = isAdminEmail(user.email) && customerEmail.toLowerCase() !== user.email.toLowerCase()
+    if (!byAdmin && customerEmail.toLowerCase() !== user.email.toLowerCase()) return json(403, { error: 'Not your order' })
+    // Customers outside the walking range pay the messenger fee; their own row (or any row, for an admin), so RLS allows it
+    const { data: profile } = byAdmin
+      ? await supabase.from('users').select('*').ilike('email', customerEmail).maybeSingle()
+      : await supabase.from('users').select('*').eq('id', user.id).maybeSingle()
     const messengerFee = messengerFeeFor(profile)
     // Referral discounts taken off this order (redeem_discounts runs just before this email is sent).
     // If the table isn't there yet, there is simply no discount to show.

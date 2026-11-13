@@ -25,7 +25,7 @@ const danger = { ...quiet, color: '#c62828' }
 export default function OrdersList({
   orders, totalCount, loading, error, dates,
   search, setSearch, dateFilter, setDateFilter, statusFilter, setStatusFilter, paymentFilter, setPaymentFilter,
-  paymentOf, orderTotal, isHousehold = () => false, setPayment, onDelivered, onUndelivered, onResend, onCancel, onRefresh,
+  paymentOf, orderTotal, isHousehold = () => false, setPayment, onDelivered, onUndelivered, onResend, onSendConfirmation, onCancel, onRefresh,
   onExport, includeCancelled, setIncludeCancelled
 }) {
   const [open, setOpen] = useState({})
@@ -110,6 +110,7 @@ export default function OrdersList({
               {pay.status === 'unpaid' && <button onClick={() => setPayment(o, 'paid')} style={primary}>Mark paid</button>}
               {o.status === 'delivered' && <button onClick={() => onUndelivered(o)} style={quiet}>Mark undelivered</button>}
               {o.status === 'delivered' && <button onClick={() => onResend(o)} style={quiet}>Resend reheat email</button>}
+              {o.status !== 'delivered' && onSendConfirmation && <button onClick={() => onSendConfirmation(o)} style={quiet}>Send confirmation email</button>}
               {pay.status !== 'unpaid' && <button onClick={() => setPayment(o, 'unpaid')} style={quiet}>Mark unpaid</button>}
               {pay.status === 'free' && <button onClick={() => setPayment(o, 'paid')} style={quiet}>Mark paid</button>}
               {pay.status !== 'free' && <button onClick={() => setPayment(o, 'free')} style={quiet}>Mark free</button>}

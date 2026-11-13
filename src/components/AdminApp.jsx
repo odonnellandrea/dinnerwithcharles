@@ -870,6 +870,19 @@ export default function AdminApp({ onLogout, onOrder }) {
               sendReheatEmail(order.order_id)
             }}
             onUndelivered={(order) => supabase.from('Orders').update({ status: 'pending' }).eq('order_id', order.order_id).then(() => fetchOrders())}
+            onSendConfirmation={async (order) => {
+              if (!window.confirm(`Email ${order.customer_name} the order confirmation for ${order.delivery_date}? Use this for orders added by hand.`)) return
+              try {
+                const { data: { session } } = await supabase.auth.getSession()
+                const res = await fetch('/.netlify/functions/send-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+                  body: JSON.stringify({ type: 'order_confirmation', order_id: order.order_id })
+                })
+                const body = await res.json().catch(() => ({}))
+                alert(res.ok ? `Confirmation sent to ${order.email}.` : 'The email failed: ' + (body.error || res.status))
+              } catch (err) { alert('The email failed: ' + err.message) }
+            }}
             onResend={(order) => {
               if (!window.confirm(`Send ${order.customer_name} the reheat guide email again?`)) return
               sendReheatEmail(order.order_id, { resend: true })
