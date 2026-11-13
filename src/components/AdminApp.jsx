@@ -12,6 +12,7 @@ import SurveyResponses from './SurveyResponses'
 import MessengerFeeEditor from './MessengerFeeEditor'
 import CustomerPricing from './CustomerPricing'
 import Customers from './Customers'
+import OrdersList from './OrdersList'
 import { priceOrder, messengerFeeFor, pricingFor } from '../lib/pricing'
 import { deliveryOptionLabel } from '../lib/deliveryOptions'
 import { orderNumber } from '../lib/orderNumber'
@@ -842,211 +843,38 @@ export default function AdminApp({ onLogout, onOrder }) {
         )}
 
         {screen === 'orders' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
-              <h2 style={{ color: '#083525' }}>Orders</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                <button 
-                  onClick={() => exportToCSV(visibleOrders.flatMap(o => o.rows))} 
-                  style={{ padding: '10px 20px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}
-                >
-                  Export to CSV
-                </button>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#666', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={includeCancelledInExport} onChange={(e) => setIncludeCancelledInExport(e.target.checked)} />
-                  Include cancelled orders in export
-                </label>
-              </div>
-            </div>
-
-            <div className="admin-filters">
-              <div className="admin-filter admin-filter-search">
-                <label htmlFor="orderSearch">Search</label>
-                <input
-                  id="orderSearch"
-                  type="search"
-                  className="admin-input"
-                  placeholder="Name, email, order ID or dish"
-                  value={orderSearch}
-                  onChange={(e) => setOrderSearch(e.target.value)}
-                />
-              </div>
-              <div className="admin-filter">
-                <label htmlFor="orderDateFilter">Delivery date</label>
-                <select id="orderDateFilter" className="admin-input" value={orderDateFilter} onChange={(e) => setOrderDateFilter(e.target.value)}>
-                  <option value="all">All dates</option>
-                  {orderDeliveryDates.map(date => (
-                    <option key={date} value={date}>{date}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="admin-filter">
-                <label htmlFor="orderStatusFilter">Status</label>
-                <select id="orderStatusFilter" className="admin-input" value={orderStatusFilter} onChange={(e) => setOrderStatusFilter(e.target.value)}>
-                  <option value="all">All</option>
-                  <option value="active">Confirmed / pending</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-              <div className="admin-filter">
-                <label htmlFor="paymentFilter">Payment</label>
-                <select id="paymentFilter" className="admin-input" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
-                  <option value="all">All</option>
-                  <option value="unpaid">Unpaid</option>
-                  <option value="paid">Paid</option>
-                  <option value="free">Free</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px', fontSize: '13px', color: '#666' }}>
-              <span>
-                Showing {visibleOrders.length} of {groupedOrders.length} orders
-                {' · '}
-                <button onClick={fetchOrders} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Refresh</button>
-                {visibleOrders.some(o => o.status === 'cancelled') && !includeCancelledInExport ? ' · cancelled orders won\'t be exported' : ''}
-              </span>
-              {filtersActive && (
-                <button
-                  onClick={() => { setOrderSearch(''); setOrderDateFilter('all'); setOrderStatusFilter('all'); setPaymentFilter('all') }}
-                  style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}
-                >
-                  Clear filters
-                </button>
-              )}
-            </div>
-
-            {loading ? (
-              <p>Loading...</p>
-            ) : ordersError ? (
-              <div style={{ color: '#c62828', background: '#ffebee', border: '1px solid #ffcdd2', padding: '20px' }}>
-                <p style={{ margin: '0 0 12px 0', fontSize: '14px' }}>Couldn't load the orders: {ordersError}</p>
-                <button onClick={fetchOrders} style={{ padding: '8px 18px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>Try again</button>
-              </div>
-            ) : visibleOrders.length === 0 ? (
-              <p style={{ color: '#666', background: 'white', border: '1px solid #e0dbd1', padding: '20px' }}>
-                {groupedOrders.length === 0 ? 'No orders yet.' : 'No orders match these filters.'}
-              </p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table className="admin-orders-table" style={{ width: '100%', borderCollapse: 'collapse', background: 'white' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #e0dbd1' }}>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Order ID</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Customer</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Items</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Status</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Payment</th>
-                      <th style={{ padding: '12px', textAlign: 'left', color: '#083525', fontWeight: '600' }}>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleOrders.map(order => (
-                        <tr key={order.order_id} style={{ borderBottom: '1px solid #e0dbd1' }}>
-                          <td data-label="Order ID" style={{ padding: '12px', fontSize: '14px' }}>
-                            <strong style={{ color: '#083525' }}>{orderNumber(order.order_id)}</strong>
-                            <div style={{ fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>{order.order_id}</div>
-                          </td>
-                          <td data-label="Customer" style={{ padding: '12px', fontSize: '14px' }}>
-                            {order.customer_name}
-                            {formatWindows(order.delivery_time_slot) && (
-                              <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>{order.delivery_date} · {formatWindows(order.delivery_time_slot)}{order.rows[0]?.delivery_notes ? <span style={{ color: '#b8923f' }}> · {order.rows[0].delivery_notes}</span> : null}</div>
-                            )}
-                          </td>
-                          <td data-label="Items" style={{ padding: '12px', fontSize: '13px', color: '#666' }}>
-                            {order.rows.map((row, i) => (
-                              <div key={i}>{row.quantity}x {row.item_name}</div>
-                            ))}
-                          </td>
-                          <td data-label="Status" style={{ padding: '12px', fontSize: '14px' }}>
-                            <span style={{ 
-                              padding: '4px 8px', 
-                              background: order.status === 'delivered' ? '#083525' : order.status === 'cancelled' ? '#ffebee' : '#D4A373',
-                              color: order.status === 'cancelled' ? '#c62828' : '#faf8f3',
-                              fontWeight: '600'
-                            }}>
-                              {order.status === 'delivered' ? '✓ Delivered' : order.status === 'cancelled' ? 'Cancelled' : order.status === 'pending' ? 'Pending' : order.status}
-                            </span>
-                          </td>
-                          <td data-label="Payment" style={{ padding: '12px', fontSize: '13px' }}>
-                            {order.status === 'cancelled' ? <span style={{ color: '#999' }}>—</span> : (() => {
-                              const pay = paymentOf(order)
-                              const total = orderTotal(order)
-                              const label = pay.status === 'paid' ? `Paid${pay.paid_at ? ' ' + new Date(pay.paid_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}` : pay.status === 'free' ? 'Free' : 'Unpaid'
-                              return (
-                                <div>
-                                  <div style={{ marginBottom: '6px' }}>
-                                    <strong style={{ color: '#083525' }}>{total.complimentary ? 'Complimentary' : `$${total.total.toFixed(2)}`}</strong>
-                                    <span style={{ marginLeft: '8px', padding: '2px 8px', fontSize: '12px', fontWeight: '600', background: pay.status === 'paid' ? '#083525' : pay.status === 'free' ? '#e0dbd1' : '#ffebee', color: pay.status === 'paid' ? '#faf8f3' : pay.status === 'free' ? '#083525' : '#c62828' }}>{label}</span>
-                                  </div>
-                                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                    {pay.status !== 'paid' && <button onClick={() => setPayment(order, 'paid')} style={{ padding: '4px 10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark paid</button>}
-                                    {pay.status !== 'unpaid' && <button onClick={() => setPayment(order, 'unpaid')} style={{ padding: '4px 10px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark unpaid</button>}
-                                    {pay.status !== 'free' && <button onClick={() => setPayment(order, 'free')} style={{ padding: '4px 10px', background: 'white', color: '#666', border: '1px solid #e0dbd1', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Mark free</button>}
-                                  </div>
-                                </div>
-                              )
-                            })()}
-                          </td>
-                          <td className="admin-order-actions" style={{ padding: '12px', display: 'flex', gap: '8px' }}>
-                            {order.status === 'cancelled' ? (
-                              <span style={{ fontSize: '12px', color: '#999' }}>Customer can reorder</span>
-                            ) : order.status !== 'delivered' ? (
-                              <button
-                                onClick={async () => {
-                                  await supabase.from('Orders').update({ status: 'delivered' }).eq('order_id', order.order_id)
-                                  fetchOrders()
-                                  sendReheatEmail(order.order_id)
-                                }}
-                                style={{ padding: '6px 12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
-                              >
-                                Mark Delivered
-                              </button>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => {
-                                    supabase.from('Orders').update({ status: 'pending' }).eq('order_id', order.order_id).then(() => {
-                                      fetchOrders()
-                                    })
-                                  }}
-                                  style={{ padding: '6px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
-                                >
-                                  Mark as Undelivered
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    if (!window.confirm(`Send ${order.customer_name} the reheat guide email again?`)) return
-                                    sendReheatEmail(order.order_id, { resend: true })
-                                  }}
-                                  style={{ padding: '6px 12px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px' }}
-                                >
-                                  Resend Reheat Email
-                                </button>
-                              </>
-                            )}
-                            {(order.status === 'pending' || order.status === 'confirmed') && (
-                              <button
-                                onClick={() => {
-                                  if (!window.confirm(`Cancel ${order.customer_name}'s order? They'll be able to place a new one for this delivery date.`)) return
-                                  supabase.from('Orders').update({ status: 'cancelled' }).eq('order_id', order.order_id).then(() => {
-                                    fetchOrders()
-                                  })
-                                }}
-                                style={{ padding: '6px 12px', background: 'white', color: '#c62828', border: '1px solid #c62828', cursor: 'pointer', fontSize: '12px' }}
-                              >
-                                Cancel Order
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          <OrdersList
+            orders={visibleOrders}
+            totalCount={groupedOrders.length}
+            loading={loading}
+            error={ordersError}
+            dates={orderDeliveryDates}
+            search={orderSearch} setSearch={setOrderSearch}
+            dateFilter={orderDateFilter} setDateFilter={setOrderDateFilter}
+            statusFilter={orderStatusFilter} setStatusFilter={setOrderStatusFilter}
+            paymentFilter={paymentFilter} setPaymentFilter={setPaymentFilter}
+            paymentOf={paymentOf}
+            orderTotal={orderTotal}
+            setPayment={setPayment}
+            onDelivered={async (order) => {
+              await supabase.from('Orders').update({ status: 'delivered' }).eq('order_id', order.order_id)
+              fetchOrders()
+              sendReheatEmail(order.order_id)
+            }}
+            onUndelivered={(order) => supabase.from('Orders').update({ status: 'pending' }).eq('order_id', order.order_id).then(() => fetchOrders())}
+            onResend={(order) => {
+              if (!window.confirm(`Send ${order.customer_name} the reheat guide email again?`)) return
+              sendReheatEmail(order.order_id, { resend: true })
+            }}
+            onCancel={(order) => {
+              if (!window.confirm(`Cancel ${order.customer_name}'s order? They'll be able to place a new one for this delivery date.`)) return
+              supabase.from('Orders').update({ status: 'cancelled' }).eq('order_id', order.order_id).then(() => fetchOrders())
+            }}
+            onRefresh={fetchOrders}
+            onExport={() => exportToCSV(visibleOrders.flatMap(o => o.rows))}
+            includeCancelled={includeCancelledInExport}
+            setIncludeCancelled={setIncludeCancelledInExport}
+          />
         )}
 
         {screen === 'notifications' && (
