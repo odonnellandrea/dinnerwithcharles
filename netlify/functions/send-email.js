@@ -54,8 +54,21 @@ export default async (req) => {
     }
     return result
   }
-  const deliver = async (to, message) => {
+  // One line per email in email_log, so the admin can see who got what. Best effort: a logging
+  // problem never stops or fails the email itself.
+  const logEmail = async ({ kind, to, subject, id, error, orderId: oid, deliveryDate: date }) => {
+    try {
+      const { error: logError } = await supabase.rpc('log_email', {
+        p_kind: kind, p_email: to, p_subject: subject || '', p_status: error ? 'failed' : 'sent',
+        p_resend_id: id || null, p_error: error ? (error.message || String(error.name || error)) : null,
+        p_order_id: oid || null, p_delivery_date: date || null
+      })
+      if (logError) console.error('email_log:', logError.message)
+    } catch (err) { console.error('email_log:', err) }
+  }
+  const deliver = async (to, message, log = {}) => {
     const { data, error } = await sendWithRetry({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to, subject: message.subject, html: message.html })
+    if (log.kind) await logEmail({ ...log, to, subject: message.subject, id: data?.id, error })
     return { id: data?.id, error }
   }
 
@@ -66,7 +79,7 @@ export default async (req) => {
     const { data: profile, error: profileError } = await supabase.from('users').select('*').eq('id', userId).single()
     if (profileError || !profile) return json(404, { error: 'Customer not found' })
     if (profile.approval_status !== 'approved') return json(409, { error: 'Customer is not approved' })
-    const { id, error } = await deliver(profile.email, approvedEmail({ profile, siteUrl }))
+    const { id, error } = await deliver(profile.email, approvedEmail({ profile, siteUrl }), { kind: 'approved' })
     if (error) return json(502, { error: error.message })
     return json(200, { id })
   }
@@ -107,11 +120,16 @@ export default async (req) => {
     const failed = []
     for (let i = 0; i < recipients.length; i += 100) {
       const chunk = recipients.filter(r => r.email).slice(i, i + 100)
-      const { error } = await resend.batch.send(chunk.map(profile => {
+      const messages = chunk.map(profile => {
         const message = menuLiveEmail({ profile, settings, siteUrl })
         return { from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: profile.email, subject: message.subject, html: message.html }
-      }))
+      })
+      const { data: batch, error } = await resend.batch.send(messages)
       if (error) failed.push(...chunk.map(r => r.email))
+      const ids = batch?.data || []
+      for (let n = 0; n < messages.length; n++) {
+        await logEmail({ kind: 'menu_live', to: messages[n].to, subject: messages[n].subject, id: ids[n]?.id, error, deliveryDate })
+      }
     }
     if (failed.length === recipients.length) { await undoClaim(); return json(502, { error: 'Resend rejected the emails' }) }
     return json(200, { sent: recipients.length - failed.length, failed })
@@ -180,7 +198,7 @@ export default async (req) => {
     return json(400, { error: `Unknown email type: ${type}` })
   }
 
-  const { id, error } = await deliver(customerEmail, message)
+  const { id, error } = await deliver(customerEmail, message, { kind: type, orderId, deliveryDate: rows[0]?.delivery_date })
 
   // Tell the admin about a new order. Best effort: it never changes what the customer gets,
   // and it goes out even if the customer's own email failed, since the order is real.
@@ -191,7 +209,8 @@ export default async (req) => {
       console.log('claim_order_notice:', claimError ? `error: ${claimError.message}` : firstTime)
       if (claimError || firstTime === true) {
         const notice = orderNoticeEmail({ ...adminNotice, siteUrl })
-        const { error: noticeError } = await sendWithRetry({ from: EMAIL_FROM, replyTo: customerEmail, to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, html: notice.html })
+        const { data: noticeSent, error: noticeError } = await sendWithRetry({ from: EMAIL_FROM, replyTo: customerEmail, to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, html: notice.html })
+        await logEmail({ kind: 'order_notice', to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, id: noticeSent?.id, error: noticeError, orderId, deliveryDate: rows[0]?.delivery_date })
         if (noticeError) console.error('Admin order notice failed:', noticeError)
         else console.log('Admin order notice sent to', ADMIN_NOTIFY_EMAIL)
       }

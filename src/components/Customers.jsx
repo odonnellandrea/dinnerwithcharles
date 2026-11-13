@@ -54,18 +54,23 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
   const [open, setOpen] = useState({})
   const [showAnswers, setShowAnswers] = useState({})
   const [orderStats, setOrderStats] = useState({}) // email -> { count, last, unpaid, thisWeek }
+  const [emailsByAddress, setEmailsByAddress] = useState({}) // email -> recent email_log rows
   const [weekDate, setWeekDate] = useState(nextMonday())
 
   // Order history per person, plus which delivery date counts as "this week"
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      const [settings, orders, payments] = await Promise.all([
+      const [settings, orders, payments, emails] = await Promise.all([
         supabase.from('delivery_settings').select('delivery_date, is_live').eq('is_live', true).order('delivery_date', { ascending: false }).limit(1),
         supabase.from('Orders').select('order_id, email, delivery_date, status'),
-        supabase.from('order_payments').select('order_id, status')
+        supabase.from('order_payments').select('order_id, status'),
+        supabase.from('email_log').select('email, kind, subject, status, delivery_date, created_at').order('created_at', { ascending: false }).limit(3000)
       ])
       if (cancelled) return
+      const byAddress = {}
+      for (const row of emails.data || []) (byAddress[String(row.email).toLowerCase()] ||= []).push(row)
+      setEmailsByAddress(byAddress)
       const week = settings.data?.[0]?.delivery_date || nextMonday()
       const fourWeeksAgo = (() => { const d = new Date(); d.setDate(d.getDate() - 28); return d.toISOString().slice(0, 10) })()
       setWeekDate(week)
@@ -197,6 +202,12 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
         {line([kv('Referral code', c.referral_code), kv('Heard about us', [c.heard_about, c.heard_about_detail].filter(Boolean).join(': ') || null), kv('Joined', shortDate(c.created_at))])}
         {line([kv('Away', awaySummary(awayByUser[c.id])), login ? kv('Sign-ins', login.last_sign_in_at ? `last ${shortDate(login.last_sign_in_at)}${Number(login.login_count) > 0 ? `, ${login.login_count} since Oct 27` : ''}` : 'never') : null])}
         {line([kv('Email updates', optInLabel(c, 'email_opt_in')), kv('Order texts', optInLabel(c, 'sms_opt_in')), kv('Offers texts', c.sms_marketing_opt_in === true ? 'Yes' : 'No')])}
+        {(() => {
+          const sent = (emailsByAddress[String(c.email).toLowerCase()] || []).slice(0, 4)
+          if (!sent.length) return <p style={{ margin: 0, color: '#999' }}>No emails on record yet (logging started Nov 13).</p>
+          const label = (e) => ({ menu_live: `Menu${e.delivery_date ? ' for ' + shortDate(e.delivery_date) : ''}`, approved: 'Welcome', order_confirmation: 'Order confirmation', reheat_link: 'Reheat guide', order_notice: 'Order notice' }[e.kind] || e.kind)
+          return <p style={{ margin: 0 }}><strong style={{ color: '#083525', fontWeight: '600' }}>Emails</strong> {sent.map((e, i) => <span key={i}>{i > 0 && ' · '}{label(e)} {shortDate(e.created_at)}{e.status === 'failed' ? <span style={{ color: '#c62828' }}> failed</span> : ''}</span>)}</p>
+        })()}
         {c.resubmitted_at && <p style={{ margin: '4px 0 0 0', color: '#083525', fontWeight: '600' }}>Resubmitted {shortDate(c.resubmitted_at)}</p>}
 
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '10px 0 0 0', color: '#083525', cursor: 'pointer' }}>
