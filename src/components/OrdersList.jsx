@@ -25,7 +25,7 @@ const danger = { ...quiet, color: '#c62828' }
 export default function OrdersList({
   orders, totalCount, loading, error, dates,
   search, setSearch, dateFilter, setDateFilter, statusFilter, setStatusFilter, paymentFilter, setPaymentFilter,
-  paymentOf, orderTotal, setPayment, onDelivered, onUndelivered, onResend, onCancel, onRefresh,
+  paymentOf, orderTotal, isHousehold = () => false, setPayment, onDelivered, onUndelivered, onResend, onCancel, onRefresh,
   onExport, includeCancelled, setIncludeCancelled
 }) {
   const [open, setOpen] = useState({})
@@ -48,6 +48,7 @@ export default function OrdersList({
       const pay = paymentOf(o).status
       out.push(pay === 'paid' ? ['Paid', 'good'] : pay === 'free' ? ['Free', 'muted'] : ['Unpaid', 'bad'])
     }
+    if (isHousehold(o)) out.push(['Household', 'muted'])
     if (o.rows.some(r => (r.special_notes || '').trim())) out.push(['Kitchen note', 'muted'])
     return out
   }
@@ -60,7 +61,8 @@ export default function OrdersList({
     else groups.push({ date: o.delivery_date, orders: [o] })
   }
   const groupLine = (g) => {
-    const live = g.orders.filter(o => o.status !== 'cancelled')
+    // Customers only: household orders (Mom, parents) are listed but not counted
+    const live = g.orders.filter(o => o.status !== 'cancelled' && !isHousehold(o))
     const expected = live.reduce((n, o) => { const t = orderTotal(o); return n + (t.complimentary ? 0 : t.total) }, 0)
     const unpaid = live.filter(o => paymentOf(o).status === 'unpaid').length
     return [plural(live.length, 'order'), money(expected), unpaid ? `${unpaid} unpaid` : 'all settled'].join(' · ')

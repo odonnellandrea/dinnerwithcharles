@@ -67,12 +67,13 @@ export default function ThisWeek({ onOpenOrders }) {
       const { basePrice, complimentary } = pricingFor(profile)
       const price = priceOrder({ entreeCount: count('entree'), saladCount: count('salad'), addOnsCost, messengerFee: messengerFeeFor(profile), discount: discounts[o.order_id] || 0, basePrice, complimentary })
       const pay = complimentary ? 'free' : 'unpaid' // default; the saved row wins at render time
-      return { ...o, name: profile ? displayName(profile) : (o.name && !o.name.includes('@') ? o.name : o.email), entrees: count('entree'), sides: count('salad'), addons: count('addon'), total: price.total, food: price.complimentary ? 0 : price.total - price.messengerFee, complimentary, pay,
+      return { ...o, name: profile ? displayName(profile) : (o.name && !o.name.includes('@') ? o.name : o.email), entrees: count('entree'), sides: count('salad'), addons: count('addon'), total: price.total, food: price.complimentary ? 0 : price.total - price.messengerFee, complimentary, pay, household: profile?.household === true,
         allergies: (profile?.allergies || '').trim(), health: (profile?.health_restrictions || '').trim(), preferences: (profile?.preference_restrictions || '').trim() }
     }).sort((a, b) => a.name.localeCompare(b.name))
 
     const orderedEmails = new Set(orders.map(o => o.email))
-    const everyoneNotOrdered = people.filter(p => !orderedEmails.has(String(p.email).toLowerCase()))
+    // Household (Mom, parents) are never "expected" to order, so they don't count as waiting either
+    const everyoneNotOrdered = people.filter(p => !orderedEmails.has(String(p.email).toLowerCase()) && p.household !== true)
     // Inactive customers (set on the Approvals tab) aren't expected to order, so they don't count as waiting
     const inactivePeople = everyoneNotOrdered.filter(p => p.inactive === true)
     const notOrdered = everyoneNotOrdered.filter(p => p.inactive !== true)
@@ -131,9 +132,11 @@ export default function ThisWeek({ onOpenOrders }) {
       alert('Marked delivered, but the reheat email failed: ' + err.message)
     }
   }
-  const unpaid = ordered.filter(o => payOf(o) === 'unpaid').length
+  // Customers only: household orders (Mom, parents) are listed below but not counted
+  const customerOrders = ordered.filter(o => !o.household)
+  const unpaid = customerOrders.filter(o => payOf(o) === 'unpaid').length
   // Food only: the courier fee is passed through at cost, so it isn't income
-  const expected = ordered.reduce((n, o) => n + o.food, 0)
+  const expected = customerOrders.reduce((n, o) => n + o.food, 0)
   const maxCount = Math.max(1, ...Object.values(dishes).flat().map(d => d.count))
 
   // One thin bar per dish, all on the same scale, the count at the end, names on hover
@@ -172,7 +175,7 @@ export default function ThisWeek({ onOpenOrders }) {
       {loading ? <p>Loading...</p> : (
         <>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '20px' }}>
-            {chip('Ordered', ordered.length, true)}
+            {chip('Ordered', customerOrders.length, true)}
             {chip('Not yet', waiting.length)}
             {chip('Away', away.length)}
             {chip('Unpaid', unpaid)}
@@ -243,7 +246,7 @@ export default function ThisWeek({ onOpenOrders }) {
           </div>
 
           <div style={card}>
-            <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Ordered ({ordered.length})</h3>
+            <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Ordered ({customerOrders.length}{ordered.length > customerOrders.length ? ` + ${ordered.length - customerOrders.length} household` : ''})</h3>
             {ordered.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>No orders yet for this date.</p>}
             {ordered.map(o => {
               const pay = payOf(o)
@@ -259,7 +262,7 @@ export default function ThisWeek({ onOpenOrders }) {
               return (
                 <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3', opacity: done ? 0.62 : 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: '14px', color: '#333', fontWeight: '600' }}>{done ? '✓ ' : ''}{o.name}</span>
+                    <span style={{ fontSize: '14px', color: '#333', fontWeight: '600' }}>{done ? '✓ ' : ''}{o.name}{o.household && <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '10px', fontWeight: '600', background: '#f0ece3', color: '#666', verticalAlign: 'middle' }}>Household</span>}</span>
                     <span style={{ fontSize: '13px', color: '#083525', fontWeight: '600' }}>{o.complimentary ? 'Complimentary' : `$${o.total.toFixed(2)}`}</span>
                   </div>
                   <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#666' }}>

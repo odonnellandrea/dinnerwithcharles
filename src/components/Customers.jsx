@@ -46,7 +46,7 @@ const chipStyle = (on, small) => ({
   fontSize: small ? '11px' : '12px', fontWeight: '600', whiteSpace: 'nowrap', cursor: 'pointer', fontFamily: 'inherit'
 })
 
-export default function Customers({ customers, loading, loginStats, awayByUser, answerFields, optInLabel, onApprove, onReject, onSetStatus, onSetInactive, onEdit, onPatch, onRefresh }) {
+export default function Customers({ customers, loading, loginStats, awayByUser, answerFields, optInLabel, onApprove, onReject, onSetStatus, onSetInactive, onSetHousehold, onEdit, onPatch, onRefresh }) {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [extras, setExtras] = useState({})
@@ -111,7 +111,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
     const s = statOf(c)
     if (extras.away && !isAwayOn(awayByUser[c.id], weekDate)) return false
     if (extras.orderedThisWeek && !s.thisWeek) return false
-    if (extras.quiet && !(s.count === 0 || s.last < threeWeeksAgo)) return false
+    if (extras.quiet && (c.household === true || !(s.count === 0 || s.last < threeWeeksAgo))) return false
     if (extras.texts && c.sms_opt_in !== true) return false
     if (extras.messenger && c.messenger_delivery !== true) return false
     if (extras.ff && !isFF(c)) return false
@@ -146,6 +146,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
     const s = statOf(c); const b = bucket(c); const out = []
     out.push(b === 'active' ? ['Active', 'good'] : b === 'inactive' ? ['Inactive', 'muted'] : b === 'paused' ? ['On hold', 'warn'] : b === 'waitlisted' ? ['Waitlist', 'warn'] : b === 'rejected' ? ['Rejected', 'bad'] : ['Pending', 'warn'])
     if (isAwayOn(awayByUser[c.id], weekDate)) out.push(['Away', 'warn'])
+    if (c.household === true) out.push(['Household', 'muted'])
     if (c.complimentary === true) out.push(['Free', 'muted'])
     else if (s.unpaid) out.push(['Unpaid', 'bad'])
     if (c.sms_opt_in === true) out.push(['Texts', 'good'])
@@ -164,6 +165,11 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
         {c.approval_status === 'approved' && (
           <button onClick={() => onSetInactive(c.id, !c.inactive)} title={c.inactive ? 'Count them as expected to order again' : "They keep their login and emails, but This Week won't count them as not yet ordered"} style={btn('quiet')}>
             {c.inactive ? 'Mark active' : 'Mark inactive'}
+          </button>
+        )}
+        {c.approval_status === 'approved' && (
+          <button onClick={() => onSetHousehold(c.id, !c.household)} title={c.household ? 'Count them as a customer again' : 'Family: cooked and packed as usual, but not counted on This Week or in the Orders totals'} style={btn('quiet')}>
+            {c.household ? 'Not household' : 'Mark household'}
           </button>
         )}
         {c.approval_status === 'approved' && (

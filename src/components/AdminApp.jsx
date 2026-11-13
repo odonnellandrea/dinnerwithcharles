@@ -391,6 +391,12 @@ export default function AdminApp({ onLogout, onOrder }) {
 
   // Inactive: still approved, still gets the standard emails and can order any time, but
   // This Week stops counting them as "not yet ordered"
+  const setHousehold = async (userId, household) => {
+    const { error } = await supabase.from('users').update({ household }).eq('id', userId)
+    if (error) alert('Failed to save: ' + error.message)
+    fetchPendingCustomers()
+  }
+
   const setInactive = async (userId, inactive) => {
     const { error } = await supabase.from('users').update({ inactive }).eq('id', userId)
     if (error) alert('Failed to save: ' + error.message)
@@ -600,6 +606,7 @@ export default function AdminApp({ onLogout, onOrder }) {
             onReject={handleReject}
             onSetStatus={setApprovalStatus}
             onSetInactive={setInactive}
+            onSetHousehold={setHousehold}
             onEdit={setEditingCustomer}
             onPatch={(id, changes) => setPendingCustomers(prev => prev.map(c => c.id === id ? { ...c, ...changes } : c))}
             onRefresh={fetchPendingCustomers}
@@ -855,6 +862,7 @@ export default function AdminApp({ onLogout, onOrder }) {
             paymentFilter={paymentFilter} setPaymentFilter={setPaymentFilter}
             paymentOf={paymentOf}
             orderTotal={orderTotal}
+            isHousehold={(order) => profilesByEmail[String(order.email).toLowerCase()]?.household === true}
             setPayment={setPayment}
             onDelivered={async (order) => {
               await supabase.from('Orders').update({ status: 'delivered' }).eq('order_id', order.order_id)
