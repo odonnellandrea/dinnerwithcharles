@@ -141,10 +141,10 @@ export default function PublicMenu() {
             <img src="/Round Badge.png" alt="" style={{ width: '64px', height: '64px', display: 'block', margin: '0 auto 16px' }} />
             <p style={{ margin: 0, fontFamily: serif, fontWeight: '700', fontStyle: 'italic', fontSize: '17px', color: GREEN }}>Pull up a chair.</p>
             <p style={{ margin: '6px 0 18px', fontFamily: serif, fontStyle: 'italic', fontSize: '12.5px', color: MUTED, lineHeight: 1.5 }}>
-              $160 for 3 entrées and 2 sides, delivered Monday. Each dish feeds 2–3 people.
+              $160 for 3 entrées and 2 sides, delivered Monday. Each dish feeds 2–3 people. Our kitchen is at capacity just now; join the waitlist and we’ll be in touch as a spot opens.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px', maxWidth: '340px', margin: '0 auto' }}>
-              <a href="/?join=1" style={{ display: 'block', background: GREEN, border: `1px solid ${GREEN}`, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Request to join</a>
+              <a href="/?join=1" style={{ display: 'block', background: GREEN, border: `1px solid ${GREEN}`, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Join the waitlist</a>
               <a href="/" style={{ display: 'block', border: `1px solid ${GREEN}`, color: GREEN, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Sign in to order</a>
             </div>
           </div>

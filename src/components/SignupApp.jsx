@@ -349,10 +349,10 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         <div style={{ maxWidth: '600px', textAlign: 'center', background: 'white', padding: '40px', borderRadius: '12px', border: '1px solid #e0dbd1' }}>
           <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px' }} />
           
-          <h1 style={{ color: '#083525', marginBottom: '16px' }}>Request Received</h1>
+          <h1 style={{ color: '#083525', marginBottom: '16px' }}>You're on the waitlist</h1>
           
           <p style={{ fontSize: '16px', color: '#666', marginBottom: '12px', lineHeight: '1.6' }}>
-            Thank you for your request to join Dinner with Charles. We'll review it and be in touch once you're approved.
+            Thank you for joining the Dinner with Charles waitlist. Our kitchen is at capacity just now, and we'll be in touch as soon as a spot opens for your household.
           </p>
           
           <p style={{ fontSize: '16px', color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
@@ -379,7 +379,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           {step === 1 && (
             <div style={{ marginBottom: '24px', padding: '16px', background: '#faf8f3', borderRadius: '8px', border: '1px solid #e0dbd1' }}>
               <p style={{ margin: '0', color: '#666', fontSize: '14px', lineHeight: '1.6' }}>
-                We'd love to have you join our community! After you submit your information, we'll review your request to ensure we're the right fit for your family's needs. You'll hear from us within a few days.
+                Our kitchen is at capacity right now, so we're not taking new subscribers at the moment. Tell us a little about your household to join the waitlist, and we'll be in touch as soon as a spot opens.
               </p>
             </div>
           )}
@@ -534,7 +534,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
               </button>
             ) : (
               <button onClick={handleSubmit} disabled={loading || loadingProfile} style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
-                {loading ? 'Submitting...' : isResubmit ? 'Resubmit Request' : 'Request to Join'}
+                {loading ? 'Submitting...' : isResubmit ? 'Resubmit Request' : 'Join the Waitlist'}
               </button>
             )}
           </div>

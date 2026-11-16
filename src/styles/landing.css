@@ -116,6 +116,7 @@
   max-width: 520px;
 }
 .landing-hero-actions { display: flex; flex-wrap: wrap; gap: 16px; }
+.landing-capacity { margin: 18px 0 0 !important; font-size: 14px !important; line-height: 1.6 !important; color: var(--muted) !important; max-width: 480px; }
 .landing-hero-photo {
   width: 100%;
   aspect-ratio: 4 / 5;

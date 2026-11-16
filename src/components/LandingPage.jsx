@@ -31,7 +31,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
           <a href="/" className="landing-logo" aria-label="Dinner with Charles home"><img src="/Gold Horizontal Logo.png" alt="Dinner with Charles" /></a>
           <div className="landing-header-actions">
             <button className="landing-link" onClick={onSignIn}>Sign In</button>
-            <button className="landing-btn" onClick={onJoin}>Request to Join</button>
+            <button className="landing-btn" onClick={onJoin}>Join the Waitlist</button>
           </div>
         </div>
       </header>
@@ -46,9 +46,10 @@ export default function LandingPage({ onSignIn, onJoin }) {
               ready to reheat and enjoy. Weeknight dinners, taken care of.
             </p>
             <div className="landing-hero-actions">
-              <button className="landing-btn" onClick={onJoin}>Request to Join</button>
+              <button className="landing-btn" onClick={onJoin}>Join the Waitlist</button>
               <button className="landing-btn landing-btn--outline" onClick={onSignIn}>Sign In</button>
             </div>
+            <p className="landing-capacity">Our kitchen is at capacity, so we’re not taking new subscribers just now. Join the waitlist and we’ll be in touch as a spot opens.</p>
           </div>
           <img className="landing-hero-photo" src="/images/roast-chicken-wide.jpg" alt="Sliced roast chicken with mustard sauce, baby potatoes and carrots on a burgundy plate" />
         </div>
@@ -180,13 +181,14 @@ export default function LandingPage({ onSignIn, onJoin }) {
 
       <section className="landing-join">
         <div className="landing-wrap">
-          <p className="landing-eyebrow">Join us</p>
+          <p className="landing-eyebrow">Waitlist</p>
           <h2>Pull up a chair.</h2>
           <p>
-            Tell us a little about your household and we’ll be in touch to get your first week of dinners
-            on the table.
+            We’re cooking for as many families as our kitchen can hold right now, so we’re not taking new
+            subscribers at the moment. Tell us a little about your household and we’ll be in touch as soon
+            as a spot opens.
           </p>
-          <button className="landing-btn landing-btn--light" onClick={onJoin}>Request to Join</button>
+          <button className="landing-btn landing-btn--light" onClick={onJoin}>Join the Waitlist</button>
         </div>
       </section>
 
