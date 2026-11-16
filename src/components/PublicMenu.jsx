@@ -13,6 +13,23 @@ const sans = "Helvetica, Arial, sans-serif"
 const money = (cents) => `$${(cents / 100).toFixed(2).replace(/\.00$/, '')}`
 const shortDate = (iso) => iso ? new Date(`${String(iso).slice(0, 10)}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase() : ''
 
+// Phones: one column, like the PDF. Wide screens: a two-column spread like an opened printed menu.
+const WIDE_CSS = `
+  .pm-card { max-width: 440px; padding: 26px 26px 30px; }
+  .pm-body { display: block; }
+  .pm-col + .pm-col { margin-top: 0; }
+  .pm-rule-between { display: block; }
+  @media (min-width: 900px) {
+    .pm-card { max-width: 980px; padding: 44px 56px 48px; }
+    .pm-header h1 { font-size: 44px !important; }
+    .pm-body { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); column-gap: 0; }
+    .pm-col { min-width: 0; }
+    .pm-col--left { padding-right: 44px; border-right: 1px solid ${RULE}; }
+    .pm-col--right { padding-left: 44px; }
+    .pm-rule-between { display: none; }
+  }
+`
+
 const Rule = () => <div style={{ borderTop: `1px solid ${RULE}`, margin: '22px 0' }} />
 const Dashed = () => <div style={{ borderTop: `1px dashed ${DASH}`, margin: '14px 0' }} />
 const Caps = ({ children, color = SOFT, size = 11, style }) => <p style={{ margin: 0, fontFamily: mono, fontSize: size, letterSpacing: '0.08em', color, textTransform: 'uppercase', ...style }}>{children}</p>
@@ -33,28 +50,10 @@ export default function PublicMenu() {
 
   const sections = (menu?.sections || []).filter(sec => sec.items.length)
   const intro = (menu?.intro || []).join('\n\n')
+  const leftSections = sections.filter(sec => sec.type === 'entree')
+  const rightSections = sections.filter(sec => sec.type !== 'entree')
 
-  return (
-    <div style={{ minHeight: '100vh', background: EDGE, padding: '28px 12px 40px', fontFamily: sans, color: INK }}>
-      <article style={{ maxWidth: '440px', margin: '0 auto', background: PAGE, borderTop: `2px solid ${DARK}`, borderBottom: `2px solid ${DARK}`, padding: '26px 26px 30px' }}>
-        {/* Header, as on the printed menu */}
-        <Caps style={{ textAlign: 'center' }}>Dinner with Charles</Caps>
-        <h1 style={{ margin: '8px 0 6px', fontFamily: serif, fontWeight: '700', fontSize: '34px', lineHeight: 1.1, color: GREEN, textAlign: 'center' }}>Weekly Kitchen</h1>
-        <p style={{ margin: 0, fontFamily: serif, fontStyle: 'italic', fontSize: '14px', color: SOFT, textAlign: 'center' }}>from our kitchen to your table</p>
-        <div style={{ textAlign: 'center', margin: '18px 0 0' }}>
-          <span style={{ display: 'inline-block', background: GREEN, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '7px 14px' }}>
-            {menu?.weekOf ? `WEEK OF ${shortDate(menu.weekOf)}` : 'THIS WEEK'}
-          </span>
-        </div>
-
-        {error && <p style={{ textAlign: 'center', color: '#8a2d2d', marginTop: '28px', fontSize: '14px' }}>Sorry, the menu didn’t load. Please try again in a moment.</p>}
-        {!error && !menu && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Setting the table…</p>}
-        {menu && sections.length === 0 && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Next week’s menu is on its way.</p>}
-
-        {intro && <p style={{ margin: '24px 0 0', fontSize: '13.5px', lineHeight: 1.65, color: SOFT, textAlign: 'center', whiteSpace: 'pre-line' }}>{intro}</p>}
-        {sections.length > 0 && <Rule />}
-
-        {sections.map((section, sIdx) => (
+  const renderSection = (section, isLast) => (
           <section key={section.title}>
             {section.type === 'addon' ? (
               <>
@@ -97,9 +96,43 @@ export default function PublicMenu() {
                 </div>
               </>
             )}
-            {sIdx < sections.length - 1 && <Rule />}
+            {!isLast && <Rule />}
           </section>
-        ))}
+  )
+
+
+  return (
+    <div style={{ minHeight: '100vh', background: EDGE, padding: '28px 12px 40px', fontFamily: sans, color: INK }}>
+      <style>{WIDE_CSS}</style>
+      <article className="pm-card" style={{ margin: '0 auto', background: PAGE, borderTop: `2px solid ${DARK}`, borderBottom: `2px solid ${DARK}` }}>
+        {/* Header, as on the printed menu */}
+        <div className="pm-header">
+        <Caps style={{ textAlign: 'center' }}>Dinner with Charles</Caps>
+        <h1 style={{ margin: '8px 0 6px', fontFamily: serif, fontWeight: '700', fontSize: '34px', lineHeight: 1.1, color: GREEN, textAlign: 'center' }}>Weekly Kitchen</h1>
+        <p style={{ margin: 0, fontFamily: serif, fontStyle: 'italic', fontSize: '14px', color: SOFT, textAlign: 'center' }}>from our kitchen to your table</p>
+        <div style={{ textAlign: 'center', margin: '18px 0 0' }}>
+          <span style={{ display: 'inline-block', background: GREEN, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '7px 14px' }}>
+            {menu?.weekOf ? `WEEK OF ${shortDate(menu.weekOf)}` : 'THIS WEEK'}
+          </span>
+        </div>
+
+        {error && <p style={{ textAlign: 'center', color: '#8a2d2d', marginTop: '28px', fontSize: '14px' }}>Sorry, the menu didn’t load. Please try again in a moment.</p>}
+        {!error && !menu && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Setting the table…</p>}
+        {menu && sections.length === 0 && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Next week’s menu is on its way.</p>}
+
+        {intro && <p style={{ margin: '24px 0 0', fontSize: '13.5px', lineHeight: 1.65, color: SOFT, textAlign: 'center', whiteSpace: 'pre-line', maxWidth: '560px', marginLeft: 'auto', marginRight: 'auto' }}>{intro}</p>}
+        {sections.length > 0 && <Rule />}
+        </div>
+
+        <div className="pm-body">
+          <div className="pm-col pm-col--left">
+            {leftSections.map((sec, i) => renderSection(sec, i === leftSections.length - 1))}
+            {leftSections.length > 0 && rightSections.length > 0 && <div className="pm-rule-between"><Rule /></div>}
+          </div>
+          <div className="pm-col pm-col--right">
+            {rightSections.map((sec, i) => renderSection(sec, i === rightSections.length - 1))}
+          </div>
+        </div>
 
         {/* Footer box, as on the printed menu, then the two ways in */}
         {menu && (
