@@ -8,6 +8,7 @@ import RejectedApp from './components/RejectedApp'
 import PausedApp from './components/PausedApp'
 import WaitlistApp from './components/WaitlistApp'
 import LandingPage from './components/LandingPage'
+import PublicMenu from './components/PublicMenu'
 import PasswordForm from './components/PasswordForm'
 import { isAdminEmail } from './lib/admins'
 
@@ -19,7 +20,7 @@ const RESET_LINK_FAILED = linkParams.has('error') && !OPENED_RESET_LINK
 function App() {
   const [user, setUser] = useState(null)
   const [approvalStatus, setApprovalStatus] = useState(null)
-  const [screen, setScreen] = useState('landing')
+  const [screen, setScreen] = useState(() => new URLSearchParams(window.location.search).get('join') ? 'signup' : 'landing')
   const [loading, setLoading] = useState(true)
   const [recovering, setRecovering] = useState(OPENED_RESET_LINK)
   const [resetLinkFailed, setResetLinkFailed] = useState(RESET_LINK_FAILED)
@@ -61,7 +62,8 @@ function App() {
         setScreen('app')
       } else {
         setUser(null)
-        setScreen('landing')
+        // /?join=1 (from the shared menu page) lands straight on the request-to-join form
+        setScreen(new URLSearchParams(window.location.search).get('join') ? 'signup' : 'landing')
         setApprovalStatus(null)
       }
     })
@@ -77,6 +79,9 @@ function App() {
   }
 
   const loadingScreen = <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>
+
+  // dinnerwithcharles.com/menu: this week's menu for anyone with the link, signed in or not
+  if (window.location.pathname.replace(/\/+$/, '') === '/menu') return <PublicMenu />
 
   if (loading) {
     return loadingScreen
