@@ -115,6 +115,7 @@ export default function PublicMenu() {
             {menu?.weekOf ? `WEEK OF ${shortDate(menu.weekOf)}` : 'THIS WEEK'}
           </span>
         </div>
+        <Caps size={10} color={MUTED} style={{ textAlign: 'center', marginTop: '12px' }}>Each dish feeds 2–3 people</Caps>
 
         {error && <p style={{ textAlign: 'center', color: '#8a2d2d', marginTop: '28px', fontSize: '14px' }}>Sorry, the menu didn’t load. Please try again in a moment.</p>}
         {!error && !menu && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Setting the table…</p>}
@@ -140,7 +141,7 @@ export default function PublicMenu() {
             <img src="/Round Badge.png" alt="" style={{ width: '64px', height: '64px', display: 'block', margin: '0 auto 16px' }} />
             <p style={{ margin: 0, fontFamily: serif, fontWeight: '700', fontStyle: 'italic', fontSize: '17px', color: GREEN }}>Pull up a chair.</p>
             <p style={{ margin: '6px 0 18px', fontFamily: serif, fontStyle: 'italic', fontSize: '12.5px', color: MUTED, lineHeight: 1.5 }}>
-              $160 for 3 entrées and 2 sides, delivered Monday. Each dish serves two to three.
+              $160 for 3 entrées and 2 sides, delivered Monday. Each dish feeds 2–3 people.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px', maxWidth: '340px', margin: '0 auto' }}>
               <a href="/?join=1" style={{ display: 'block', background: GREEN, border: `1px solid ${GREEN}`, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Request to join</a>
