@@ -109,9 +109,9 @@ export default function PublicMenu() {
             <p style={{ margin: '6px 0 18px', fontFamily: serif, fontStyle: 'italic', fontSize: '12.5px', color: MUTED, lineHeight: 1.5 }}>
               $160 for 3 entrées and 2 sides, delivered Monday. Each dish serves two to three.
             </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/?join=1" style={{ background: GREEN, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '10px 16px', textDecoration: 'none', textTransform: 'uppercase' }}>Request to join</a>
-              <a href="/" style={{ border: `1px solid ${GREEN}`, color: GREEN, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '10px 16px', textDecoration: 'none', textTransform: 'uppercase' }}>Sign in to order</a>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px', maxWidth: '340px', margin: '0 auto' }}>
+              <a href="/?join=1" style={{ display: 'block', background: GREEN, border: `1px solid ${GREEN}`, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Request to join</a>
+              <a href="/" style={{ display: 'block', border: `1px solid ${GREEN}`, color: GREEN, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Sign in to order</a>
             </div>
           </div>
         )}
