@@ -49,7 +49,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
               <button className="landing-btn" onClick={onJoin}>Join the Waitlist</button>
               <button className="landing-btn landing-btn--outline" onClick={onSignIn}>Sign In</button>
             </div>
-            <p className="landing-capacity">Our kitchen is at capacity, so we’re not taking new subscribers just now. Join the waitlist and we’ll be in touch as a spot opens.</p>
+            <p className="landing-capacity">Our kitchen is at capacity for now, and we’re expanding soon. Join the waitlist and we’ll be in touch as spots open. We can’t wait to cook for you.</p>
           </div>
           <img className="landing-hero-photo" src="/images/roast-chicken-wide.jpg" alt="Sliced roast chicken with mustard sauce, baby potatoes and carrots on a burgundy plate" />
         </div>
@@ -184,9 +184,8 @@ export default function LandingPage({ onSignIn, onJoin }) {
           <p className="landing-eyebrow">Waitlist</p>
           <h2>Pull up a chair.</h2>
           <p>
-            We’re cooking for as many families as our kitchen can hold right now, so we’re not taking new
-            subscribers at the moment. Tell us a little about your household and we’ll be in touch as soon
-            as a spot opens.
+            Our kitchen is at capacity for now, and we’re expanding soon. Tell us a little about your
+            household and we’ll be in touch as spots open. We can’t wait to cook for you.
           </p>
           <button className="landing-btn landing-btn--light" onClick={onJoin}>Join the Waitlist</button>
         </div>

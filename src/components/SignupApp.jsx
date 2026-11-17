@@ -352,7 +352,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           <h1 style={{ color: '#083525', marginBottom: '16px' }}>You're on the waitlist</h1>
           
           <p style={{ fontSize: '16px', color: '#666', marginBottom: '12px', lineHeight: '1.6' }}>
-            Thank you for joining the Dinner with Charles waitlist. Our kitchen is at capacity just now, and we'll be in touch as soon as a spot opens for your household.
+            Thank you for joining the Dinner with Charles waitlist. Our kitchen is at capacity for now, and we're expanding soon. We'll be in touch as spots open, and we can't wait to cook for you.
           </p>
           
           <p style={{ fontSize: '16px', color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
@@ -379,7 +379,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           {step === 1 && (
             <div style={{ marginBottom: '24px', padding: '16px', background: '#faf8f3', borderRadius: '8px', border: '1px solid #e0dbd1' }}>
               <p style={{ margin: '0', color: '#666', fontSize: '14px', lineHeight: '1.6' }}>
-                Our kitchen is at capacity right now, so we're not taking new subscribers at the moment. Tell us a little about your household to join the waitlist, and we'll be in touch as soon as a spot opens.
+                Our kitchen is at capacity for now, and we're expanding soon. Tell us a little about your household to join the waitlist, and we'll be in touch as spots open. We can't wait to cook for you.
               </p>
             </div>
           )}
