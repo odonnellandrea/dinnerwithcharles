@@ -270,7 +270,7 @@ export default function ThisWeek({ onOpenOrders }) {
                   </p>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '7px', alignItems: 'center' }}>
                     {delivered ? pill('Delivered', 'done') : pill('Not delivered', 'soft')}
-                    {pay === 'paid' ? pill(`Paid${paidOn(o) ? ' ' + new Date(paidOn(o)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`, 'done')
+                    {pay === 'paid' ? pill('Paid', 'done')
                       : pay === 'free' ? pill('Free', 'done') : pill('Unpaid', 'warn')}
                   </div>
                   {/* Solid buttons only for what is still to do; everything else is a quiet link */}

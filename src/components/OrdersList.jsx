@@ -97,7 +97,7 @@ export default function OrdersList({
           kv('Total', total.complimentary ? 'Complimentary' : money(total.total)),
           total.discount ? kv('Discount', `−${money(total.discount)}`) : null,
           total.messengerFee ? kv('Courier', money(total.messengerFee)) : null,
-          kv('Payment', pay.status === 'paid' ? `Paid${pay.paid_at ? ' ' + new Date(pay.paid_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}` : pay.status === 'free' ? 'Free' : 'Unpaid')
+          kv('Payment', pay.status === 'paid' ? 'Paid' : pay.status === 'free' ? 'Free' : 'Unpaid')
         ])}
 
         {/* Solid buttons only for the next step; the rest are quiet links */}
