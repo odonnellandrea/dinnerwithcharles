@@ -23,14 +23,16 @@
 
 /* Tabs */
 .admin-tabs {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr)); /* one equal column per tab */
   gap: 8px;
   margin-bottom: 30px;
 }
 
 .admin-tab {
-  padding: 12px 24px;
+  padding: 12px 8px;
+  text-align: center;
+  white-space: nowrap;
   background: #D4A373;
   color: #faf8f3;
   border: none;
