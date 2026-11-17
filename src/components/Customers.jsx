@@ -27,7 +27,7 @@ const EXTRA = [
   ['away', 'Away this week'], ['orderedThisWeek', 'Ordered this week'], ['quiet', "Hasn't ordered in 3+ weeks"],
   ['texts', 'Texts on'], ['messenger', 'Messenger delivery'], ['ff', 'Friends & family price'], ['allergies', 'Has allergies']
 ]
-const SORTS = [['lastOrdered', 'Last ordered'], ['name', 'Name A–Z'], ['newest', 'Newest'], ['lastSignIn', 'Last sign-in']]
+const SORTS = [['lastOrdered', 'Last ordered'], ['name', 'Name A–Z'], ['newest', 'Newest'], ['lastSignIn', 'Last active']]
 
 const pillStyle = (tone) => ({
   fontSize: '10px', fontWeight: '600', padding: '2px 7px', whiteSpace: 'nowrap',
@@ -63,7 +63,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
     ;(async () => {
       const [settings, orders, payments, emails] = await Promise.all([
         supabase.from('delivery_settings').select('delivery_date, is_live').eq('is_live', true).order('delivery_date', { ascending: false }).limit(1),
-        supabase.from('Orders').select('order_id, email, delivery_date, status'),
+        supabase.from('Orders').select('order_id, email, delivery_date, status, created_at'),
         supabase.from('order_payments').select('order_id, status'),
         supabase.from('email_log').select('email, kind, subject, status, delivery_date, created_at').order('created_at', { ascending: false }).limit(3000)
       ])
@@ -82,8 +82,9 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
         if (seen.has(key)) continue
         seen.add(key)
         const email = String(row.email).toLowerCase()
-        const s = stats[email] ||= { count: 0, last: '', unpaid: 0, thisWeek: false }
+        const s = stats[email] ||= { count: 0, last: '', unpaid: 0, thisWeek: false, placed: '' }
         s.count += 1
+        if (row.created_at && String(row.created_at) > s.placed) s.placed = String(row.created_at)
         if (row.delivery_date > s.last) s.last = row.delivery_date
         if (row.delivery_date === week) s.thisWeek = true
         // Unpaid only counts recent deliveries: older orders predate payment tracking
@@ -94,7 +95,9 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
     return () => { cancelled = true }
   }, [customers.length])
 
-  const statOf = (c) => orderStats[String(c.email).toLowerCase()] || { count: 0, last: '', unpaid: 0, thisWeek: false }
+  const statOf = (c) => orderStats[String(c.email).toLowerCase()] || { count: 0, last: '', unpaid: 0, thisWeek: false, placed: '' }
+  // Placing an order proves they were here, so the later of last sign-in and last order placed
+  const lastActive = (c) => { const a = loginStats[c.id]?.last_sign_in_at || '', b = statOf(c).placed || ''; return (new Date(a).getTime() || 0) >= (new Date(b).getTime() || 0) ? a : b }
   const bucket = (c) => c.approval_status === 'approved' ? (c.inactive ? 'inactive' : 'active') : c.approval_status
   const isFF = (c) => c.complimentary === true || (Number.isFinite(Number(c.base_price)) && c.base_price !== null && Number(c.base_price) < BASE_PRICE)
   const threeWeeksAgo = useMemo(() => { const d = new Date(); d.setDate(d.getDate() - 21); return d.toISOString().slice(0, 10) }, [])
@@ -128,7 +131,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
     lastOrdered: (a, b) => (statOf(b).last || '').localeCompare(statOf(a).last || '') || displayName(a).localeCompare(displayName(b)),
     name: (a, b) => displayName(a).localeCompare(displayName(b)),
     newest: (a, b) => String(b.created_at).localeCompare(String(a.created_at)),
-    lastSignIn: (a, b) => String(loginStats[b.id]?.last_sign_in_at || '').localeCompare(String(loginStats[a.id]?.last_sign_in_at || ''))
+    lastSignIn: (a, b) => (new Date(lastActive(b)).getTime() || 0) - (new Date(lastActive(a)).getTime() || 0)
   }
   const pending = customers.filter(c => c.approval_status === 'pending' && (!q || matches({ ...c, approval_status: 'pending' }))).sort(sorters.newest)
   const rows = customers.filter(c => c.approval_status !== 'pending' && matches(c)).sort(sorters[sort])
@@ -141,8 +144,8 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
     else parts.push('No orders yet')
     if (s.count) parts.push(`${s.count} order${s.count === 1 ? '' : 's'}`)
     const away = awaySummary(awayByUser[c.id]); if (away) parts.push(`✈ ${away}`)
-    const login = loginStats[c.id]
-    if (login?.last_sign_in_at) parts.push(`signed in ${agoText(login.last_sign_in_at)}`)
+    const active = lastActive(c)
+    if (active) parts.push(`active ${agoText(active)}`)
     if (c.complimentary === true) parts.push('complimentary')
     else if (s.unpaid) parts.push(`${s.unpaid} unpaid`)
     return parts.join(' · ')
@@ -200,7 +203,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
         {line([kv('Address', [c.delivery_address, c.apartment && `Apt ${c.apartment}`].filter(Boolean).join(', ') || null), kv('Delivery', c.delivery_option ? deliveryOptionLabel(c.delivery_option) : null), kv('Instructions', c.delivery_instructions)])}
         {line([kv('Allergies', c.allergies), kv('Health', c.health_restrictions), kv('Preferences', c.preference_restrictions)])}
         {line([kv('Referral code', c.referral_code), kv('Heard about us', [c.heard_about, c.heard_about_detail].filter(Boolean).join(': ') || null), kv('Joined', shortDate(c.created_at))])}
-        {line([kv('Away', awaySummary(awayByUser[c.id])), login ? kv('Sign-ins', login.last_sign_in_at ? `last ${shortDate(login.last_sign_in_at)}${Number(login.login_count) > 0 ? `, ${login.login_count} since Oct 27` : ''}` : 'never') : null])}
+        {line([kv('Away', awaySummary(awayByUser[c.id])), lastActive(c) ? kv('Last active', `${shortDate(lastActive(c))}${login?.last_sign_in_at && login.last_sign_in_at !== lastActive(c) ? ` (ordered; last sign-in seen ${shortDate(login.last_sign_in_at)})` : ''}${Number(login?.login_count) > 0 ? ` · ${login.login_count} sign-in${Number(login.login_count) === 1 ? '' : 's'} since Oct 27` : ''}`) : kv('Last active', 'not yet')])}
         {line([kv('Email updates', optInLabel(c, 'email_opt_in')), kv('Order texts', optInLabel(c, 'sms_opt_in')), kv('Offers texts', c.sms_marketing_opt_in === true ? 'Yes' : 'No')])}
         {(() => {
           const sent = (emailsByAddress[String(c.email).toLowerCase()] || []).slice(0, 4)
