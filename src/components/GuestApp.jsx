@@ -481,11 +481,13 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
     if (!surveyResponse.trim() || !survey) return
     try {
       // supabase-js returns failures instead of throwing them, so check, or a refused answer looks saved
-      const { error } = await supabase.from('survey_responses').insert({
-        survey_id: survey.id,
-        user_email: user.email,
-        response: surveyResponse.trim()
-      })
+      // user_id is the permanent link to the customer; the email stays alongside it as a backup
+      const row = { survey_id: survey.id, user_id: user.id, user_email: user.email, response: surveyResponse.trim() }
+      let { error } = await supabase.from('survey_responses').insert(row)
+      // If 20261117_survey_responses_user_id.sql has not been run yet there is no user_id column; save by email
+      if (error && /user_id/.test(error.message || '')) {
+        ;({ error } = await supabase.from('survey_responses').insert({ survey_id: row.survey_id, user_email: row.user_email, response: row.response }))
+      }
       if (error) throw error
     } catch (err) {
       console.error('Error saving survey answer:', err)
