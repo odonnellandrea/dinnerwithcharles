@@ -15,6 +15,7 @@ export default function ProfileDetails({ user, onSaved }) {
   const [lastName, setLastName] = useState('')
   const [savedAs, setSavedAs] = useState('') // full name from before first/last existed
   const [address, setAddress] = useState('')
+  const [apartment, setApartment] = useState('')
   const [phone, setPhone] = useState('')
   const [deliveryOption, setDeliveryOption] = useState('')
   const [hasDeliveryColumn, setHasDeliveryColumn] = useState(true)
@@ -38,6 +39,7 @@ export default function ProfileDetails({ user, onSaved }) {
       setLastName(names.lastName)
       setSavedAs(names.savedAs)
       setAddress(data.delivery_address || '')
+      setApartment(data.apartment || '')
       setPhone(formatUsPhone(data.delivery_phone))
       setDeliveryOption(data.delivery_option || '')
       setHasDeliveryColumn('delivery_option' in data)
@@ -64,7 +66,7 @@ export default function ProfileDetails({ user, onSaved }) {
     }
 
     setSaving(true)
-    const changes = { ...nameColumns(firstName, lastName), delivery_address: address.trim(), delivery_phone: normalizedPhone, ...(hasDeliveryColumn ? { delivery_option: deliveryOption } : {}) }
+    const changes = { ...nameColumns(firstName, lastName), delivery_address: address.trim(), apartment: apartment.trim(), delivery_phone: normalizedPhone, ...(hasDeliveryColumn ? { delivery_option: deliveryOption } : {}) }
     let { error: updateError } = await supabase.from('users').update(changes).eq('id', user.id)
     if (isMissingNameColumns(updateError)) {
       ({ error: updateError } = await supabase.from('users').update(withoutNameColumns(changes)).eq('id', user.id))
@@ -107,6 +109,9 @@ export default function ProfileDetails({ user, onSaved }) {
 
       <label style={labelStyle}>Delivery address</label>
       <input type="text" value={address} onChange={edit(setAddress)} autoComplete="street-address" style={{ ...inputStyle, marginBottom: '16px' }} />
+
+      <label style={labelStyle}>Apartment or unit</label>
+      <input type="text" value={apartment} onChange={edit(setApartment)} autoComplete="address-line2" placeholder="e.g. 4B" style={{ ...inputStyle, marginBottom: '16px' }} />
 
       <label style={labelStyle}>Phone for delivery day</label>
       <input type="tel" value={phone} onChange={edit(setPhone)} placeholder="(555) 123-4567" autoComplete="tel" style={{ ...inputStyle, marginBottom: '16px' }} />

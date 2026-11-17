@@ -270,6 +270,7 @@ const REQUEST_FIELDS = [
   ['Heard about us (detail)', 'heard_about_detail'],
   ['Household', 'household_composition'],
   ['Delivery address', 'delivery_address'],
+  ['Apartment', 'apartment'],
   ['Delivery options', 'delivery_option'],
   ['Phone', 'delivery_phone'],
   ['Allergies', 'allergies'],
@@ -343,7 +344,7 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discoun
       ${detail('Windows', formatWindows(first.delivery_time_slot))}
       ${detail('Email', first.email)}
       ${detail('Phone', profile.delivery_phone)}
-      ${detail('Address', profile.delivery_address)}
+      ${detail('Address', [profile.delivery_address, profile.apartment && `Apt ${profile.apartment}`].filter(Boolean).join(', '))}
       ${detail('Gets it by', profile.delivery_option ? deliveryOptionLabel(profile.delivery_option) : '')}
       ${detail('Pays by', profile.payment_method)}
       ${detail('For the kitchen', first.special_notes)}

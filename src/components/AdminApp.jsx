@@ -410,6 +410,7 @@ export default function AdminApp({ onLogout, onOrder }) {
     ['Heard about us (detail)', 'heard_about_detail'],
     ['Household', 'household_composition'],
     ['Delivery address', 'delivery_address'],
+    ['Apartment', 'apartment'],
     ['Delivery option', 'delivery_option'],
     ['Phone', 'delivery_phone'],
     ['Delivery time preferences', 'delivery_time_slots'],

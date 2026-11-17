@@ -65,7 +65,7 @@ export default async (req) => {
     const packed = customers.filter(c => !family.has(c.email))
     if (!packed.length) return json(409, { error: 'Everyone who ordered is marked as Andrea / parents, so there is nothing to pack' })
     const emails = packed.map(c => c.email)
-    const { data: profiles } = await supabase.from('users').select('email, delivery_address, allergies, health_restrictions, preference_restrictions').in('email', emails)
+    const { data: profiles } = await supabase.from('users').select('email, delivery_address, apartment, allergies, health_restrictions, preference_restrictions').in('email', emails)
     const profileOf = Object.fromEntries((profiles || []).map(p => [String(p.email).toLowerCase(), p]))
 
     const clients = packed.map(customer => {
@@ -90,7 +90,7 @@ export default async (req) => {
       ]
       return {
         name: customer.name,
-        address: profile.delivery_address || '',
+        address: [profile.delivery_address, profile.apartment && `Apt ${profile.apartment}`].filter(Boolean).join(', '),
         delivery: [slots(first.delivery_time_slot), rob.has(customer.email) ? 'Rob delivers' : '', ...new Set(customer.rows.map(r => (r.delivery_notes || '').trim()).filter(Boolean))].filter(Boolean).join(' · '),
         entrees: groups.entree,
         salads: groups.salad,

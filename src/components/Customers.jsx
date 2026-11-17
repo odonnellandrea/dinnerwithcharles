@@ -108,7 +108,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
   const q = search.trim().toLowerCase()
   const matches = (c) => {
     if (q) {
-      const hay = [displayName(c), c.email, c.phone_number, c.delivery_phone, c.delivery_address].filter(Boolean).join(' ').toLowerCase()
+      const hay = [displayName(c), c.email, c.phone_number, c.delivery_phone, c.delivery_address, c.apartment].filter(Boolean).join(' ').toLowerCase()
       if (!hay.includes(q) && !formatUsPhone(c.phone_number || c.delivery_phone || '').toLowerCase().includes(q)) return false
     }
     const b = bucket(c)
@@ -197,7 +197,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
     return (
       <div style={{ fontSize: '12px', color: '#555', lineHeight: 1.7, marginTop: '4px' }}>
         {line([kv('Email', c.email), kv('Phone', formatUsPhone(c.phone_number || c.delivery_phone || '') || null)])}
-        {line([kv('Address', c.delivery_address), kv('Delivery', c.delivery_option ? deliveryOptionLabel(c.delivery_option) : null), kv('Instructions', c.delivery_instructions)])}
+        {line([kv('Address', [c.delivery_address, c.apartment && `Apt ${c.apartment}`].filter(Boolean).join(', ') || null), kv('Delivery', c.delivery_option ? deliveryOptionLabel(c.delivery_option) : null), kv('Instructions', c.delivery_instructions)])}
         {line([kv('Allergies', c.allergies), kv('Health', c.health_restrictions), kv('Preferences', c.preference_restrictions)])}
         {line([kv('Referral code', c.referral_code), kv('Heard about us', [c.heard_about, c.heard_about_detail].filter(Boolean).join(': ') || null), kv('Joined', shortDate(c.created_at))])}
         {line([kv('Away', awaySummary(awayByUser[c.id])), login ? kv('Sign-ins', login.last_sign_in_at ? `last ${shortDate(login.last_sign_in_at)}${Number(login.login_count) > 0 ? `, ${login.login_count} since Oct 27` : ''}` : 'never') : null])}
@@ -305,7 +305,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
                 <span style={pillStyle('warn')}>Pending</span>
               </div>
               <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#777' }}>
-                Joined {shortDate(c.created_at)}{c.heard_about ? ` · heard about us: ${[c.heard_about, c.heard_about_detail].filter(Boolean).join(', ')}` : ''}{c.delivery_address ? ` · ${c.delivery_address}` : ''}{c.resubmitted_at ? ` · resubmitted ${shortDate(c.resubmitted_at)}` : ''}
+                Joined {shortDate(c.created_at)}{c.heard_about ? ` · heard about us: ${[c.heard_about, c.heard_about_detail].filter(Boolean).join(', ')}` : ''}{c.delivery_address ? ` · ${[c.delivery_address, c.apartment && `Apt ${c.apartment}`].filter(Boolean).join(', ')}` : ''}{c.resubmitted_at ? ` · resubmitted ${shortDate(c.resubmitted_at)}` : ''}
               </p>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
                 <button onClick={() => onApprove(c.id)} style={btn('primary')}>Approve</button>

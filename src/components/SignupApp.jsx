@@ -15,6 +15,7 @@ const PAYMENT_METHODS = ['Venmo', 'Zelle', 'Cash']
 const ANSWER_COLUMNS = {
   household: 'household_composition',
   address: 'delivery_address',
+  apartment: 'apartment',
   deliveryOption: 'delivery_option',
   phone: 'delivery_phone',
   timeSlots: 'delivery_time_slots',
@@ -63,6 +64,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
     referralCode: '',
     household: '',
     address: '',
+    apartment: '',
     deliveryOption: '',
     phone: '',
     instructions: '',
@@ -431,6 +433,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
                 Delivery is included in NoMad, Gramercy, Kips Bay, Murray Hill, Hudson Yards and some parts of Chelsea. Everywhere else in Manhattan, please choose pickup in NoMad or Uber messenger delivery at cost ($12–18, depending on delivery conditions). Outside Manhattan? Pickup in NoMad works, and so does delivery to an office or a friend's place in the city. We're always looking to expand our delivery area, so stay tuned.
               </p>
               <input type="text" placeholder="Delivery address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Apartment or unit (if any)" value={formData.apartment} onChange={(e) => updateField('apartment', e.target.value)} autoComplete="address-line2" style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
               <div style={{ border: '1px solid #e0dbd1', borderRadius: '6px', padding: '12px', marginBottom: '12px' }}>
                 <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#083525' }}>How would you like to get your order? <span style={{ fontWeight: '400', color: '#999' }}>Tick all that work for you.</span></p>
                 {DELIVERY_OPTIONS.map(o => {
