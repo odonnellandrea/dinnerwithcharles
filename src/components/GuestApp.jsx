@@ -55,8 +55,6 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   const [deliveryNotes, setDeliveryNotes] = useState('') // for the drop-off
   const [survey, setSurvey] = useState(null)
   const [surveyResponse, setSurveyResponse] = useState('')
-  const [surveySubmitted, setSurveySubmitted] = useState(false)
-  const [surveyError, setSurveyError] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [orderHistory, setOrderHistory] = useState([])
@@ -458,6 +456,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
           const { error: redeemError } = await supabase.rpc('redeem_discounts', { oid: orderId, subtotal_cents: subtotalCents })
           if (redeemError) console.error('Could not apply the referral discount:', redeemError)
         }
+        await saveSurveyResponse()
         sendConfirmationEmail(orderId)
         alert('✓ Order confirmed!')
         setSelectedEntrees({})
@@ -476,23 +475,20 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
     }
   }
 
-  const handleSurveySubmit = async () => {
+  // The open-ended question has no button of its own: whatever is typed is saved when the
+  // order is confirmed. A hiccup here must never get in the way of the order itself.
+  const saveSurveyResponse = async () => {
     if (!surveyResponse.trim() || !survey) return
-    setSurveyError('')
     try {
       // supabase-js returns failures instead of throwing them, so check, or a refused answer looks saved
       const { error } = await supabase.from('survey_responses').insert({
         survey_id: survey.id,
         user_email: user.email,
-        response: surveyResponse
+        response: surveyResponse.trim()
       })
       if (error) throw error
-      setSurveySubmitted(true)
-      setSurveyResponse('')
-      setTimeout(() => setSurveySubmitted(false), 3000)
     } catch (err) {
-      console.error('Error submitting survey:', err)
-      setSurveyError("Sorry, we couldn't save your answer. Please try again.")
+      console.error('Error saving survey answer:', err)
     }
   }
 
@@ -838,28 +834,14 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
                 <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#083525' }}>Quick Feedback</p>
                 <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666' }}>{survey.question}</p>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={surveyResponse}
-                    onChange={(e) => setSurveyResponse(e.target.value)}
-                    placeholder="Your response..."
-                    style={{ flex: 1, padding: '8px 12px', border: '1px solid #e0dbd1', fontSize: '13px' }}
-                  />
-                  <button
-                    onClick={handleSurveySubmit}
-                    disabled={!surveyResponse.trim()}
-                    style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
-                  >
-                    Send
-                  </button>
-                </div>
-                {surveyError && (
-                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#c62828' }}>{surveyError}</p>
-                )}
-                {surveySubmitted && (
-                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#083525', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
-                )}
+                <textarea
+                  value={surveyResponse}
+                  onChange={(e) => setSurveyResponse(e.target.value)}
+                  placeholder="Share your thoughts (optional)..."
+                  rows={3}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: '1px solid #e0dbd1', fontSize: '13px', fontFamily: 'inherit', lineHeight: '1.5', resize: 'vertical' }}
+                />
+                <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#8a8470', fontStyle: 'italic' }}>Optional. We'll receive your thoughts when you confirm your order.</p>
               </div>
             )}
 
