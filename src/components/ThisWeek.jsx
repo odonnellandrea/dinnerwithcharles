@@ -18,6 +18,18 @@ export default function ThisWeek({ onOpenOrders }) {
   const [waiting, setWaiting] = useState([])
   const [away, setAway] = useState([])
   const [inactive, setInactive] = useState([])
+  // Reminder text for the Text buttons, with {first}, {date} and {close} filled in per person. Remembered on this device.
+  const DEFAULT_NUDGE = "Hi {first}, a gentle reminder that this week's menu closes {close}. We'd love to cook for you Monday {date} — order anytime at dinnerwithcharles.com."
+  const [nudgeText, setNudgeText] = useState(() => { try { return localStorage.getItem('dwc-nudge-text') || DEFAULT_NUDGE } catch { return DEFAULT_NUDGE } })
+  const [showNudge, setShowNudge] = useState(false)
+  const saveNudge = (text) => { setNudgeText(text); try { localStorage.setItem('dwc-nudge-text', text) } catch {} }
+  const personalNudge = (p) => {
+    const first = String(displayName(p) || '').trim().split(/\s+/)[0] || 'there'
+    const date = deliveryDate ? new Date(`${deliveryDate}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Monday'
+    const close = live?.order_close_datetime ? new Date(live.order_close_datetime).toLocaleString('en-US', { weekday: 'long', hour: 'numeric', minute: '2-digit' }) : 'Thursday night'
+    return nudgeText.replace(/\{first\}/g, first).replace(/\{date\}/g, date).replace(/\{close\}/g, close)
+  }
+  const nudgeLink = (p, phone) => `sms:${String(phone).replace(/[^\d+]/g, '')}&body=${encodeURIComponent(personalNudge(p))}`
   const [dishes, setDishes] = useState({ entree: [], salad: [], addon: [] }) // what's been ordered, per dish
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -224,7 +236,25 @@ export default function ThisWeek({ onOpenOrders }) {
           })()}
 
           <div style={card}>
-            <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px', marginBottom: '12px' }}>
+              <h3 style={{ color: '#083525', margin: 0, fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
+              {waiting.length > 0 && (
+                <button onClick={() => setShowNudge(v => !v)} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>
+                  {showNudge ? 'Hide the text' : 'Edit the text'}
+                </button>
+              )}
+            </div>
+            {showNudge && (
+              <div style={{ marginBottom: '12px' }}>
+                <textarea value={nudgeText} onChange={(e) => saveNudge(e.target.value)} rows={4}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: '1px solid #e0dbd1', fontFamily: 'inherit', fontSize: '14px', lineHeight: 1.5, resize: 'vertical' }} />
+                <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: '#999' }}>
+                  {'{first}'}, {'{date}'} and {'{close}'} fill in per person. The Text buttons open Messages with this ready to send.
+                  {' '}<button onClick={() => saveNudge(DEFAULT_NUDGE)} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Reset</button>
+                </p>
+                {waiting[0] && <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#666', fontStyle: 'italic' }}>For {displayName(waiting[0])}: “{personalNudge(waiting[0])}”</p>}
+              </div>
+            )}
             {waiting.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>Everyone who's home has ordered.</p>}
             {waiting.map(p => {
               const phone = p.phone_number || p.delivery_phone
@@ -232,7 +262,7 @@ export default function ThisWeek({ onOpenOrders }) {
                 <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '8px 0', borderTop: '1px solid #f0ece3' }}>
                   <span style={{ fontSize: '14px', color: '#333' }}>{displayName(p)}<span style={{ color: '#999', fontSize: '12px' }}> · {p.email}</span></span>
                   <span style={{ display: 'flex', gap: '8px', fontSize: '12px' }}>
-                    {p.sms_opt_in === true && phone && <a href={`sms:${String(phone).replace(/[^\d+]/g, '')}`} style={{ color: '#083525', fontWeight: '600', textDecoration: 'none', border: '1px solid #083525', padding: '3px 10px' }}>Text</a>}
+                    {p.sms_opt_in === true && phone && <a href={nudgeLink(p, phone)} style={{ color: '#083525', fontWeight: '600', textDecoration: 'none', border: '1px solid #083525', padding: '3px 10px' }}>Text</a>}
                     <a href={`mailto:${p.email}`} style={{ color: '#083525', fontWeight: '600', textDecoration: 'none', border: '1px solid #e0dbd1', padding: '3px 10px' }}>Email</a>
                   </span>
                 </div>
