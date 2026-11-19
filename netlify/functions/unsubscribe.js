@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 import { escapeHtml } from '../emails/templates.js'
+import { EMAIL_CONSENT_TEXT, EMAIL_MARKETING_CONSENT_TEXT } from '../../src/lib/notificationConsent.js'
 
-// Unsubscribe from menu announcement emails, no sign-in needed.
-//   GET  /.netlify/functions/unsubscribe?t=<token>  shows a page with a confirm button. It never
-//        unsubscribes by itself, because inbox link scanners open every link in an email.
-//   POST /.netlify/functions/unsubscribe?t=<token>  unsubscribes. The confirm button posts here,
-//        and so do Gmail's and Yahoo's own Unsubscribe buttons (List-Unsubscribe-Post, RFC 8058).
+// Email preferences and unsubscribe, no sign-in needed. Linked from every marketing email.
+//   GET  /.netlify/functions/unsubscribe?t=<token>  shows the customer's two email choices
+//        (menu emails, news and offers). It never changes anything, because inbox link
+//        scanners open every link in an email.
+//   POST /.netlify/functions/unsubscribe?t=<token>  saves. The page's buttons post here, and so
+//        do Gmail's and Yahoo's own Unsubscribe buttons (List-Unsubscribe-Post, RFC 8058),
+//        which turn off all marketing email.
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_KEY
 
@@ -37,6 +40,12 @@ function page({ siteUrl, title, body, status = 200 }) {
     .note { font-size: 13px; color: #999999; margin-top: 32px; }
     button, .btn { display: inline-block; margin-top: 16px; padding: 16px 32px; border: 0; border-radius: 0; background: ${GREEN}; color: ${CREAM}; font: 600 14px/1.2 ${FONT}; letter-spacing: 0.06em; text-decoration: none; cursor: pointer; }
     a { color: ${GREEN}; }
+    form { margin: 0; }
+    .choice { display: flex; gap: 12px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid ${BORDER}; font-size: 15px; line-height: 1.6; color: #333333; cursor: pointer; }
+    .choice:first-of-type { border-top: 1px solid ${BORDER}; margin-top: 8px; }
+    .choice input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: ${GREEN}; cursor: pointer; }
+    form button[type=submit] { margin-top: 24px; }
+    .all button.link { margin-top: 20px; padding: 0; background: none; color: ${GREEN}; font: 400 14px/1.6 ${FONT}; letter-spacing: 0; text-decoration: underline; }
     @media (max-width: 480px) {
       .wrap { padding: 28px 12px; }
       .header { padding: 28px 22px; }
@@ -44,6 +53,7 @@ function page({ siteUrl, title, body, status = 200 }) {
       .card { padding: 36px 22px; }
       h1 { font-size: 23px; }
       button, .btn { display: block; width: 100%; text-align: center; }
+      .all button.link { display: inline; width: auto; text-align: left; }
     }
   </style>
 </head>
@@ -58,7 +68,12 @@ function page({ siteUrl, title, body, status = 200 }) {
 }
 
 const signInNote = (siteUrl) =>
-  `<p class="note">Order confirmations and delivery emails still arrive as usual. Changed your mind? <a href="${siteUrl}">Sign in</a> and turn menu emails back on in Settings.</p>`
+  `<p class="note">Order confirmations and delivery emails always arrive, whatever you choose here. To change your text messages, <a href="${siteUrl}">sign in</a> and open Settings.</p>`
+
+const replyNote = 'Just reply to any of our emails and we&rsquo;ll update your choices for you, or sign in and change them in Settings.'
+
+const choice = (name, checked, label) => `
+  <label class="choice"><input type="checkbox" name="${name}" value="1"${checked ? ' checked' : ''}><span>${label}</span></label>`
 
 export default async (req) => {
   const url = new URL(req.url)
@@ -67,43 +82,74 @@ export default async (req) => {
 
   if (!UUID.test(token)) {
     return page({ siteUrl, status: 400, title: 'Link not recognized', body: `
-      <p class="eyebrow">Unsubscribe</p>
-      <h1>This link isn't working.</h1>
-      <p>It may have been cut short when it was copied. Just reply to any of our emails and we'll take you off the list, or sign in and change your choices in Settings.</p>
+      <p class="eyebrow">Email preferences</p>
+      <h1>This link isn&rsquo;t working.</h1>
+      <p>It may have been cut short when it was copied. ${replyNote}</p>
       <a class="btn" href="${siteUrl}">Go to Dinner with Charles</a>` })
   }
+  if (req.method !== 'GET' && req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
 
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } })
+  const failed = (error) => {
+    console.error('email preferences:', error.message)
+    return page({ siteUrl, status: 500, title: 'Something went wrong', body: `
+      <p class="eyebrow">Email preferences</p>
+      <h1>We couldn&rsquo;t reach your preferences just now.</h1>
+      <p>Please try again in a minute. ${replyNote}</p>` })
+  }
+  const notFound = () => page({ siteUrl, status: 404, title: 'Link not recognized', body: `
+    <p class="eyebrow">Email preferences</p>
+    <h1>We couldn&rsquo;t find your preferences.</h1>
+    <p>${replyNote}</p>` })
+
+  // GET only reads: it shows the current choices and never changes anything
   if (req.method === 'GET') {
-    return page({ siteUrl, title: 'Unsubscribe', body: `
-      <p class="eyebrow">Unsubscribe</p>
-      <h1>Stop the weekly menu emails?</h1>
-      <p>You'll no longer get an email when the new menu goes live.</p>
+    const { data: prefs, error } = await supabase.rpc('email_prefs_for_token', { p_token: token })
+    if (error) return failed(error)
+    if (!prefs) return notFound()
+    const name = String(prefs.first_name || '').trim().split(/\s+/)[0]
+    return page({ siteUrl, title: 'Email preferences', body: `
+      <p class="eyebrow">Email preferences</p>
+      <h1>${name ? `Your emails, ${escapeHtml(name)}.` : 'Your emails.'}</h1>
+      <p>Choose which emails you&rsquo;d like from us.</p>
       <form method="post" action="?t=${encodeURIComponent(token)}">
-        <button type="submit">Unsubscribe</button>
+        <input type="hidden" name="action" value="save">
+        ${choice('menu', prefs.menu, EMAIL_CONSENT_TEXT)}
+        ${choice('marketing', prefs.marketing, EMAIL_MARKETING_CONSENT_TEXT)}
+        <button type="submit">Save my choices</button>
+      </form>
+      <form method="post" action="?t=${encodeURIComponent(token)}" class="all">
+        <input type="hidden" name="action" value="all">
+        <button type="submit" class="link">Unsubscribe from all marketing emails</button>
       </form>
       ${signInNote(siteUrl)}` })
   }
 
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
+  // POST saves. The Save button sends the two boxes; "Unsubscribe from all", and the
+  // one-click Unsubscribe buttons in Gmail and Yahoo (body "List-Unsubscribe=One-Click"),
+  // turn both off.
+  const form = new URLSearchParams(await req.text().catch(() => ''))
+  const saving = form.get('action') === 'save'
+  const menu = saving && form.get('menu') === '1'
+  const marketing = saving && form.get('marketing') === '1'
+  const { data: found, error } = await supabase.rpc('set_email_prefs_for_token', { p_token: token, p_menu: menu, p_marketing: marketing })
+  if (error) return failed(error)
+  if (!found) return notFound()
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } })
-  const { data: found, error } = await supabase.rpc('unsubscribe_menu_emails', { p_token: token })
-  if (error) {
-    console.error('unsubscribe:', error.message)
-    return page({ siteUrl, status: 500, title: 'Something went wrong', body: `
-      <p class="eyebrow">Unsubscribe</p>
-      <h1>We couldn't save that just now.</h1>
-      <p>Please try again in a minute, or simply reply to any of our emails and we'll take you off the list.</p>` })
+  const back = `<p><a href="?t=${encodeURIComponent(token)}">Change your choices</a></p>`
+  if (!menu && !marketing) {
+    return page({ siteUrl, title: 'Unsubscribed', body: `
+      <p class="eyebrow">Unsubscribed</p>
+      <h1>You&rsquo;re unsubscribed from marketing emails.</h1>
+      <p>We won&rsquo;t send menu emails or news and offers anymore.</p>
+      ${back}
+      ${signInNote(siteUrl)}` })
   }
-  if (!found) {
-    return page({ siteUrl, status: 404, title: 'Link not recognized', body: `
-      <p class="eyebrow">Unsubscribe</p>
-      <h1>We couldn't find that subscription.</h1>
-      <p>Reply to any of our emails and we'll take you off the list, or sign in and change your choices in Settings.</p>` })
-  }
-  return page({ siteUrl, title: 'Unsubscribed', body: `
-    <p class="eyebrow">Unsubscribed</p>
-    <h1>You're off the menu list.</h1>
-    <p>We won't send weekly menu emails anymore.</p>
+  const getting = [menu && 'an email when the weekly menu goes live', marketing && 'occasional news and offers'].filter(Boolean).join(', and ')
+  return page({ siteUrl, title: 'Saved', body: `
+    <p class="eyebrow">Saved</p>
+    <h1>Your choices are saved.</h1>
+    <p>You&rsquo;ll get ${getting}.</p>
+    ${back}
     ${signInNote(siteUrl)}` })
 }

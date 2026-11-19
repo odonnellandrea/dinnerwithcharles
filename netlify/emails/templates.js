@@ -320,7 +320,7 @@ const formatCloseTime = (iso) => {
   return `${date} at ${time}`
 }
 
-// Private no-sign-in unsubscribe link for marketing emails (see netlify/functions/unsubscribe.js)
+// Private no-sign-in email preferences and unsubscribe link for marketing emails (see netlify/functions/unsubscribe.js)
 export const unsubscribeUrl = (siteUrl, token) =>
   token ? `${siteUrl}/.netlify/functions/unsubscribe?t=${encodeURIComponent(token)}` : ''
 
@@ -343,7 +343,7 @@ export function menuLiveEmail({ profile, settings, siteUrl }) {
       ${button(siteUrl, 'See the menu')}
     </div>
     <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">You're getting this because you asked for weekly menu announcements.${unsubscribe
-      ? ` <a href="${unsubscribe}" style="color:${GREEN};text-decoration:underline;">Unsubscribe</a> any time, or change your choices in Settings.`
+      ? ` <a href="${unsubscribe}" style="color:${GREEN};text-decoration:underline;">Unsubscribe or choose which emails you get</a>.`
       : ' You can change that any time in Settings.'}</p>`
 
   return {
