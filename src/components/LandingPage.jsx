@@ -91,7 +91,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <img src="/images/soup-greens.jpg" alt="Creamy potato and greens soup topped with seared sausage and microgreens" />
             <img className="landing-gallery-low" src="/images/salmon-mushroom-bowl.jpg" alt="Seared salmon and roasted mushrooms over rice in a blue bowl, beside a white teapot" />
             <img className="landing-gallery-right" src="/images/beets-pistachio.jpg" alt="Roasted beets over whipped cheese with pistachios and microgreens" />
-            <img className="landing-gallery-low" src="/images/chicken-thighs-olives.jpg" alt="Roasted chicken thighs with green olives and lemon on a white plate" />
+            <img className="landing-gallery-low" src="/images/braised-pork-onions.jpg" alt="Braised pork with red onion, garlic and fresh thyme, close up" />
           </div>
         </div>
       </section>
