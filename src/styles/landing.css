@@ -171,6 +171,7 @@
 /* Keep each dish in frame: the beets sit on the right, the tall shots low in the frame */
 .landing-gallery img.landing-gallery-right { object-position: 85% center; }
 .landing-gallery img.landing-gallery-low { object-position: center 65%; }
+.landing-gallery img.landing-gallery-high { object-position: center 28%; }
 
 /* Plan & pricing */
 .landing-plan {

@@ -89,9 +89,9 @@ export default function LandingPage({ onSignIn, onJoin }) {
           <p className="landing-eyebrow">From our kitchen</p>
           <div className="landing-gallery">
             <img src="/images/soup-greens.jpg" alt="Creamy potato and greens soup topped with seared sausage and microgreens" />
-            <img className="landing-gallery-low" src="/images/salmon-mushroom-bowl.jpg" alt="Seared salmon and roasted mushrooms over rice in a blue bowl, beside a white teapot" />
             <img className="landing-gallery-right" src="/images/beets-pistachio.jpg" alt="Roasted beets over whipped cheese with pistachios and microgreens" />
-            <img className="landing-gallery-low" src="/images/salmon-lime-plate.jpg" alt="Seared salmon with green beans, roasted potatoes, salsa verde and a lime half on a black plate" />
+            <img className="landing-gallery-low" src="/images/salmon-mushroom-bowl.jpg" alt="Seared salmon and roasted mushrooms over rice in a blue bowl, beside a white teapot" />
+            <img className="landing-gallery-high" src="/images/salmon-lime-plate.jpg" alt="Seared salmon with green beans, roasted potatoes, salsa verde and a lime half on a black plate" />
           </div>
         </div>
       </section>
