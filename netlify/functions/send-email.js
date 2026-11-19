@@ -107,12 +107,17 @@ export default async (req) => {
     // the old column default, which was never consent. (Falls back to the plain flag until
     // that column's migration has been run, like the Notifications tab.)
     const optedIn = (confirmedOnly) => {
-      let query = supabase.from('users').select('id, email, first_name, name').eq('approval_status', 'approved').eq('email_opt_in', true)
+      let query = supabase.from('users').select('id, email, first_name, name, unsubscribe_token').eq('approval_status', 'approved').eq('email_opt_in', true)
       if (confirmedOnly) query = query.not(PREFS_SET_COLUMN, 'is', null)
       return query
     }
     let { data: recipients, error: usersError } = await optedIn(true)
     if (isMissingPrefsColumn(usersError)) ({ data: recipients, error: usersError } = await optedIn(false))
+    // Marketing email must carry a working unsubscribe link, so don't send without the token column
+    if (usersError && String(usersError.message || '').includes('unsubscribe_token')) {
+      await undoClaim()
+      return json(500, { error: 'users.unsubscribe_token is missing; run supabase/migrations/20261119_email_unsubscribe.sql' })
+    }
     if (usersError) { await undoClaim(); return json(500, { error: usersError.message }) }
     if (!recipients?.length) { await undoClaim(); return json(409, { error: 'No approved customers have opted in to menu emails' }) }
     // Away for this delivery week: no menu email. Best effort, so a missing table never blocks the send.
@@ -132,7 +137,7 @@ export default async (req) => {
       const chunk = recipients.filter(r => r.email).slice(i, i + 100)
       const messages = chunk.map(profile => {
         const message = menuLiveEmail({ profile, settings, siteUrl })
-        return { from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: profile.email, subject: message.subject, html: message.html, text: message.text }
+        return { from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: profile.email, subject: message.subject, html: message.html, text: message.text, ...(message.headers ? { headers: message.headers } : {}) }
       })
       const { data: batch, error } = await resend.batch.send(messages)
       if (error) failed.push(...chunk.map(r => r.email))

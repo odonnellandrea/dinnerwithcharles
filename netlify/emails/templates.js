@@ -320,8 +320,13 @@ const formatCloseTime = (iso) => {
   return `${date} at ${time}`
 }
 
+// Private no-sign-in unsubscribe link for marketing emails (see netlify/functions/unsubscribe.js)
+export const unsubscribeUrl = (siteUrl, token) =>
+  token ? `${siteUrl}/.netlify/functions/unsubscribe?t=${encodeURIComponent(token)}` : ''
+
 export function menuLiveEmail({ profile, settings, siteUrl }) {
   const name = firstName(profile.first_name || profile.name)
+  const unsubscribe = unsubscribeUrl(siteUrl, profile.unsubscribe_token)
   const deliveryDate = formatDeliveryDate(settings.delivery_date)
   const closes = formatCloseTime(settings.order_close_datetime)
 
@@ -337,12 +342,18 @@ export function menuLiveEmail({ profile, settings, siteUrl }) {
     <div style="margin:32px 0 0 0;">
       ${button(siteUrl, 'See the menu')}
     </div>
-    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">You're getting this because you asked for weekly menu announcements. You can change that any time in Settings.</p>`
+    <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">You're getting this because you asked for weekly menu announcements.${unsubscribe
+      ? ` <a href="${unsubscribe}" style="color:${GREEN};text-decoration:underline;">Unsubscribe</a> any time, or change your choices in Settings.`
+      : ' You can change that any time in Settings.'}</p>`
 
-  return withText({
-    subject: `This week's menu is live`,
-    html: layout({ siteUrl, preheader: `Delivery ${deliveryDate}. Order${closes ? ` by ${closes}` : ' now'}.`, body })
-  })
+  return {
+    ...withText({
+      subject: `This week's menu is live`,
+      html: layout({ siteUrl, preheader: `Delivery ${deliveryDate}. Order${closes ? ` by ${closes}` : ' now'}.`, body })
+    }),
+    // Lets Gmail, Yahoo and Apple Mail show their own one-click Unsubscribe button
+    ...(unsubscribe ? { headers: { 'List-Unsubscribe': `<${unsubscribe}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' } } : {})
+  }
 }
 
 // To the admin when someone requests to join (or resubmits). request: the users row.
