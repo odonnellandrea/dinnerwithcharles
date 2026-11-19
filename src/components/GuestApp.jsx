@@ -6,7 +6,7 @@ import PasswordForm from './PasswordForm'
 import ProfileDetails from './ProfileDetails'
 import GuestHeader from './GuestHeader'
 import AwayDates from './AwayDates'
-import { formatRange } from '../lib/awayDates'
+import { formatRange, isAwayOn } from '../lib/awayDates'
 import StayInTouchPrompt from './StayInTouchPrompt'
 import { TIME_SLOTS, serializeWindows, formatWindows } from '../lib/deliveryWindows'
 import { priceOrder, EXTRA_ENTREE_PRICE, EXTRA_SALAD_PRICE, messengerFeeFor, pricingFor } from '../lib/pricing'
@@ -966,7 +966,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
             </div>
 
             {awayRanges !== null && deliveryDate && (() => {
-              const covering = awayRanges.filter(r => r.starts_on <= deliveryDate && deliveryDate <= r.ends_on)
+              const covering = awayRanges.filter(r => isAwayOn([r], deliveryDate))
               const longer = covering.find(r => r.starts_on !== r.ends_on)
               return (
                 <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>

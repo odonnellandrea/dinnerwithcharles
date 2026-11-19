@@ -19,7 +19,10 @@ export const todayIso = () => {
 export const upcoming = (ranges, today = todayIso()) =>
   (ranges || []).filter(r => r.ends_on >= today).sort((a, b) => a.starts_on.localeCompare(b.starts_on))
 
-export const isAwayOn = (ranges, dateIso) => !!dateIso && (ranges || []).some(r => r.starts_on <= dateIso && dateIso <= r.ends_on)
+// Away on a date if it falls inside a range, but the last day doesn't count: someone flying home on
+// delivery Monday is home for dinner. A single-day range (the one-tap "not ordering this week") still counts.
+export const isAwayOn = (ranges, dateIso) => !!dateIso && (ranges || []).some(r =>
+  r.starts_on <= dateIso && (dateIso < r.ends_on || r.starts_on === r.ends_on && dateIso === r.ends_on))
 
 // "Away Nov 24–30, then Dec 20–Jan 4"
 export function awaySummary(ranges, today = todayIso()) {
