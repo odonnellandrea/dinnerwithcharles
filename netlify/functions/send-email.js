@@ -67,7 +67,7 @@ export default async (req) => {
     } catch (err) { console.error('email_log:', err) }
   }
   const deliver = async (to, message, log = {}) => {
-    const { data, error } = await sendWithRetry({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to, subject: message.subject, html: message.html })
+    const { data, error } = await sendWithRetry({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to, subject: message.subject, html: message.html, text: message.text })
     if (log.kind) await logEmail({ ...log, to, subject: message.subject, id: data?.id, error })
     return { id: data?.id, error }
   }
@@ -132,7 +132,7 @@ export default async (req) => {
       const chunk = recipients.filter(r => r.email).slice(i, i + 100)
       const messages = chunk.map(profile => {
         const message = menuLiveEmail({ profile, settings, siteUrl })
-        return { from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: profile.email, subject: message.subject, html: message.html }
+        return { from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, to: profile.email, subject: message.subject, html: message.html, text: message.text }
       })
       const { data: batch, error } = await resend.batch.send(messages)
       if (error) failed.push(...chunk.map(r => r.email))
@@ -155,7 +155,7 @@ export default async (req) => {
       ...['Roasted Carrot Salad', 'Market Salad'].map(n => ({ ...sampleBase, item_type: 'salad', item_name: n, quantity: 1, total_order_price: 0 }))
     ]
     const notice = orderNoticeEmail({ rows: sampleRows, profile: { first_name: 'Test', last_name: 'Customer', delivery_phone: '(555) 123-4567', delivery_address: '1 Example St, New York', delivery_option: 'home', payment_method: 'Venmo' }, siteUrl })
-    const { data: sentTest, error: testError } = await sendWithRetry({ from: EMAIL_FROM, to: ADMIN_NOTIFY_EMAIL, subject: `[Test] ${notice.subject}`, html: notice.html })
+    const { data: sentTest, error: testError } = await sendWithRetry({ from: EMAIL_FROM, to: ADMIN_NOTIFY_EMAIL, subject: `[Test] ${notice.subject}`, html: notice.html, text: notice.text })
     if (testError) return json(502, { to: ADMIN_NOTIFY_EMAIL, error: testError.message || String(testError.name || 'Resend refused the email') })
     // Give Resend a moment to try delivering, then ask what happened
     await new Promise(resolve => setTimeout(resolve, Number(process.env.TEST_NOTICE_WAIT_MS ?? 4000)))
@@ -223,7 +223,7 @@ export default async (req) => {
       console.log('claim_order_notice:', claimError ? `error: ${claimError.message}` : firstTime)
       if (claimError || firstTime === true) {
         const notice = orderNoticeEmail({ ...adminNotice, siteUrl })
-        const { data: noticeSent, error: noticeError } = await sendWithRetry({ from: EMAIL_FROM, replyTo: customerEmail, to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, html: notice.html })
+        const { data: noticeSent, error: noticeError } = await sendWithRetry({ from: EMAIL_FROM, replyTo: customerEmail, to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, html: notice.html, text: notice.text })
         await logEmail({ kind: 'order_notice', to: ADMIN_NOTIFY_EMAIL, subject: notice.subject, id: noticeSent?.id, error: noticeError, orderId, deliveryDate: rows[0]?.delivery_date })
         if (noticeError) console.error('Admin order notice failed:', noticeError)
         else console.log('Admin order notice sent to', ADMIN_NOTIFY_EMAIL)

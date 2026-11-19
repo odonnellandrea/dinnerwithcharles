@@ -36,7 +36,7 @@ export default async (req) => {
   const siteUrl = process.env.URL || new URL(req.url).origin
   const message = joinRequestEmail({ request, siteUrl })
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const { data, error: sendError } = await resend.emails.send({ from: EMAIL_FROM, to: NOTIFY_TO, replyTo: request.email, subject: message.subject, html: message.html })
+  const { data, error: sendError } = await resend.emails.send({ from: EMAIL_FROM, to: NOTIFY_TO, replyTo: request.email, subject: message.subject, html: message.html, text: message.text })
   if (sendError) {
     console.error('Join request email failed:', sendError)
     return json(502, { error: sendError.message })

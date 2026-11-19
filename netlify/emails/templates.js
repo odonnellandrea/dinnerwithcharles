@@ -127,6 +127,36 @@ function layout({ siteUrl, preheader, body }) {
 </html>`
 }
 
+// Plain-text copy of an email, sent alongside the HTML. Spam filters score HTML-only mail
+// lower, and watches, screen readers and text-only clients show this version.
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', nbsp: ' ', times: '×', middot: '·', mdash: '—', ndash: '–', rsquo: '’', lsquo: '‘' }
+export function htmlToText(html) {
+  return String(html)
+    .replace(/<head[\s\S]*?<\/head>/i, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<div style="display:none[\s\S]*?<\/div>/i, '')
+    .replace(/>\s+</g, '><')
+    .replace(/<img[^>]*alt="([^"]*)"[^>]*>/gi, '$1')
+    .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, label) => {
+      const text = label.replace(/<[^>]+>/g, '').trim()
+      return !text || text === href ? href : `${text} (${href})`
+    })
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|h1|div)>/gi, '\n\n')
+    .replace(/<\/tr>/gi, '\n')
+    .replace(/<\/table>/gi, '\n')
+    .replace(/<\/td>(?=<td)/gi, '  ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&(#x?[0-9a-f]+|\w+);/gi, (m, code) => code[0] === '#'
+      ? String.fromCodePoint(code[1].toLowerCase() === 'x' ? parseInt(code.slice(2), 16) : Number(code.slice(1)))
+      : (ENTITIES[code] ?? m))
+    .split('\n').map(line => line.replace(/[ \t]+/g, ' ').trim()).join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim() + '\n'
+}
+
+const withText = (message) => ({ ...message, text: htmlToText(message.html) })
+
 const ITEM_GROUPS = [
   { type: 'entree', label: 'Entrées' },
   { type: 'salad', label: 'Sides' },
@@ -216,10 +246,10 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
       ${button(siteUrl, 'View your order')}
     </div>`
 
-  return {
+  return withText({
     subject: `Your Dinner with Charles order for ${deliveryDate}`,
     html: layout({ siteUrl, preheader: `Confirmed for ${deliveryDate}. Here's everything on its way.`, body })
-  }
+  })
 }
 
 // Same four steps as the landing page's "How it works"
@@ -252,10 +282,10 @@ export function approvedEmail({ profile, siteUrl }) {
     </div>
     <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Use the email and password you signed up with.</p>`
 
-  return {
+  return withText({
     subject: 'Welcome to Dinner with Charles',
     html: layout({ siteUrl, preheader: 'You\'re in. The weekly menu is waiting.', body })
-  }
+  })
 }
 
 export function reheatGuideEmail({ rows, siteUrl }) {
@@ -273,10 +303,10 @@ export function reheatGuideEmail({ rows, siteUrl }) {
     </div>
     <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Please refrigerate everything as soon as you can. You'll need to sign in to view your guide.</p>`
 
-  return {
+  return withText({
     subject: `Your reheat guide for ${deliveryDate}`,
     html: layout({ siteUrl, preheader: 'Simple reheat steps for each dish.', body })
-  }
+  })
 }
 
 // "The menu is live" to one opted-in customer. Short on purpose: the menu itself lives on
@@ -309,10 +339,10 @@ export function menuLiveEmail({ profile, settings, siteUrl }) {
     </div>
     <p style="margin:40px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">You're getting this because you asked for weekly menu announcements. You can change that any time in Settings.</p>`
 
-  return {
+  return withText({
     subject: `This week's menu is live`,
     html: layout({ siteUrl, preheader: `Delivery ${deliveryDate}. Order${closes ? ` by ${closes}` : ' now'}.`, body })
-  }
+  })
 }
 
 // To the admin when someone requests to join (or resubmits). request: the users row.
@@ -351,10 +381,10 @@ export function joinRequestEmail({ request, siteUrl }) {
     </div>
     <p style="margin:32px 0 0 0;font-size:13px;line-height:1.7;color:#999999;">Sign in as admin and open the Approvals tab. Their full answers are on their card.</p>`
 
-  return {
+  return withText({
     subject: `New request to join: ${name}`,
     html: layout({ siteUrl, preheader: `${request.email} is waiting for approval.`, body })
-  }
+  })
 }
 
 // To the admin when a customer places an order. rows: the Orders rows for that order_id;
@@ -420,8 +450,8 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discoun
       ${button(siteUrl, 'Open orders')}
     </div>`
 
-  return {
+  return withText({
     subject: `New order: ${name}, ${money(price.total)} for ${deliveryDate}`,
     html: layout({ siteUrl, preheader: `${orderNumber(first.order_id)} · ${name} · ${count('entree')} entrées, ${count('salad')} sides`, body })
-  }
+  })
 }
