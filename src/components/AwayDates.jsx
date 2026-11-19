@@ -48,9 +48,12 @@ export default function AwayDates({ user }) {
 
   return (
     <div style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>Away dates</h3>
+      <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>Away Dates</h3>
       <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#666', lineHeight: 1.6 }}>
-        Travelling, or taking a few weeks off? Let us know the dates. It helps us plan the kitchen, and we won't drop a dish you love while you're gone. You'll still hear about each week's menu, and you can change your mind at any time: remove the dates here, or simply order.
+        Travelling, or taking a few weeks off? Let us know the dates. It helps us plan the kitchen, and we won't drop a dish you love while you're gone. We'll hold the week's menu notes while you're away, and you can change your mind at any time: remove the dates here, or simply order.
+      </p>
+      <p style={{ margin: '-6px 0 16px 0', fontSize: '13px', color: '#083525', lineHeight: 1.6 }}>
+        To skip a week, include that week's Monday delivery day in your dates. If you're back on the Monday, we'll count you as home.
       </p>
 
       {ranges.length > 0 && (
