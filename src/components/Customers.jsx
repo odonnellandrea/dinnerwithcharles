@@ -183,7 +183,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
         {c.approval_status === 'approved' && (
           <button onClick={() => { if (window.confirm(`Pause ${name}? They can still sign in but won't see the menu or be able to order until you resume them.`)) onSetStatus(c.id, 'paused') }} style={btn('quiet')}>Pause</button>
         )}
-        {(c.approval_status === 'pending' || c.approval_status === 'rejected') && (
+        {c.approval_status !== 'waitlisted' && (
           <button onClick={() => { if (window.confirm(`Put ${name} on the neighborhood waitlist? They'll see a note that we don't deliver to them yet, and you can approve them when you do.`)) onSetStatus(c.id, 'waitlisted') }} style={btn()}>Waitlist</button>
         )}
         {c.approval_status !== 'rejected' && (
