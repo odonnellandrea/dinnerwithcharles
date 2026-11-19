@@ -91,7 +91,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
             <img src="/images/soup-greens.jpg" alt="Creamy potato and greens soup topped with seared sausage and microgreens" />
             <img className="landing-gallery-low" src="/images/salmon-mushroom-bowl.jpg" alt="Seared salmon and roasted mushrooms over rice in a blue bowl, beside a white teapot" />
             <img className="landing-gallery-right" src="/images/beets-pistachio.jpg" alt="Roasted beets over whipped cheese with pistachios and microgreens" />
-            <img className="landing-gallery-low" src="/images/torch-brulee.jpg" alt="A kitchen torch caramelizing sugar on a dessert" />
+            <img className="landing-gallery-low" src="/images/chicken-thighs-olives.jpg" alt="Roasted chicken thighs with green olives and lemon on a white plate" />
           </div>
         </div>
       </section>
@@ -187,7 +187,7 @@ export default function LandingPage({ onSignIn, onJoin }) {
             Our kitchen is at capacity for now, and we’re expanding soon. Tell us a little about your
             household and we’ll be in touch as spots open. We can’t wait to cook for you.
           </p>
-          <button className="landing-btn landing-btn--light" onClick={onJoin}>Join the Waitlist</button>
+          <button className="landing-btn" onClick={onJoin}>Join the Waitlist</button>
         </div>
       </section>
 

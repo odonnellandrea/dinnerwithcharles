@@ -211,9 +211,10 @@
 .landing-about h2 { font-size: clamp(28px, 3.5vw, 38px); line-height: 1.2; margin-bottom: 28px; }
 
 /* Join */
-.landing-join { background: var(--green); color: var(--cream); text-align: center; padding: 112px 0; }
-.landing-join h2 { color: var(--cream); font-size: clamp(30px, 4vw, 44px); line-height: 1.15; margin-bottom: 20px; }
-.landing-join p { color: rgba(250,248,243,0.85); font-size: 17px; line-height: 1.7; max-width: 560px; margin: 0 auto 40px; }
+/* A cream block before the green footer, so the page doesn't end in one tall slab of green */
+.landing-join { background: #fff; color: var(--ink); text-align: center; padding: 96px 0; border-top: 1px solid var(--border); }
+.landing-join h2 { color: var(--green); font-size: clamp(30px, 4vw, 44px); line-height: 1.15; margin-bottom: 20px; }
+.landing-join p { color: var(--muted); font-size: 17px; line-height: 1.7; max-width: 560px; margin: 0 auto 40px; }
 
 /* Footer */
 .landing-footer { background: var(--green); }
@@ -292,7 +293,7 @@
   .landing-hero-actions .landing-btn { flex: 1 1 100%; text-align: center; }
   .landing-hero-photo { aspect-ratio: 1 / 1; }
   .landing-price-card { padding: 28px 24px; }
-  .landing-join { padding: 80px 0; }
+  .landing-join { padding: 64px 0; }
   .landing-follow { padding-top: 48px; padding-bottom: 48px; }
 }
 
