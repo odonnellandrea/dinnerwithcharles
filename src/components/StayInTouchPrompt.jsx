@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn } from '../lib/notificationConsent'
+import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn, isMissingEmailMarketingColumn, withoutEmailMarketingColumn } from '../lib/notificationConsent'
 
 // Asked exactly once, for customers who joined before the opt-ins existed. It's marked as
 // asked as soon as it appears, so saving, skipping or just leaving all end it for good;
@@ -11,6 +11,7 @@ import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn
 export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn, onDone }) {
   const [emailOptIn, setEmailOptIn] = useState(false)
   const [smsOptIn, setSmsOptIn] = useState(initialSmsOptIn === true)
+  const [emailMarketingOptIn, setEmailMarketingOptIn] = useState(false)
   const [smsMarketingOptIn, setSmsMarketingOptIn] = useState(false)
   const markedAsked = useRef(null)
 
@@ -30,6 +31,7 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
 
   const handleChange = (field, value) => {
     if (field === 'emailOptIn') setEmailOptIn(value)
+    if (field === 'emailMarketingOptIn') setEmailMarketingOptIn(value)
     if (field === 'smsOptIn') setSmsOptIn(value)
     if (field === 'smsMarketingOptIn') setSmsMarketingOptIn(value)
     if (field === 'phoneNumber') setPhoneNumber(value)
@@ -46,12 +48,16 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
     await markedAsked.current // so the "asked" write can never land after their choice
     const changes = {
       email_opt_in: emailOptIn === true,
+      email_marketing_opt_in: emailMarketingOptIn === true,
       sms_opt_in: smsOptIn === true,
       sms_marketing_opt_in: smsMarketingOptIn === true,
       phone_number: (smsOptIn || smsMarketingOptIn) ? normalizedPhone : null,
       [PREFS_SET_COLUMN]: new Date().toISOString()
     }
     let { error } = await supabase.from('users').update(changes).eq('id', user.id)
+    if (isMissingEmailMarketingColumn(error)) {
+      ({ error } = await supabase.from('users').update(withoutEmailMarketingColumn(changes)).eq('id', user.id))
+    }
     if (isMissingSmsMarketingColumn(error)) {
       ({ error } = await supabase.from('users').update(withoutSmsMarketingColumn(changes)).eq('id', user.id))
     }
@@ -72,11 +78,12 @@ export default function StayInTouchPrompt({ user, initialPhone, initialSmsOptIn,
       <p style={{ margin: '0 0 8px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>One quick question</p>
       <h2 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '24px' }}>How should we stay in touch?</h2>
       <p style={{ margin: 0, fontSize: '15px', color: '#666', lineHeight: '1.6' }}>
-        We've added email and text updates. Choose either, both or neither. You can change this anytime in Settings.
+        We've added email and text updates. Choose any, all or none. You can change this anytime in Settings.
       </p>
 
       <NotificationChoices
         emailOptIn={emailOptIn}
+        emailMarketingOptIn={emailMarketingOptIn}
         smsOptIn={smsOptIn}
         smsMarketingOptIn={smsMarketingOptIn}
         phoneNumber={phoneNumber}

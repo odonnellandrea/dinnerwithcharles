@@ -1,7 +1,10 @@
 // Consent wording shared by the request-to-join form and the Notification Settings
 // screen so customers always see the exact same choices. Edit the text here only.
 
-export const EMAIL_CONSENT_TEXT = 'Email me weekly menu announcements and news from Dinner with Charles.'
+// Two separate email consents, like texts: the weekly menu, and marketing. Each needs its own yes.
+export const EMAIL_CONSENT_TEXT = 'Email me when the weekly menu goes live.'
+
+export const EMAIL_MARKETING_CONSENT_TEXT = 'Email me occasional news and offers from Dinner with Charles.'
 
 // Two separate text consents: the first is about their orders and the weekly menu, the second
 // is marketing. Each needs its own clear yes.
@@ -15,6 +18,13 @@ export const SMS_TERMS_TEXT = "Texts are sent by a person, not a machine, so fre
 export const isMissingSmsMarketingColumn = (error) => !!error && String(error.message || '').includes('sms_marketing_opt_in')
 export function withoutSmsMarketingColumn(payload) {
   const { sms_marketing_opt_in: _m, ...rest } = payload
+  return rest
+}
+
+// Until 20261119_email_unsubscribe.sql is run, writes with this column fail; retry without it
+export const isMissingEmailMarketingColumn = (error) => !!error && String(error.message || '').includes('email_marketing_opt_in')
+export function withoutEmailMarketingColumn(payload) {
+  const { email_marketing_opt_in: _m, ...rest } = payload
   return rest
 }
 

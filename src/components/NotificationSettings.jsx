@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn } from '../lib/notificationConsent'
+import { normalizeUsPhone, formatUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn, isMissingEmailMarketingColumn, withoutEmailMarketingColumn } from '../lib/notificationConsent'
 
 export default function NotificationSettings({ user }) {
   // Show exactly what's saved: anything other than true counts as not opted in
   const [emailOptIn, setEmailOptIn] = useState(false)
   const [smsOptIn, setSmsOptIn] = useState(false)
+  const [emailMarketingOptIn, setEmailMarketingOptIn] = useState(false)
   const [smsMarketingOptIn, setSmsMarketingOptIn] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [phoneError, setPhoneError] = useState('')
@@ -26,6 +27,7 @@ export default function NotificationSettings({ user }) {
 
     if (data) {
       setEmailOptIn(data.email_opt_in === true)
+      setEmailMarketingOptIn(data.email_marketing_opt_in === true)
       setSmsOptIn(data.sms_opt_in === true)
       setSmsMarketingOptIn(data.sms_marketing_opt_in === true)
       setPhoneNumber(formatUsPhone(data.phone_number))
@@ -34,6 +36,7 @@ export default function NotificationSettings({ user }) {
 
   const handleChange = (field, value) => {
     if (field === 'emailOptIn') setEmailOptIn(value)
+    if (field === 'emailMarketingOptIn') setEmailMarketingOptIn(value)
     if (field === 'smsOptIn') setSmsOptIn(value)
     if (field === 'smsMarketingOptIn') setSmsMarketingOptIn(value)
     if (field === 'phoneNumber') setPhoneNumber(value)
@@ -54,12 +57,16 @@ export default function NotificationSettings({ user }) {
     try {
       const changes = {
         email_opt_in: emailOptIn === true,
+        email_marketing_opt_in: emailMarketingOptIn === true,
         sms_opt_in: smsOptIn === true,
         sms_marketing_opt_in: smsMarketingOptIn === true,
         phone_number: (smsOptIn || smsMarketingOptIn) ? normalizedPhone : null,
         [PREFS_SET_COLUMN]: new Date().toISOString()
       }
       let { error } = await supabase.from('users').update(changes).eq('id', user.id)
+      if (isMissingEmailMarketingColumn(error)) {
+        ({ error } = await supabase.from('users').update(withoutEmailMarketingColumn(changes)).eq('id', user.id))
+      }
       if (isMissingSmsMarketingColumn(error)) {
         ({ error } = await supabase.from('users').update(withoutSmsMarketingColumn(changes)).eq('id', user.id))
       }
@@ -81,11 +88,12 @@ export default function NotificationSettings({ user }) {
     <div style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
       <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>Notification Preferences</h3>
       <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
-        Choose either, both or neither. You can change these anytime.
+        Choose any, all or none. You can change these anytime.
       </p>
 
       <NotificationChoices
         emailOptIn={emailOptIn}
+        emailMarketingOptIn={emailMarketingOptIn}
         smsOptIn={smsOptIn}
         smsMarketingOptIn={smsMarketingOptIn}
         phoneNumber={phoneNumber}

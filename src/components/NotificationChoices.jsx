@@ -1,10 +1,10 @@
 import React from 'react'
-import { EMAIL_CONSENT_TEXT, SMS_CONSENT_TEXT, SMS_MARKETING_CONSENT_TEXT, SMS_TERMS_TEXT, TRANSACTIONAL_NOTE } from '../lib/notificationConsent'
+import { EMAIL_CONSENT_TEXT, EMAIL_MARKETING_CONSENT_TEXT, SMS_CONSENT_TEXT, SMS_MARKETING_CONSENT_TEXT, SMS_TERMS_TEXT, TRANSACTIONAL_NOTE } from '../lib/notificationConsent'
 
-// The independent opt-ins: email, order/menu texts, and marketing texts. Used on the
+// The independent opt-ins: menu emails, marketing emails, order/menu texts, and marketing texts. Used on the
 // request-to-join form and in Notification Settings so both show identical choices. Never
 // pre-check a box.
-export default function NotificationChoices({ emailOptIn, smsOptIn, smsMarketingOptIn = false, phoneNumber, onChange, phoneError }) {
+export default function NotificationChoices({ emailOptIn, emailMarketingOptIn = false, smsOptIn, smsMarketingOptIn = false, phoneNumber, onChange, phoneError }) {
   const wantsTexts = smsOptIn === true || smsMarketingOptIn === true
   const boxStyle = { width: '18px', height: '18px', marginTop: '2px', flexShrink: 0, accentColor: '#083525', cursor: 'pointer' }
   const textStyle = { fontSize: '14px', lineHeight: '1.6', color: '#333' }
@@ -21,6 +21,15 @@ export default function NotificationChoices({ emailOptIn, smsOptIn, smsMarketing
             style={boxStyle}
           />
           <span style={textStyle}>{EMAIL_CONSENT_TEXT}</span>
+        </label>
+        <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', cursor: 'pointer', marginTop: '12px' }}>
+          <input
+            type="checkbox"
+            checked={emailMarketingOptIn === true}
+            onChange={(e) => onChange('emailMarketingOptIn', e.target.checked)}
+            style={boxStyle}
+          />
+          <span style={textStyle}>{EMAIL_MARKETING_CONSENT_TEXT}</span>
         </label>
       </div>
 

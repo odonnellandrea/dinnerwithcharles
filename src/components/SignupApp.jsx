@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import NotificationChoices from './NotificationChoices'
-import { normalizeUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn } from '../lib/notificationConsent'
+import { normalizeUsPhone, PREFS_SET_COLUMN, isMissingPrefsColumn, withoutPrefsColumn, isMissingSmsMarketingColumn, withoutSmsMarketingColumn, isMissingEmailMarketingColumn, withoutEmailMarketingColumn } from '../lib/notificationConsent'
 import { nameColumns, namesFrom, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
 import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions, hasDeliveryOption } from '../lib/deliveryOptions'
 import { normalizeCode, codeMessage } from '../lib/referral'
@@ -85,6 +85,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
     // Marketing opt-ins: always start unchecked
     emailOptIn: false,
     smsOptIn: false,
+    emailMarketingOptIn: false,
     smsMarketingOptIn: false,
     smsPhone: ''
   })
@@ -119,6 +120,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           email: data.email || resubmitFor.email,
           // Show the choices they already saved; nothing new is pre-checked
           emailOptIn: data.email_opt_in === true,
+          emailMarketingOptIn: data.email_marketing_opt_in === true,
           smsOptIn: data.sms_opt_in === true,
           smsMarketingOptIn: data.sms_marketing_opt_in === true,
           smsPhone: data.phone_number || ''
@@ -255,6 +257,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           ...answerColumns(formData),
           ...nameColumns(formData.firstName, formData.lastName),
           email_opt_in: formData.emailOptIn === true,
+          email_marketing_opt_in: formData.emailMarketingOptIn === true,
           sms_opt_in: formData.smsOptIn === true,
           sms_marketing_opt_in: formData.smsMarketingOptIn === true,
           phone_number: (formData.smsOptIn || formData.smsMarketingOptIn) ? smsPhone : null,
@@ -263,6 +266,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           resubmitted_at: new Date().toISOString()
         }
         let { error: updateError } = await supabase.from('users').update(changes).eq('id', resubmitFor.id)
+        if (isMissingEmailMarketingColumn(updateError)) {
+          ({ error: updateError } = await supabase.from('users').update(withoutEmailMarketingColumn(changes)).eq('id', resubmitFor.id))
+        }
         if (isMissingSmsMarketingColumn(updateError)) {
           ({ error: updateError } = await supabase.from('users').update(withoutSmsMarketingColumn(changes)).eq('id', resubmitFor.id))
         }
@@ -301,6 +307,7 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           ...(referralInstalled && normalizeCode(formData.referralCode) ? { referral_code: normalizeCode(formData.referralCode) } : {}),
           // Always explicit so we never rely on the column default
           email_opt_in: formData.emailOptIn === true,
+          email_marketing_opt_in: formData.emailMarketingOptIn === true,
           sms_opt_in: formData.smsOptIn === true,
           sms_marketing_opt_in: formData.smsMarketingOptIn === true,
           phone_number: (formData.smsOptIn || formData.smsMarketingOptIn) ? smsPhone : null,
@@ -311,6 +318,9 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
         }
 
         let { error: insertError } = await supabase.from('users').insert([profile])
+        if (isMissingEmailMarketingColumn(insertError)) {
+          ({ error: insertError } = await supabase.from('users').insert([withoutEmailMarketingColumn(profile)]))
+        }
         if (isMissingSmsMarketingColumn(insertError)) {
           ({ error: insertError } = await supabase.from('users').insert([withoutSmsMarketingColumn(profile)]))
         }
@@ -510,9 +520,10 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
 
               <div style={{ marginBottom: '24px', paddingTop: '8px', borderTop: '1px solid #e0dbd1' }}>
                 <h3 style={{ color: '#083525', fontSize: '17px', margin: '16px 0 4px 0' }}>Stay in touch (optional)</h3>
-                <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.6' }}>Choose either, both or neither.</p>
+                <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.6' }}>Choose any, all or none.</p>
                 <NotificationChoices
                   emailOptIn={formData.emailOptIn}
+                  emailMarketingOptIn={formData.emailMarketingOptIn}
                   smsOptIn={formData.smsOptIn}
                   smsMarketingOptIn={formData.smsMarketingOptIn}
                   phoneNumber={formData.smsPhone}

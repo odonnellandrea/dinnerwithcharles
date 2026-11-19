@@ -204,7 +204,7 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
         {line([kv('Allergies', c.allergies), kv('Health', c.health_restrictions), kv('Preferences', c.preference_restrictions)])}
         {line([kv('Referral code', c.referral_code), kv('Heard about us', [c.heard_about, c.heard_about_detail].filter(Boolean).join(': ') || null), kv('Joined', shortDate(c.created_at))])}
         {line([kv('Away', awaySummary(awayByUser[c.id])), lastActive(c) ? kv('Last active', `${shortDate(lastActive(c))}${login?.last_sign_in_at && login.last_sign_in_at !== lastActive(c) ? ` (ordered; last sign-in seen ${shortDate(login.last_sign_in_at)})` : ''}${Number(login?.login_count) > 0 ? ` · ${login.login_count} sign-in${Number(login.login_count) === 1 ? '' : 's'} since Oct 27` : ''}`) : kv('Last active', 'not yet')])}
-        {line([kv('Email updates', optInLabel(c, 'email_opt_in')), kv('Order texts', optInLabel(c, 'sms_opt_in')), kv('Offers texts', c.sms_marketing_opt_in === true ? 'Yes' : 'No')])}
+        {line([kv('Menu emails', optInLabel(c, 'email_opt_in')), kv('Offers emails', c.email_marketing_opt_in === true ? 'Yes' : 'No'), kv('Order texts', optInLabel(c, 'sms_opt_in')), kv('Offers texts', c.sms_marketing_opt_in === true ? 'Yes' : 'No')])}
         {(() => {
           const sent = (emailsByAddress[String(c.email).toLowerCase()] || []).slice(0, 4)
           if (!sent.length) return <p style={{ margin: 0, color: '#999' }}>No emails on record yet (logging started Nov 13).</p>
@@ -238,7 +238,8 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
             {answerFields.map(([label, field]) => (
               <div key={field}><dt>{label}</dt><dd>{c[field] ? String(c[field]) : '—'}</dd></div>
             ))}
-            <div><dt>Email updates</dt><dd>{optInLabel(c, 'email_opt_in')}</dd></div>
+            <div><dt>Menu emails</dt><dd>{optInLabel(c, 'email_opt_in')}</dd></div>
+            <div><dt>News and offers emails</dt><dd>{c.email_marketing_opt_in === true ? 'Yes' : 'No'}</dd></div>
             <div><dt>Order and menu texts</dt><dd>{optInLabel(c, 'sms_opt_in')}{optInLabel(c, 'sms_opt_in') === 'Yes' && c.phone_number ? ` · ${formatUsPhone(c.phone_number)}` : ''}</dd></div>
             <div><dt>News and offers texts</dt><dd>{c.sms_marketing_opt_in === true ? 'Yes' : 'No'}</dd></div>
           </dl>
