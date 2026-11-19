@@ -107,7 +107,7 @@ export default async (req) => {
     // the old column default, which was never consent. (Falls back to the plain flag until
     // that column's migration has been run, like the Notifications tab.)
     const optedIn = (confirmedOnly) => {
-      let query = supabase.from('users').select('email, first_name, name').eq('approval_status', 'approved').eq('email_opt_in', true)
+      let query = supabase.from('users').select('id, email, first_name, name').eq('approval_status', 'approved').eq('email_opt_in', true)
       if (confirmedOnly) query = query.not(PREFS_SET_COLUMN, 'is', null)
       return query
     }
@@ -115,6 +115,16 @@ export default async (req) => {
     if (isMissingPrefsColumn(usersError)) ({ data: recipients, error: usersError } = await optedIn(false))
     if (usersError) { await undoClaim(); return json(500, { error: usersError.message }) }
     if (!recipients?.length) { await undoClaim(); return json(409, { error: 'No approved customers have opted in to menu emails' }) }
+    // Away for this delivery week: no menu email. Best effort, so a missing table never blocks the send.
+    let skippedAway = []
+    try {
+      const { data: awayRows } = await supabase.from('away_dates').select('user_id, starts_on, ends_on').lte('starts_on', deliveryDate).gte('ends_on', deliveryDate)
+      // Back on delivery day counts as home; a single-day "not ordering this week" still counts as away
+      const awayIds = new Set((awayRows || []).filter(r => deliveryDate < r.ends_on || r.starts_on === r.ends_on).map(r => r.user_id))
+      skippedAway = recipients.filter(r => awayIds.has(r.id)).map(r => r.email)
+      recipients = recipients.filter(r => !awayIds.has(r.id))
+    } catch (err) { console.error('away_dates lookup failed:', err) }
+    if (!recipients.length) { await undoClaim(); return json(409, { error: 'Everyone who opted in is away this week' }) }
 
     // Resend batches up to 100 per call
     const failed = []
@@ -132,7 +142,7 @@ export default async (req) => {
       }
     }
     if (failed.length === recipients.length) { await undoClaim(); return json(502, { error: 'Resend rejected the emails' }) }
-    return json(200, { sent: recipients.length - failed.length, failed })
+    return json(200, { sent: recipients.length - failed.length, failed, skipped_away: skippedAway })
   }
 
   // Admin-only check: sends a sample "new order" email to the admin address, then asks Resend

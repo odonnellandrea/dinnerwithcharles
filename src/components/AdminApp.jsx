@@ -147,7 +147,7 @@ export default function AdminApp({ onLogout, onOrder }) {
   // to send twice for the same delivery date unless resend is true.
   const sendMenuEmail = async () => {
     const resend = !!menuEmailSentAt
-    const who = `${menuEmailRecipients ?? 'all opted-in'} customer${menuEmailRecipients === 1 ? '' : 's'}`
+    const who = `${emailCount ?? 'all opted-in'} customer${emailCount === 1 ? '' : 's'}`
     if (!window.confirm(resend ? `Send the menu email again to ${who}?` : `Send this week's menu to ${who}?`)) return
     setSendingMenuEmail(true)
     try {
@@ -543,6 +543,13 @@ export default function AdminApp({ onLogout, onOrder }) {
 
   const filtersActive = orderSearch || orderDateFilter !== 'all' || orderStatusFilter !== 'all' || paymentFilter !== 'all'
 
+  // Someone away for the delivery week gets neither the menu email nor a text that week
+  const awayThisWeek = (p) => isAwayOn(awayByUser[p.id], deliveryDate)
+  const emailList = notifyLists.email.filter(p => !awayThisWeek(p))
+  const smsList = notifyLists.sms.filter(p => !awayThisWeek(p))
+  const awayNames = [...notifyLists.email, ...notifyLists.sms].filter(awayThisWeek).map(p => p.name).filter((n, i, a) => a.indexOf(n) === i)
+  const emailCount = menuEmailRecipients == null ? null : Math.max(0, menuEmailRecipients - notifyLists.email.filter(awayThisWeek).length)
+
   return (
     <div className="admin-page">
       <div className="admin-bar">
@@ -772,7 +779,7 @@ export default function AdminApp({ onLogout, onOrder }) {
               <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '8px' }}>Menu Email</h3>
               <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
                 Tells every approved customer who opted in to menu emails that the menu is up, with the delivery date and close time, and sends them to the site
-                {menuEmailRecipients != null && <> ({menuEmailRecipients} right now)</>}.
+                {emailCount != null && <> ({emailCount} right now{awayNames.length ? `, with ${awayNames.length} away this week left out` : ''})</>}.
                 {' '}{menuLive ? '' : 'Go live first, then send.'}
               </p>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -786,12 +793,13 @@ export default function AdminApp({ onLogout, onOrder }) {
                 {menuEmailSentAt && <span style={{ fontSize: '13px', color: '#083525' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
               </div>
               <button onClick={() => setShowEmailList(v => !v)} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>
-                {showEmailList ? 'Hide' : 'Show'} who gets the email ({notifyLists.email.length})
+                {showEmailList ? 'Hide' : 'Show'} who gets the email ({emailList.length})
               </button>
               {showEmailList && (
                 <ul style={{ margin: '10px 0 0 0', paddingLeft: '20px', fontSize: '13px', color: '#333', lineHeight: 1.8 }}>
-                  {notifyLists.email.length === 0 && <li style={{ listStyle: 'none', marginLeft: '-20px', color: '#666' }}>Nobody has opted in to menu emails yet.</li>}
-                  {notifyLists.email.map(p => <li key={p.id}>{p.name} <span style={{ color: '#999' }}>· {p.email}</span></li>)}
+                  {emailList.length === 0 && <li style={{ listStyle: 'none', marginLeft: '-20px', color: '#666' }}>Nobody has opted in to menu emails yet.</li>}
+                  {emailList.map(p => <li key={p.id}>{p.name} <span style={{ color: '#999' }}>· {p.email}</span></li>)}
+                  {awayNames.length > 0 && <li style={{ listStyle: 'none', marginLeft: '-20px', color: '#b8923f', marginTop: '6px' }}>✈ Away this week, not emailed: {awayNames.join(', ')}</li>}
                 </ul>
               )}
             </div>
@@ -819,15 +827,15 @@ export default function AdminApp({ onLogout, onOrder }) {
                 {menuImage ? (canShareImage() ? `✓ ${menuImage.name} goes with each text through your phone's share sheet.` : `${menuImage.name} is picked, but this browser can't share images. Use the Text link and attach it by hand.`) : 'Pick this week\'s menu JPEG from your photos. On an iPhone it goes with the message through the share sheet.'}
               </p>
               <button onClick={() => setShowSmsList(v => !v)} style={{ padding: '8px 20px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>
-                {showSmsList ? 'Hide the list' : `Who to text (${notifyLists.sms.length})`}
+                {showSmsList ? 'Hide the list' : `Who to text (${smsList.length})`}
               </button>
               {shareNote && <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#083525' }}>{shareNote}</p>}
               {showSmsList && (
                 <div style={{ marginTop: '12px', fontSize: '13px', color: '#333', lineHeight: 1.8 }}>
-                  {notifyLists.sms.length === 0 && <p style={{ margin: 0, color: '#666' }}>Nobody has opted in to texts yet.</p>}
-                  {notifyLists.sms.map(p => (
+                  {smsList.length === 0 && <p style={{ margin: 0, color: '#666' }}>Nobody has opted in to texts yet.</p>}
+                  {smsList.map(p => (
                     <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', borderTop: '1px solid #f0ece3', padding: '6px 0' }}>
-                      <span>{p.name} <span style={{ color: '#999' }}>· {p.phone}</span>{isAwayOn(awayByUser[p.id], deliveryDate) && <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '11px', fontWeight: '600', background: '#faf8f3', border: '1px solid #D4A373', color: '#b8923f' }}>away</span>}</span>
+                      <span>{p.name} <span style={{ color: '#999' }}>· {p.phone}</span></span>
                       <span style={{ display: 'flex', gap: '6px' }}>
                         {canShareImage() && (
                           <button onClick={() => shareWithImage(p)} style={{ padding: '4px 12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
@@ -840,6 +848,9 @@ export default function AdminApp({ onLogout, onOrder }) {
                       </span>
                     </div>
                   ))}
+                  {awayNames.length > 0 && (
+                    <p style={{ margin: '10px 0 0 0', color: '#b8923f' }}>✈ Away this week, not on the list: {awayNames.join(', ')}</p>
+                  )}
                   {notifyLists.smsNoNumber.length > 0 && (
                     <p style={{ margin: '10px 0 0 0', color: '#c62828' }}>Opted in but no number on file: {notifyLists.smsNoNumber.map(p => p.name).join(', ')}</p>
                   )}
