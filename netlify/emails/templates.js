@@ -33,39 +33,94 @@ export const formatDeliveryDate = (dateStr) => {
 const eyebrow = (text) =>
   `<p style="margin:0 0 10px 0;font-family:${FONT};font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:${GOLD};font-weight:600;">${text}</p>`
 
+// Padding sits on the cell, not the link, so Outlook (which ignores padding on links) still
+// draws a full-size button. On phones the button spans the card for an easy tap.
 const button = (href, label) => `
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-    <td style="background:${GREEN};">
-      <a href="${href}" style="display:inline-block;padding:16px 32px;font-family:${FONT};font-size:14px;font-weight:600;letter-spacing:0.06em;color:${CREAM};text-decoration:none;">${label}</a>
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="dwc-btn"><tr>
+    <td align="center" style="background:${GREEN};mso-padding-alt:16px 32px;">
+      <a href="${href}" style="display:inline-block;padding:16px 32px;font-family:${FONT};font-size:14px;font-weight:600;letter-spacing:0.06em;line-height:1.2;color:${CREAM};text-decoration:none;">${label}</a>
     </td>
   </tr></table>`
+
+// One line per dish with a hanging indent, so a long name wraps under itself, not under the count
+const itemLine = (quantity, name, gap = 8) => `
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 ${gap}px 0;"><tr>
+    <td valign="top" width="32" style="width:32px;font-size:15px;line-height:1.6;color:${GOLD};font-weight:600;">${Number(quantity)}&times;</td>
+    <td valign="top" style="font-size:15px;line-height:1.6;color:#333333;">${escapeHtml(name)}</td>
+  </tr></table>`
+
+// Each window stays on one line ("1:00 - 5:00 PM" never breaks in the middle)
+const windowsHtml = (value) => escapeHtml(formatWindows(value))
+  .split(/(, | or )/)
+  .map(part => (part === ', ' || part === ' or ' ? part : part.replace(/ /g, '&nbsp;')))
+  .join('')
+
+// Phone sizes, Outlook fixes and link resets. Gmail, Apple Mail and Outlook apps read this
+// block; clients that drop it still get the inline styles, which work at any width.
+const HEAD_STYLES = `
+  <style>
+    body { margin:0 !important; padding:0 !important; width:100% !important; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+    table, td { mso-table-lspace:0pt; mso-table-rspace:0pt; }
+    img { -ms-interpolation-mode:bicubic; }
+    a[x-apple-data-detectors] { color:inherit !important; text-decoration:none !important; font-size:inherit !important; font-family:inherit !important; font-weight:inherit !important; line-height:inherit !important; }
+    u + #body a { color:inherit; text-decoration:none; font-size:inherit; font-family:inherit; font-weight:inherit; line-height:inherit; }
+    @media only screen and (max-width:480px) {
+      .dwc-outer { padding:28px 12px !important; }
+      .dwc-logo { padding:0 0 28px 0 !important; }
+      .dwc-logo img { width:180px !important; }
+      .dwc-card { padding:36px 22px !important; }
+      .dwc-h1 { font-size:24px !important; }
+      .dwc-box { padding:20px !important; }
+      .dwc-box-top { padding:20px 20px 0 20px !important; }
+      .dwc-box-bottom { padding:16px 20px 20px 20px !important; }
+      .dwc-btn { width:100% !important; }
+      .dwc-btn a { display:block !important; }
+      .dwc-label { white-space:normal !important; width:38% !important; }
+      .dwc-footer { padding:32px 12px 0 12px !important; }
+    }
+  </style>
+  <!--[if mso]>
+  <style>table, td, p, a, h1, span, strong { font-family:Arial, sans-serif !important; }</style>
+  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <![endif]-->`
+
+// Invisible characters after the preview text, so inboxes don't fill the preview line with
+// the start of the email ("Dinner with Charles Order confirmed Thank you...")
+const PREHEADER_FILL = '&#8199;&#65279;&#847; '.repeat(60)
 
 function layout({ siteUrl, preheader, body }) {
   const logo = `${siteUrl}/Green%20Horizontal%20Logo.png`
   return `<!doctype html>
-<html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
   <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
   <title>Dinner with Charles</title>
+  ${HEAD_STYLES}
 </head>
-<body style="margin:0;padding:0;background:${CREAM};">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preheader)}</div>
+<body id="body" style="margin:0;padding:0;background:${CREAM};word-spacing:normal;">
+  <div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">${escapeHtml(preheader)}${PREHEADER_FILL}</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${CREAM};">
-    <tr><td align="center" style="padding:56px 16px;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
-        <tr><td align="center" style="padding:0 0 40px 0;">
-          <a href="${siteUrl}" style="display:inline-block;"><img src="${logo}" alt="Dinner with Charles" width="220" style="display:block;width:220px;max-width:100%;height:auto;border:0;"></a>
+    <tr><td align="center" class="dwc-outer" style="padding:56px 16px;">
+      <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;">
+        <tr><td align="center" class="dwc-logo" style="padding:0 0 40px 0;">
+          <a href="${siteUrl}" style="display:inline-block;"><img src="${logo}" alt="Dinner with Charles" width="220" height="24" style="display:block;width:220px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;font-family:${FONT};font-size:18px;font-weight:600;color:${GREEN};"></a>
         </td></tr>
-        <tr><td style="background:#ffffff;border:1px solid ${BORDER};border-top:4px solid ${GREEN};padding:56px 48px;font-family:${FONT};color:${MUTED};">
+        <tr><td class="dwc-card" style="background:#ffffff;border:1px solid ${BORDER};border-top:4px solid ${GREEN};padding:56px 48px;font-family:${FONT};font-size:16px;line-height:1.7;color:${MUTED};">
           ${body}
         </td></tr>
-        <tr><td align="center" style="padding:40px 24px 0 24px;font-family:${FONT};font-size:12px;line-height:1.8;color:#999999;">
+        <tr><td align="center" class="dwc-footer" style="padding:40px 24px 0 24px;font-family:${FONT};font-size:12px;line-height:1.8;color:#999999;">
           <a href="${siteUrl}" style="color:${GREEN};text-decoration:underline;">Dinner with Charles</a> &middot; Dinner, taken care of<br>
           Questions? Just reply to this email, or message <a href="https://ig.me/m/dinnerwithcharles" style="color:${GREEN};">@dinnerwithcharles</a> on Instagram.
         </td></tr>
       </table>
+      <!--[if mso]></td></tr></table><![endif]-->
     </td></tr>
   </table>
 </body>
@@ -94,10 +149,7 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
     if (items.length === 0) return ''
     return `
       <p style="margin:32px 0 12px 0;font-size:13px;font-weight:600;color:${GREEN};letter-spacing:0.04em;">${label}</p>
-      ${items.map(r => `
-        <p style="margin:0 0 8px 0;font-size:15px;line-height:1.6;color:#333333;">
-          <span style="display:inline-block;min-width:28px;color:${GOLD};font-weight:600;">${Number(r.quantity)}&times;</span>${escapeHtml(r.item_name)}
-        </p>`).join('')}`
+      ${items.map(r => itemLine(r.quantity, r.item_name, 8)).join('')}`
   }).join('')
 
   const priceRow = (label, amount) => `
@@ -108,21 +160,21 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
 
   const body = `
     ${eyebrow('Order confirmed')}
-    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Thank you', name)}</h1>
+    <h1 class="dwc-h1" style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Thank you', name)}</h1>
     <p style="margin:0;font-size:16px;line-height:1.7;">Your order is in. Here's what's coming your way.</p>
     ${orderNumber(first.order_id) ? `<p style="margin:12px 0 0 0;font-size:13px;color:${MUTED};">Order ${orderNumber(first.order_id)}</p>` : ''}
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:40px 0 0 0;background:${CREAM};border:1px solid ${BORDER};">
       <tr>
-        <td style="padding:24px 28px;vertical-align:top;">
+        <td class="dwc-box-top" style="padding:24px 28px 0 28px;vertical-align:top;">
           ${eyebrow('Delivery')}
           <p style="margin:0;font-size:17px;font-weight:600;color:${GREEN};">${escapeHtml(deliveryDate)}</p>
         </td>
       </tr>
       <tr>
-        <td style="padding:0 28px 24px 28px;vertical-align:top;">
+        <td class="dwc-box-bottom" style="padding:20px 28px 24px 28px;vertical-align:top;">
           ${eyebrow('Your windows')}
-          <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">${escapeHtml(formatWindows(first.delivery_time_slot))}</p>
+          <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">${windowsHtml(first.delivery_time_slot)}</p>
         </td>
       </tr>
     </table>
@@ -152,7 +204,7 @@ export function orderConfirmationEmail({ rows, siteUrl, messengerFee = 0, discou
     </table>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0;background:${CREAM};border:1px solid ${BORDER};">
-      <tr><td style="padding:24px 28px;">
+      <tr><td class="dwc-box" style="padding:24px 28px;">
         ${eyebrow('Payment')}
         ${price.complimentary
           ? `<p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">This order is on us. Nothing to pay.</p>`
@@ -184,7 +236,7 @@ export function approvedEmail({ profile, siteUrl }) {
 
   const body = `
     ${eyebrow('Approved')}
-    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Welcome to the table', name)}</h1>
+    <h1 class="dwc-h1" style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Welcome to the table', name)}</h1>
     <p style="margin:0 0 16px 0;font-size:16px;line-height:1.7;">You're in. Here's how ordering works:</p>
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px 0;">
       ${HOW_IT_WORKS.map(([title, body], i) => `
@@ -214,7 +266,7 @@ export function reheatGuideEmail({ rows, siteUrl }) {
 
   const body = `
     ${eyebrow('Delivered')}
-    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Dinner has arrived', name)}</h1>
+    <h1 class="dwc-h1" style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('Dinner has arrived', name)}</h1>
     <p style="margin:0;font-size:16px;line-height:1.7;">Everything is cooked and ready to reheat. Your guide has simple steps for each dish.</p>
     <div style="margin:40px 0 0 0;">
       ${button(link, 'Open your reheat guide')}
@@ -245,10 +297,10 @@ export function menuLiveEmail({ profile, settings, siteUrl }) {
 
   const body = `
     ${eyebrow("This week's menu")}
-    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('The menu is live', name)}</h1>
+    <h1 class="dwc-h1" style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${greet('The menu is live', name)}</h1>
     <p style="margin:0;font-size:16px;line-height:1.7;">This week's menu is up on the site. Take a look and get your order in${closes ? ` by ${closes}` : ''}.</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0;">
-      <tr><td style="background:${CREAM};border:1px solid ${BORDER};padding:20px 24px;font-family:${FONT};font-size:15px;line-height:1.7;color:#333333;">
+      <tr><td class="dwc-box" style="background:${CREAM};border:1px solid ${BORDER};padding:20px 24px;font-family:${FONT};font-size:15px;line-height:1.7;color:#333333;">
         <strong style="color:${GREEN};">Delivery ${deliveryDate}.</strong>${closes ? ` Orders close ${closes}.` : ''}
       </td></tr>
     </table>
@@ -285,13 +337,13 @@ export function joinRequestEmail({ request, siteUrl }) {
     .filter(([, value]) => value && String(value).trim())
     .map(([label, value]) => `
       <tr>
-        <td style="padding:10px 16px 10px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:13px;color:${MUTED};vertical-align:top;white-space:nowrap;">${label}</td>
-        <td style="padding:10px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:14px;line-height:1.6;color:#333333;">${escapeHtml(value)}</td>
+        <td class="dwc-label" style="padding:10px 16px 10px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:13px;color:${MUTED};vertical-align:top;white-space:nowrap;">${label}</td>
+        <td style="padding:10px 0;vertical-align:top;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:14px;line-height:1.6;color:#333333;">${escapeHtml(value)}</td>
       </tr>`).join('')
 
   const body = `
     ${eyebrow('Waiting for approval')}
-    <h1 style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${escapeHtml(name)} wants to join.</h1>
+    <h1 class="dwc-h1" style="margin:0 0 20px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${escapeHtml(name)} wants to join.</h1>
     <p style="margin:0 0 24px 0;font-size:16px;line-height:1.7;">${escapeHtml(request.email)}</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${BORDER};">${rows}</table>
     <div style="margin:32px 0 0 0;">
@@ -321,21 +373,18 @@ export function orderNoticeEmail({ rows, profile = {}, messengerFee = 0, discoun
     if (items.length === 0) return ''
     return `
       <p style="margin:28px 0 10px 0;font-size:13px;font-weight:600;color:${GREEN};letter-spacing:0.04em;">${label}</p>
-      ${items.map(r => `
-        <p style="margin:0 0 6px 0;font-size:15px;line-height:1.6;color:#333333;">
-          <span style="display:inline-block;min-width:28px;color:${GOLD};font-weight:600;">${Number(r.quantity)}&times;</span>${escapeHtml(r.item_name)}
-        </p>`).join('')}`
+      ${items.map(r => itemLine(r.quantity, r.item_name, 6)).join('')}`
   }).join('')
 
   const detail = (label, value) => value && String(value).trim() ? `
       <tr>
-        <td style="padding:9px 16px 9px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:13px;color:${MUTED};vertical-align:top;white-space:nowrap;">${label}</td>
-        <td style="padding:9px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:14px;line-height:1.6;color:#333333;">${escapeHtml(value)}</td>
+        <td class="dwc-label" style="padding:9px 16px 9px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:13px;color:${MUTED};vertical-align:top;white-space:nowrap;">${label}</td>
+        <td style="padding:9px 0;vertical-align:top;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:14px;line-height:1.6;color:#333333;">${escapeHtml(value)}</td>
       </tr>` : ''
 
   const body = `
     ${eyebrow('New order')}
-    <h1 style="margin:0 0 8px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${escapeHtml(name)} placed an order.</h1>
+    <h1 class="dwc-h1" style="margin:0 0 8px 0;font-size:28px;line-height:1.25;font-weight:600;color:${GREEN};">${escapeHtml(name)} placed an order.</h1>
     <p style="margin:0 0 28px 0;font-size:16px;line-height:1.7;">${price.complimentary ? 'Complimentary' : money(price.total)} for delivery ${escapeHtml(deliveryDate)}.</p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${BORDER};">
