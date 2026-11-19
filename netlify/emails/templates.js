@@ -66,8 +66,8 @@ const HEAD_STYLES = `
     u + #body a { color:inherit; text-decoration:none; font-size:inherit; font-family:inherit; font-weight:inherit; line-height:inherit; }
     @media only screen and (max-width:480px) {
       .dwc-outer { padding:28px 12px !important; }
-      .dwc-logo { padding:0 0 28px 0 !important; }
-      .dwc-logo img { width:180px !important; }
+      .dwc-header { padding:28px 22px !important; }
+      .dwc-header img { width:190px !important; }
       .dwc-card { padding:36px 22px !important; }
       .dwc-h1 { font-size:24px !important; }
       .dwc-box { padding:20px !important; }
@@ -89,7 +89,7 @@ const HEAD_STYLES = `
 const PREHEADER_FILL = '&#8199;&#65279;&#847; '.repeat(60)
 
 function layout({ siteUrl, preheader, body }) {
-  const logo = `${siteUrl}/Green%20Horizontal%20Logo.png`
+  const logo = `${siteUrl}/Gold%20Horizontal%20Logo.png`
   return `<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -109,10 +109,10 @@ function layout({ siteUrl, preheader, body }) {
     <tr><td align="center" class="dwc-outer" style="padding:56px 16px;">
       <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;">
-        <tr><td align="center" class="dwc-logo" style="padding:0 0 40px 0;">
-          <a href="${siteUrl}" style="display:inline-block;"><img src="${logo}" alt="Dinner with Charles" width="220" height="24" style="display:block;width:220px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;font-family:${FONT};font-size:18px;font-weight:600;color:${GREEN};"></a>
+        <tr><td align="center" class="dwc-header" bgcolor="${GREEN}" style="background:${GREEN};border-bottom:3px solid ${GOLD};padding:36px 48px;">
+          <a href="${siteUrl}" style="display:inline-block;"><img src="${logo}" alt="Dinner with Charles" width="240" height="19" style="display:block;width:240px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;font-family:${FONT};font-size:18px;font-weight:600;letter-spacing:0.08em;color:${GOLD};"></a>
         </td></tr>
-        <tr><td class="dwc-card" style="background:#ffffff;border:1px solid ${BORDER};border-top:4px solid ${GREEN};padding:56px 48px;font-family:${FONT};font-size:16px;line-height:1.7;color:${MUTED};">
+        <tr><td class="dwc-card" style="background:#ffffff;border:1px solid ${BORDER};border-top:0;padding:56px 48px;font-family:${FONT};font-size:16px;line-height:1.7;color:${MUTED};">
           ${body}
         </td></tr>
         <tr><td align="center" class="dwc-footer" style="padding:40px 24px 0 24px;font-family:${FONT};font-size:12px;line-height:1.8;color:#999999;">
