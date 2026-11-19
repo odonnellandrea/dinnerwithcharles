@@ -2,15 +2,14 @@
 -- offers (email_marketing_opt_in). Plus a no-sign-in email preferences page reached from the
 -- link in every marketing email. Run in the Supabase SQL editor (safe to re-run).
 
--- New column. When it's first added, everyone who chose yes on the old combined box
--- ("weekly menu announcements and news") keeps news and offers too, since they agreed to it.
--- A yes with no notification_prefs_set_at came from the old column default, not a choice.
+-- New column. When it's first added, everyone currently opted in to email gets news and
+-- offers too: the old single box covered menu announcements and news.
 do $$
 begin
   if not exists (select 1 from information_schema.columns
                  where table_schema = 'public' and table_name = 'users' and column_name = 'email_marketing_opt_in') then
     alter table public.users add column email_marketing_opt_in boolean not null default false;
-    update public.users set email_marketing_opt_in = true where email_opt_in is true and notification_prefs_set_at is not null;
+    update public.users set email_marketing_opt_in = true where email_opt_in is true;
   end if;
 end
 $$;
