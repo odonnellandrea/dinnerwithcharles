@@ -46,6 +46,12 @@ function draw(doc, { menu, deliveryDate, badge }) {
     section.items.forEach((item, i) => {
       y = pdf.dishTitle(doc, y, i + 1, item.name, item.sides || '')
       if (item.description) y = pdf.paragraph(doc, y, item.description)
+      if (item.note) {
+        // A short line under the dish, like "A little spicy" or an oven recommendation
+        y += 4
+        doc.font('Helvetica-Oblique').fontSize(8.4).fillColor(GOLD)
+        y = pdf.wrapped(doc, item.note, TX, y, TW, { lineGap: 3.5 })
+      }
       if (i < section.items.length - 1) {
         y += 6
         pdf.dashedRule(doc, y)
