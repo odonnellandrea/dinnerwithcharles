@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { fetchSheetMenu, getCachedSheetMenu } from '../lib/sheetMenu'
+import { supabase } from '../lib/supabase'
 
 // dinnerwithcharles.com/menu: this week's menu, read live from the sheet, with no sign-in and no
 // link from the homepage. Laid out like the printed menu PDF: tan page, cream card, Times and
@@ -37,6 +38,7 @@ const Caps = ({ children, color = SOFT, size = 11, style }) => <p style={{ margi
 export default function PublicMenu() {
   const [menu, setMenu] = useState(() => getCachedSheetMenu())
   const [error, setError] = useState('')
+  const [status, setStatus] = useState(null) // { is_live, delivery_date, order_close_datetime } from the site, or null while loading
 
   useEffect(() => {
     document.title = 'This week’s menu · Dinner with Charles'
@@ -45,10 +47,17 @@ export default function PublicMenu() {
     const robots = document.createElement('meta'); robots.name = 'robots'; robots.content = 'noindex, nofollow'
     document.head.appendChild(robots)
     fetchSheetMenu().then(setMenu).catch(err => setError(err.message || 'Could not load the menu'))
+    // Is ordering open? Without this the page would show the sheet before you've gone live
+    supabase.rpc('public_menu_status').then(({ data }) => setStatus(data || { is_live: false })).catch(() => setStatus({ is_live: false }))
     return () => { robots.remove(); document.body.style.background = '' }
   }, [])
 
-  const sections = (menu?.sections || []).filter(sec => sec.items.length)
+  // Open only while the week is live and before its close time; otherwise the dishes stay hidden
+  const closeAt = status?.order_close_datetime ? new Date(status.order_close_datetime) : null
+  const closed = !!closeAt && Date.now() > closeAt.getTime()
+  const open = status?.is_live === true && !closed
+  const closeText = closeAt ? closeAt.toLocaleString('en-US', { weekday: 'long', hour: 'numeric', minute: '2-digit' }) : ''
+  const sections = open ? (menu?.sections || []).filter(sec => sec.items.length) : []
   const intro = (menu?.intro || []).join('\n\n')
   const leftSections = sections.filter(sec => sec.type === 'entree')
   const rightSections = sections.filter(sec => sec.type !== 'entree')
@@ -110,18 +119,32 @@ export default function PublicMenu() {
         <Caps style={{ textAlign: 'center' }}>Dinner with Charles</Caps>
         <h1 style={{ margin: '8px 0 6px', fontFamily: serif, fontWeight: '700', fontSize: '34px', lineHeight: 1.1, color: GREEN, textAlign: 'center' }}>Weekly Kitchen</h1>
         <p style={{ margin: 0, fontFamily: serif, fontStyle: 'italic', fontSize: '14px', color: SOFT, textAlign: 'center' }}>from our kitchen to your table</p>
-        <div style={{ textAlign: 'center', margin: '18px 0 0' }}>
-          <span style={{ display: 'inline-block', background: GREEN, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '7px 14px' }}>
-            {menu?.weekOf ? `WEEK OF ${shortDate(menu.weekOf)}` : 'THIS WEEK'}
-          </span>
-        </div>
-        <Caps size={10} color={MUTED} style={{ textAlign: 'center', marginTop: '12px' }}>Each dish feeds 2–3 people</Caps>
+        {open && (
+          <div style={{ textAlign: 'center', margin: '18px 0 0' }}>
+            <span style={{ display: 'inline-block', background: GREEN, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '7px 14px' }}>
+              {`WEEK OF ${shortDate(status.delivery_date || menu?.weekOf)}`}
+            </span>
+          </div>
+        )}
+        {open && <Caps size={10} color={MUTED} style={{ textAlign: 'center', marginTop: '12px' }}>Each dish feeds 2–3 people</Caps>}
+
+        {open && closeText && <Caps size={10} color={MUTED} style={{ textAlign: 'center', marginTop: '6px' }}>Order by {closeText}</Caps>}
 
         {error && <p style={{ textAlign: 'center', color: '#8a2d2d', marginTop: '28px', fontSize: '14px' }}>Sorry, the menu didn’t load. Please try again in a moment.</p>}
-        {!error && !menu && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Setting the table…</p>}
-        {menu && sections.length === 0 && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Next week’s menu is on its way.</p>}
+        {!error && (!menu || !status) && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Setting the table…</p>}
+        {status && !open && (
+          <div style={{ textAlign: 'center', margin: '32px 0 8px' }}>
+            <p style={{ margin: 0, fontFamily: serif, fontWeight: '700', fontStyle: 'italic', fontSize: '19px', color: GREEN }}>
+              {closed ? 'Ordering has closed for this week.' : 'Next week’s menu is on its way.'}
+            </p>
+            <p style={{ margin: '8px auto 0', fontSize: '13.5px', lineHeight: 1.65, color: SOFT, maxWidth: '420px' }}>
+              {closed ? 'The kitchen is cooking. The next menu opens here as soon as it’s ready.' : 'We post each week’s menu here the moment ordering opens.'}
+            </p>
+          </div>
+        )}
+        {open && menu && sections.length === 0 && <p style={{ textAlign: 'center', color: MUTED, marginTop: '28px', fontFamily: serif, fontStyle: 'italic' }}>Next week’s menu is on its way.</p>}
 
-        {intro && <p style={{ margin: '24px 0 0', fontSize: '13.5px', lineHeight: 1.65, color: SOFT, textAlign: 'center', whiteSpace: 'pre-line', maxWidth: '560px', marginLeft: 'auto', marginRight: 'auto' }}>{intro}</p>}
+        {open && intro && <p style={{ margin: '24px 0 0', fontSize: '13.5px', lineHeight: 1.65, color: SOFT, textAlign: 'center', whiteSpace: 'pre-line', maxWidth: '560px', marginLeft: 'auto', marginRight: 'auto' }}>{intro}</p>}
         {sections.length > 0 && <Rule />}
         </div>
 
@@ -136,7 +159,7 @@ export default function PublicMenu() {
         </div>
 
         {/* Footer box, as on the printed menu, then the two ways in */}
-        {menu && (
+        {status && (
           <div style={{ background: BOX, padding: '24px 20px', marginTop: '28px', textAlign: 'center' }}>
             <img src="/Round Badge.png" alt="" style={{ width: '64px', height: '64px', display: 'block', margin: '0 auto 16px' }} />
             <p style={{ margin: 0, fontFamily: serif, fontWeight: '700', fontStyle: 'italic', fontSize: '17px', color: GREEN }}>Pull up a chair.</p>
