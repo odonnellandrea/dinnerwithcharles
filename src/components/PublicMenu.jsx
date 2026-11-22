@@ -170,9 +170,9 @@ export default function PublicMenu() {
             <p style={{ margin: '6px 0 18px', fontFamily: serif, fontStyle: 'italic', fontSize: '12.5px', color: MUTED, lineHeight: 1.5 }}>
               $160 for 3 entrées and 2 sides, delivered Monday. Each dish feeds 2–3 people. Our kitchen is at capacity for now, and we’re expanding soon. Join the waitlist and we’ll be in touch as spots open.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px', maxWidth: '340px', margin: '0 auto' }}>
-              <a href="/?join=1" style={{ display: 'block', background: prefersDark() ? GOLD : GREEN, border: `1px solid ${prefersDark() ? GOLD : GREEN}`, color: prefersDark() ? '#083525' : PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Join the waitlist</a>
-              <a href="/" style={{ display: 'block', border: `1px solid ${GREEN}`, color: GREEN, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Sign in to order</a>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px', maxWidth: '360px', margin: '0 auto' }}>
+              <a href="/?join=1" style={{ display: 'block', background: prefersDark() ? GOLD : GREEN, border: `1px solid ${prefersDark() ? GOLD : GREEN}`, color: prefersDark() ? '#083525' : PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.05em', padding: '12px 6px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Join the waitlist</a>
+              <a href="/" style={{ display: 'block', border: `1px solid ${GREEN}`, color: GREEN, fontFamily: mono, fontSize: '11px', letterSpacing: '0.05em', padding: '12px 6px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Sign in to order</a>
             </div>
           </div>
         )}
