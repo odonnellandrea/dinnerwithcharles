@@ -94,23 +94,23 @@ export default function ItemFormModal({ item, onClose, onSave }) {
       zIndex: 1000
     }}>
       <div style={{
-        background: 'white',
+        background: 'var(--a-surface)',
         padding: '30px',
         maxWidth: '600px',
         maxHeight: '90vh',
         overflowY: 'auto',
         width: '90%'
       }}>
-        <h2 style={{ color: '#083525', marginTop: 0 }}>
+        <h2 style={{ color: 'var(--a-green)', marginTop: 0 }}>
           {item ? 'Edit Item' : 'Add New Item'}
         </h2>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#083525' }}>Type</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--a-green)' }}>Type</label>
           <select
             value={itemType}
             onChange={(e) => setItemType(e.target.value)}
-            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)' }}
           >
             <option value="entree">Entrée</option>
             <option value="salad">Side</option>
@@ -119,43 +119,43 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#083525' }}>Name</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--a-green)' }}>Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Tuscan Chicken"
-            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)', boxSizing: 'border-box' }}
           />
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#083525' }}>Description</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--a-green)' }}>Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g., Pan-seared chicken with Italian herbs and garlic"
-            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '80px', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)', minHeight: '80px', boxSizing: 'border-box' }}
           />
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#083525' }}>Price (for add-ons)</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--a-green)' }}>Price (for add-ons)</label>
           <input
             type="number"
             step="0.01"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="e.g., 43.00"
-            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)', boxSizing: 'border-box' }}
           />
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: '#083525' }}>Categories (select all that apply)</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: 'var(--a-green)' }}>Categories (select all that apply)</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
             {CATEGORIES.map(cat => (
-              <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px', background: '#faf8f3' }}>
+              <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px', background: 'var(--a-cream)' }}>
                 <input
                   type="checkbox"
                   checked={selectedCategories.includes(cat)}
@@ -168,22 +168,22 @@ export default function ItemFormModal({ item, onClose, onSave }) {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: '#083525' }}>Components</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '10px', color: 'var(--a-green)' }}>Components</label>
           {components.map((comp, idx) => (
-            <div key={idx} style={{ marginBottom: '12px', padding: '12px', background: '#faf8f3' }}>
+            <div key={idx} style={{ marginBottom: '12px', padding: '12px', background: 'var(--a-cream)' }}>
               <input
                 type="text"
                 placeholder="Component name"
                 value={comp.name}
                 onChange={(e) => handleUpdateComponent(idx, 'name', e.target.value)}
-                style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid var(--a-border)', boxSizing: 'border-box' }}
               />
               <input
                 type="text"
                 placeholder="Reheating instruction"
                 value={comp.instruction}
                 onChange={(e) => handleUpdateComponent(idx, 'instruction', e.target.value)}
-                style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e0dbd1', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid var(--a-border)', boxSizing: 'border-box' }}
               />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px' }}>
                 <input
@@ -191,12 +191,12 @@ export default function ItemFormModal({ item, onClose, onSave }) {
                   min="1"
                   value={comp.quantity}
                   onChange={(e) => handleUpdateComponent(idx, 'quantity', e.target.value)}
-                  style={{ padding: '8px', border: '1px solid #e0dbd1' }}
+                  style={{ padding: '8px', border: '1px solid var(--a-border)' }}
                   placeholder="Qty"
                 />
                 <button
                   onClick={() => handleRemoveComponent(idx)}
-                  style={{ padding: '8px 12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                  style={{ padding: '8px 12px', background: 'var(--a-gold)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '12px' }}
                 >
                   Remove
                 </button>
@@ -205,33 +205,33 @@ export default function ItemFormModal({ item, onClose, onSave }) {
           ))}
           <button
             onClick={handleAddComponent}
-            style={{ width: '100%', padding: '10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+            style={{ width: '100%', padding: '10px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontWeight: '600' }}
           >
             + Add Component
           </button>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#083525' }}>Chef Notes</label>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--a-green)' }}>Chef Notes</label>
           <textarea
             value={chefNotes}
             onChange={(e) => setChefNotes(e.target.value)}
             placeholder="e.g., Best served within 2 days"
-            style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '60px', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)', minHeight: '60px', boxSizing: 'border-box' }}
           />
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={onClose}
-            style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+            style={{ flex: 1, padding: '12px', background: 'var(--a-gold)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontWeight: '600' }}
             disabled={loading}
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+            style={{ flex: 1, padding: '12px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontWeight: '600' }}
             disabled={loading}
           >
             {loading ? 'Saving...' : 'Save Item'}

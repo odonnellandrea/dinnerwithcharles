@@ -7,10 +7,10 @@ const linkStyle = {
   textAlign: 'left',
   background: 'none',
   border: 'none',
-  borderBottom: '1px solid #e0dbd1',
+  borderBottom: '1px solid var(--a-border)',
   cursor: 'pointer',
   fontSize: '15px',
-  color: '#083525',
+  color: 'var(--a-green)',
   fontWeight: '500',
   fontFamily: 'inherit'
 }
@@ -31,7 +31,7 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin, max
   ]
 
   return (
-    <div style={{ background: '#083525', padding: '14px 20px' }}>
+    <div style={{ background: 'var(--a-bar)', padding: '14px 20px' }}>
     <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth, margin: '0 auto' }}>
       <img
         src="/Gold Horizontal Logo.png"
@@ -43,22 +43,22 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin, max
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={menuOpen}
-        style={{ padding: '11px', background: '#faf8f3', border: '1px solid #faf8f3', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
+        style={{ padding: '11px', background: 'var(--a-cream)', border: '1px solid var(--a-cream)', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '5px' }}
       >
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#083525' }} />
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#083525' }} />
-        <span style={{ display: 'block', width: '22px', height: '2px', background: '#083525' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--a-green)' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--a-green)' }} />
+        <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--a-green)' }} />
       </button>
 
       {menuOpen && (
         <>
           <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 99 }} />
-          <nav style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', minWidth: '240px', background: 'white', border: '1px solid #e0dbd1', boxShadow: '0 12px 32px rgba(26, 68, 31, 0.12)', zIndex: 100 }}>
+          <nav style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', minWidth: '240px', background: 'var(--a-surface)', border: '1px solid var(--a-border)', boxShadow: '0 12px 32px var(--a-shadow)', zIndex: 100 }}>
             {items.map(item => (
               <button
                 key={item.key}
                 onClick={() => go(item.key)}
-                style={{ ...linkStyle, fontWeight: screen === item.key ? '700' : '500', borderLeft: screen === item.key ? '3px solid #D4A373' : '3px solid transparent' }}
+                style={{ ...linkStyle, fontWeight: screen === item.key ? '700' : '500', borderLeft: screen === item.key ? '3px solid var(--a-gold)' : '3px solid transparent' }}
               >
                 {item.label}
               </button>
@@ -66,14 +66,14 @@ export default function GuestHeader({ screen, onNavigate, onLogout, onAdmin, max
             {onAdmin && (
               <button
                 onClick={() => { setMenuOpen(false); onAdmin() }}
-                style={{ ...linkStyle, borderLeft: '3px solid transparent', color: '#083525' }}
+                style={{ ...linkStyle, borderLeft: '3px solid transparent', color: 'var(--a-green)' }}
               >
                 Admin dashboard
               </button>
             )}
             <button
               onClick={() => { setMenuOpen(false); onLogout() }}
-              style={{ ...linkStyle, borderBottom: 'none', borderLeft: '3px solid transparent', color: '#666' }}
+              style={{ ...linkStyle, borderBottom: 'none', borderLeft: '3px solid transparent', color: 'var(--a-muted)' }}
             >
               Logout
             </button>

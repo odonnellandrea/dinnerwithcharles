@@ -1,3 +1,4 @@
+import { brandLogo } from '../lib/logo'
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import NotificationChoices from './NotificationChoices'
@@ -347,23 +348,23 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
 
   if (successScreen) {
     return (
-      <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '40px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ maxWidth: '600px', textAlign: 'center', background: 'white', padding: '40px', borderRadius: '12px', border: '1px solid #e0dbd1' }}>
-          <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px' }} />
+      <div style={{ minHeight: '100vh', background: 'var(--a-cream)', padding: '40px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ maxWidth: '600px', textAlign: 'center', background: 'var(--a-surface)', padding: '40px', borderRadius: '12px', border: '1px solid var(--a-border)' }}>
+          <img src={brandLogo()} alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px' }} />
           
-          <h1 style={{ color: '#083525', marginBottom: '16px' }}>You're on the waitlist</h1>
+          <h1 style={{ color: 'var(--a-green)', marginBottom: '16px' }}>You're on the waitlist</h1>
           
-          <p style={{ fontSize: '16px', color: '#666', marginBottom: '12px', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '16px', color: 'var(--a-muted)', marginBottom: '12px', lineHeight: '1.6' }}>
             Thank you for joining the Dinner with Charles waitlist. Our kitchen is at capacity for now, and we're expanding soon. We'll be in touch as spots open, and we can't wait to cook for you.
           </p>
           
-          <p style={{ fontSize: '16px', color: '#666', marginBottom: '30px', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '16px', color: 'var(--a-muted)', marginBottom: '30px', lineHeight: '1.6' }}>
             You can come back and log in anytime to check the status of your request.
           </p>
           
           <button
             onClick={onBack}
-            style={{ padding: '12px 24px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '500', fontFamily: 'inherit' }}
+            style={{ padding: '12px 24px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '500', fontFamily: 'inherit' }}
           >
             Back to Home
           </button>
@@ -373,42 +374,42 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#faf8f3', padding: '40px 20px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--a-cream)', padding: '40px 20px' }}>
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-        <img src="/Green Horizontal Logo.png" alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px', display: 'block' }} />
+        <img src={brandLogo()} alt="Dinner with Charles" style={{ maxWidth: '200px', height: 'auto', marginBottom: '30px', display: 'block' }} />
 
-        <div style={{ background: 'white', padding: '40px', borderRadius: '12px', border: '1px solid #e0dbd1' }}>
+        <div style={{ background: 'var(--a-surface)', padding: '40px', borderRadius: '12px', border: '1px solid var(--a-border)' }}>
           {step === 1 && (
-            <div style={{ marginBottom: '24px', padding: '16px', background: '#faf8f3', borderRadius: '8px', border: '1px solid #e0dbd1' }}>
-              <p style={{ margin: '0', color: '#666', fontSize: '14px', lineHeight: '1.6' }}>
+            <div style={{ marginBottom: '24px', padding: '16px', background: 'var(--a-cream)', borderRadius: '8px', border: '1px solid var(--a-border)' }}>
+              <p style={{ margin: '0', color: 'var(--a-muted)', fontSize: '14px', lineHeight: '1.6' }}>
                 Our kitchen is at capacity for now, and we're expanding soon. Tell us a little about your household to join the waitlist, and we'll be in touch as spots open. We can't wait to cook for you.
               </p>
             </div>
           )}
 
           {isResubmit && step === firstStep && (
-            <div style={{ marginBottom: '24px', padding: '16px', background: '#faf8f3', border: '1px solid #e0dbd1' }}>
-              <p style={{ margin: '0', color: '#666', fontSize: '14px', lineHeight: '1.6' }}>
+            <div style={{ marginBottom: '24px', padding: '16px', background: 'var(--a-cream)', border: '1px solid var(--a-border)' }}>
+              <p style={{ margin: '0', color: 'var(--a-muted)', fontSize: '14px', lineHeight: '1.6' }}>
                 Update anything that's changed, then resubmit. We'll take another look at your request.
               </p>
             </div>
           )}
 
-          <h2 style={{ color: '#083525', marginBottom: '24px' }}>Step {step - firstStep + 1} of {5 - firstStep + 1}</h2>
+          <h2 style={{ color: 'var(--a-green)', marginBottom: '24px' }}>Step {step - firstStep + 1} of {5 - firstStep + 1}</h2>
 
-          {loadingProfile && <p style={{ color: '#666', marginBottom: '16px', fontSize: '14px' }}>Loading your answers...</p>}
+          {loadingProfile && <p style={{ color: 'var(--a-muted)', marginBottom: '16px', fontSize: '14px' }}>Loading your answers...</p>}
 
-          {error && <p style={{ color: '#c62828', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
+          {error && <p style={{ color: 'var(--a-bad-ink)', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
 
           {step === 1 && (
             <div>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <input type="text" placeholder="First name" autoComplete="given-name" value={formData.firstName} onChange={(e) => updateField('firstName', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-                <input type="text" placeholder="Last name" autoComplete="family-name" value={formData.lastName} onChange={(e) => updateField('lastName', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+                <input type="text" placeholder="First name" autoComplete="given-name" value={formData.firstName} onChange={(e) => updateField('firstName', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+                <input type="text" placeholder="Last name" autoComplete="family-name" value={formData.lastName} onChange={(e) => updateField('lastName', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
               </div>
-              <input type="email" placeholder="Email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="password" placeholder="Password" value={formData.password} onChange={(e) => updateField('password', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="password" placeholder="Confirm Password" value={formData.confirmPassword} onChange={(e) => updateField('confirmPassword', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="email" placeholder="Email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="password" placeholder="Password" value={formData.password} onChange={(e) => updateField('password', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="password" placeholder="Confirm Password" value={formData.confirmPassword} onChange={(e) => updateField('confirmPassword', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
               <input
                 type="text"
                 placeholder="Referral or promo code (optional)"
@@ -418,44 +419,44 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
                 value={formData.referralCode}
                 onChange={(e) => { updateField('referralCode', e.target.value); setCodeStatus(null) }}
                 onBlur={() => checkCode(formData.referralCode)}
-                style={{ width: '100%', padding: '12px', marginBottom: codeStatus ? '8px' : '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '12px', marginBottom: codeStatus ? '8px' : '24px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }}
               />
               {codeStatus && (
-                <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: codeStatus.valid ? '#083525' : '#c62828' }}>{codeStatus.message}</p>
+                <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: codeStatus.valid ? 'var(--a-green)' : 'var(--a-bad-ink)' }}>{codeStatus.message}</p>
               )}
             </div>
           )}
 
           {step === 2 && (
             <div>
-              <input type="text" placeholder="Household composition (e.g., 2 adults, 1 kid)" value={formData.household} onChange={(e) => updateField('household', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
+              <input type="text" placeholder="Household composition (e.g., 2 adults, 1 kid)" value={formData.household} onChange={(e) => updateField('household', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: '1.6' }}>
                 Delivery is included in NoMad, Gramercy, Kips Bay, Murray Hill, Hudson Yards and some parts of Chelsea. Everywhere else in Manhattan, please choose pickup in NoMad or Uber messenger delivery at cost ($12–18, depending on delivery conditions). Outside Manhattan? Pickup in NoMad works, and so does delivery to an office or a friend's place in the city. We're always looking to expand our delivery area, so stay tuned.
               </p>
-              <input type="text" placeholder="Delivery address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="text" placeholder="Apartment or unit (if any)" value={formData.apartment} onChange={(e) => updateField('apartment', e.target.value)} autoComplete="address-line2" style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <div style={{ border: '1px solid #e0dbd1', borderRadius: '6px', padding: '12px', marginBottom: '12px' }}>
-                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#083525' }}>How would you like to get your order? <span style={{ fontWeight: '400', color: '#999' }}>Tick all that work for you.</span></p>
+              <input type="text" placeholder="Delivery address" value={formData.address} onChange={(e) => updateField('address', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Apartment or unit (if any)" value={formData.apartment} onChange={(e) => updateField('apartment', e.target.value)} autoComplete="address-line2" style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <div style={{ border: '1px solid var(--a-border)', borderRadius: '6px', padding: '12px', marginBottom: '12px' }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: 'var(--a-green)' }}>How would you like to get your order? <span style={{ fontWeight: '400', color: 'var(--a-faint)' }}>Tick all that work for you.</span></p>
                 {DELIVERY_OPTIONS.map(o => {
                   const chosen = parseDeliveryOptions(formData.deliveryOption)
                   const checked = chosen.includes(o.value)
                   return (
-                    <label key={o.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '6px 0', fontSize: '14px', color: '#333', cursor: 'pointer' }}>
+                    <label key={o.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '6px 0', fontSize: '14px', color: 'var(--a-ink)', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
                         checked={checked}
                         onChange={() => updateField('deliveryOption', joinDeliveryOptions(checked ? chosen.filter(v => v !== o.value) : [...chosen, o.value]))}
                         style={{ marginTop: '3px', cursor: 'pointer' }}
                       />
-                      <span>{o.label}{o.hint ? <span style={{ color: '#999' }}> ({o.hint})</span> : null}</span>
+                      <span>{o.label}{o.hint ? <span style={{ color: 'var(--a-faint)' }}> ({o.hint})</span> : null}</span>
                     </label>
                   )
                 })}
               </div>
-              <input type="tel" placeholder="Phone number" value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="text" placeholder="Delivery time preferences" value={formData.timeSlots} onChange={(e) => updateField('timeSlots', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="text" placeholder="Special delivery instructions" value={formData.instructions} onChange={(e) => updateField('instructions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <select value={formData.paymentMethod} onChange={(e) => updateField('paymentMethod', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontSize: '16px', background: 'white', color: formData.paymentMethod ? 'inherit' : '#999' }}>
+              <input type="tel" placeholder="Phone number" value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Delivery time preferences" value={formData.timeSlots} onChange={(e) => updateField('timeSlots', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Special delivery instructions" value={formData.instructions} onChange={(e) => updateField('instructions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <select value={formData.paymentMethod} onChange={(e) => updateField('paymentMethod', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid var(--a-border)', boxSizing: 'border-box', fontSize: '16px', background: 'var(--a-surface)', color: formData.paymentMethod ? 'inherit' : 'var(--a-faint)' }}>
                 <option value="">Preferred payment method</option>
                 {PAYMENT_METHODS.map(method => (
                   <option key={method} value={method}>{method}</option>
@@ -466,36 +467,36 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
 
           {step === 3 && (
             <div>
-              <div style={{ marginBottom: '16px', padding: '12px', background: '#faf8f3', borderRadius: '6px', fontSize: '13px', color: '#666', lineHeight: '1.5' }}>
+              <div style={{ marginBottom: '16px', padding: '12px', background: 'var(--a-cream)', borderRadius: '6px', fontSize: '13px', color: 'var(--a-muted)', lineHeight: '1.5' }}>
                 We take your family's dietary needs seriously and will do our very best to accommodate allergies and restrictions. As a small kitchen operation, we're unable to safely accommodate families with severe food allergies at this time.
               </div>
-              <textarea placeholder="Allergies" value={formData.allergies} onChange={(e) => updateField('allergies', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
-              <textarea placeholder="Health restrictions" value={formData.healthRestrictions} onChange={(e) => updateField('healthRestrictions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
-              <textarea placeholder="Preference restrictions (e.g., vegetarian, no shellfish)" value={formData.preferenceRestrictions} onChange={(e) => updateField('preferenceRestrictions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
+              <textarea placeholder="Allergies" value={formData.allergies} onChange={(e) => updateField('allergies', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
+              <textarea placeholder="Health restrictions" value={formData.healthRestrictions} onChange={(e) => updateField('healthRestrictions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
+              <textarea placeholder="Preference restrictions (e.g., vegetarian, no shellfish)" value={formData.preferenceRestrictions} onChange={(e) => updateField('preferenceRestrictions', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
             </div>
           )}
 
           {step === 4 && (
             <div>
-              <input type="text" placeholder="Favorite proteins" value={formData.proteinPreferences} onChange={(e) => updateField('proteinPreferences', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="text" placeholder="Cuisines enjoyed" value={formData.cuisines} onChange={(e) => updateField('cuisines', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="text" placeholder="Flavor tolerance (spicy, mild, adventurous)" value={formData.flavorTolerance} onChange={(e) => updateField('flavorTolerance', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <input type="text" placeholder="Do kids eat with you? (yes/no)" value={formData.kidsEating} onChange={(e) => updateField('kidsEating', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
-              <textarea placeholder="Any kids quirks or preferences" value={formData.kidsQuirks} onChange={(e) => updateField('kidsQuirks', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
+              <input type="text" placeholder="Favorite proteins" value={formData.proteinPreferences} onChange={(e) => updateField('proteinPreferences', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Cuisines enjoyed" value={formData.cuisines} onChange={(e) => updateField('cuisines', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Flavor tolerance (spicy, mild, adventurous)" value={formData.flavorTolerance} onChange={(e) => updateField('flavorTolerance', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Do kids eat with you? (yes/no)" value={formData.kidsEating} onChange={(e) => updateField('kidsEating', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
+              <textarea placeholder="Any kids quirks or preferences" value={formData.kidsQuirks} onChange={(e) => updateField('kidsQuirks', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
             </div>
           )}
 
           {step === 5 && (
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#083525', fontSize: '14px' }}>How do you prefer to reheat?</label>
-              <select value={formData.reheatingPreference} onChange={(e) => updateField('reheatingPreference', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--a-green)', fontSize: '14px' }}>How do you prefer to reheat?</label>
+              <select value={formData.reheatingPreference} onChange={(e) => updateField('reheatingPreference', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
                 <option value="">Select an option</option>
                 <option value="Toaster oven/Oven">Toaster oven/Oven</option>
                 <option value="Microwave">Microwave</option>
                 <option value="Both">Both</option>
               </select>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#083525', fontSize: '14px' }}>How did you hear about us?</label>
-              <select value={formData.heardAbout} onChange={(e) => updateField('heardAbout', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--a-green)', fontSize: '14px' }}>How did you hear about us?</label>
+              <select value={formData.heardAbout} onChange={(e) => updateField('heardAbout', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box', fontSize: '16px' }}>
                 <option value="">Select an option</option>
                 <option value="A friend or family member">A friend or family member</option>
                 <option value="Instagram">Instagram</option>
@@ -504,13 +505,13 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
                 <option value="Other">Other</option>
               </select>
               {formData.heardAbout && (
-                <input type="text" placeholder={formData.heardAbout === 'A friend or family member' ? 'Who? (so we can thank them)' : 'Tell us more (optional)'} value={formData.heardAboutDetail} onChange={(e) => updateField('heardAboutDetail', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box' }} />
+                <input type="text" placeholder={formData.heardAbout === 'A friend or family member' ? 'Who? (so we can thank them)' : 'Tell us more (optional)'} value={formData.heardAboutDetail} onChange={(e) => updateField('heardAboutDetail', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box' }} />
               )}
-              <textarea placeholder="Is there anything else we should know to better understand your family's needs and preferences?" value={formData.anythingElse} onChange={(e) => updateField('anythingElse', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #e0dbd1', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
+              <textarea placeholder="Is there anything else we should know to better understand your family's needs and preferences?" value={formData.anythingElse} onChange={(e) => updateField('anythingElse', e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid var(--a-border)', borderRadius: '6px', boxSizing: 'border-box', minHeight: '80px' }} />
 
-              <div style={{ marginBottom: '24px', paddingTop: '8px', borderTop: '1px solid #e0dbd1' }}>
-                <h3 style={{ color: '#083525', fontSize: '17px', margin: '16px 0 4px 0' }}>Stay in touch (optional)</h3>
-                <p style={{ margin: 0, fontSize: '13px', color: '#666', lineHeight: '1.6' }}>Choose either, both or neither.</p>
+              <div style={{ marginBottom: '24px', paddingTop: '8px', borderTop: '1px solid var(--a-border)' }}>
+                <h3 style={{ color: 'var(--a-green)', fontSize: '17px', margin: '16px 0 4px 0' }}>Stay in touch (optional)</h3>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--a-muted)', lineHeight: '1.6' }}>Choose either, both or neither.</p>
                 <NotificationChoices
                   emailOptIn={formData.emailOptIn}
                   smsOptIn={formData.smsOptIn}
@@ -528,15 +529,15 @@ export default function SignupApp({ onBack, resubmitFor, onResubmitted }) {
           )}
 
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button onClick={handleBack} style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
+            <button onClick={handleBack} style={{ flex: 1, padding: '12px', background: 'var(--a-gold)', color: 'var(--a-cream)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500' }}>
               Back
             </button>
             {step < 5 ? (
-              <button onClick={handleNext} disabled={checkingEmail} style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: checkingEmail ? 'wait' : 'pointer', fontSize: '16px', fontWeight: '500', opacity: checkingEmail ? 0.7 : 1 }}>
+              <button onClick={handleNext} disabled={checkingEmail} style={{ flex: 1, padding: '12px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', borderRadius: '6px', cursor: checkingEmail ? 'wait' : 'pointer', fontSize: '16px', fontWeight: '500', opacity: checkingEmail ? 0.7 : 1 }}>
                 Next
               </button>
             ) : (
-              <button onClick={handleSubmit} disabled={loading || loadingProfile} style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
+              <button onClick={handleSubmit} disabled={loading || loadingProfile} style={{ flex: 1, padding: '12px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', opacity: loading ? 0.5 : 1 }}>
                 {loading ? 'Submitting...' : isResubmit ? 'Resubmit Request' : 'Join the Waitlist'}
               </button>
             )}

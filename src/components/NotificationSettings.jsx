@@ -78,9 +78,9 @@ export default function NotificationSettings({ user }) {
   }
 
   return (
-    <div style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>Notification Preferences</h3>
-      <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
+    <div style={{ background: 'var(--a-surface)', padding: '24px', border: '1px solid var(--a-border)' }}>
+      <h3 style={{ color: 'var(--a-green)', margin: '0 0 6px 0' }}>Notification Preferences</h3>
+      <p style={{ fontSize: '13px', color: 'var(--a-muted)', margin: 0 }}>
         Choose either, both or neither. You can change these anytime.
       </p>
 
@@ -99,8 +99,8 @@ export default function NotificationSettings({ user }) {
           disabled={saving}
           style={{
             padding: '12px 24px',
-            background: '#083525',
-            color: '#faf8f3',
+            background: 'var(--a-green)',
+            color: 'var(--a-cream)',
             border: 'none',
             cursor: saving ? 'not-allowed' : 'pointer',
             fontSize: '14px',
@@ -112,7 +112,7 @@ export default function NotificationSettings({ user }) {
           {saving ? 'Saving...' : 'Save Preferences'}
         </button>
         {saved && (
-          <span style={{ color: '#083525', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>
+          <span style={{ color: 'var(--a-green)', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>
         )}
       </div>
     </div>

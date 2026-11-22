@@ -524,55 +524,55 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
 
     return (
       <div>
-        <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#666' }}>Base Package (3 entrées + 2 sides): ${pricing.basePrice.toFixed(2)}</p>
+        <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: 'var(--a-muted)' }}>Base Package (3 entrées + 2 sides): ${pricing.basePrice.toFixed(2)}</p>
         {entreeUpcharge > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Entrées ({extraEntrees}): ${entreeUpcharge.toFixed(2)} @ ${EXTRA_ENTREE_PRICE} each</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--a-muted)' }}>Extra Entrées ({extraEntrees}): ${entreeUpcharge.toFixed(2)} @ ${EXTRA_ENTREE_PRICE} each</p>
         )}
         {saladUpcharge > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Extra Sides ({extraSalads}): ${saladUpcharge.toFixed(2)} @ ${EXTRA_SALAD_PRICE} each</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--a-muted)' }}>Extra Sides ({extraSalads}): ${saladUpcharge.toFixed(2)} @ ${EXTRA_SALAD_PRICE} each</p>
         )}
         {addOnsBase > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Add-ons: ${addOnsBase.toFixed(2)}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--a-muted)' }}>Add-ons: ${addOnsBase.toFixed(2)}</p>
         )}
         {depositCost > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Jar deposit: ${depositCost.toFixed(2)}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--a-muted)' }}>Jar deposit: ${depositCost.toFixed(2)}</p>
         )}
         {codeOff > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#083525' }}>Referral code: −${codeOff.toFixed(2)}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--a-green)' }}>Referral code: −${codeOff.toFixed(2)}</p>
         )}
         {creditOff > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#083525' }}>Credit: −${creditOff.toFixed(2)}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--a-green)' }}>Credit: −${creditOff.toFixed(2)}</p>
         )}
         {messengerFee > 0 && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--a-muted)' }}>Messenger delivery (estimate, at cost): ${messengerFee.toFixed(2)}</p>
         )}
         {pricing.complimentary && (
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#083525' }}>Complimentary: no charge for this order</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--a-green)' }}>Complimentary: no charge for this order</p>
         )}
-        <div style={{ paddingTop: '8px', borderTop: '2px solid #D4A373' }}>
-          <p style={{ margin: '0', fontSize: '16px', fontWeight: '700', color: '#D4A373' }}>Total: ${grandTotal.toFixed(2)}</p>
+        <div style={{ paddingTop: '8px', borderTop: '2px solid var(--a-gold)' }}>
+          <p style={{ margin: '0', fontSize: '16px', fontWeight: '700', color: 'var(--a-gold)' }}>Total: ${grandTotal.toFixed(2)}</p>
         </div>
       </div>
     )
   }
 
   const deliveryBanner = (
-    <div style={{ background: 'white', border: '1px solid #e0dbd1', borderLeft: '4px solid #083525', padding: '14px 18px', marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '10px 40px' }}>
+    <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderLeft: '4px solid var(--a-green)', padding: '14px 18px', marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '10px 40px' }}>
       <div>
-        <p style={{ margin: '0 0 3px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#b8923f' }}>Delivery</p>
-        <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#083525' }}>{formatDeliveryDate(deliveryDate)}</p>
+        <p style={{ margin: '0 0 3px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold-ink)' }}>Delivery</p>
+        <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: 'var(--a-green)' }}>{formatDeliveryDate(deliveryDate)}</p>
       </div>
       {orderCloseDatetime && (
         <div>
-          <p style={{ margin: '0 0 3px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#b8923f' }}>Orders close</p>
-          <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#083525' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
+          <p style={{ margin: '0 0 3px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold-ink)' }}>Orders close</p>
+          <p style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: 'var(--a-green)' }}>{formatCloseDatetime(orderCloseDatetime)}</p>
         </div>
       )}
     </div>
   )
 
   const page = (children, maxWidth = '900px') => (
-    <div style={{ minHeight: '100vh', background: '#faf8f3' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--a-cream)' }}>
       <GuestHeader screen={screen} onNavigate={setScreen} onLogout={onLogout} onAdmin={onAdmin} maxWidth={maxWidth} />
       <div style={{ padding: '24px 20px 20px' }}>
         <div style={{ maxWidth, margin: '0 auto' }}>
@@ -614,28 +614,28 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   if (screen === 'history') {
     return page(
         <>
-          <h2 style={{ color: '#083525', marginBottom: '20px' }}>Order History</h2>
+          <h2 style={{ color: 'var(--a-green)', marginBottom: '20px' }}>Order History</h2>
           {orderHistory.length === 0 ? (
-            <p style={{ color: '#666' }}>No orders yet</p>
+            <p style={{ color: 'var(--a-muted)' }}>No orders yet</p>
           ) : (
             orderHistory.map(order => (
-              <div key={order.order_id} style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1', opacity: order.status === 'cancelled' ? 0.6 : 1 }}>
+              <div key={order.order_id} style={{ background: 'var(--a-surface)', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid var(--a-border)', opacity: order.status === 'cancelled' ? 0.6 : 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
-                  <h3 style={{ color: '#083525', margin: 0 }}>{formatDeliveryDate(order.delivery_date)}</h3>
-                  <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: order.status === 'cancelled' ? '#c62828' : '#D4A373', fontWeight: '600' }}>{customerStatusLabel(order.status)}</span>
+                  <h3 style={{ color: 'var(--a-green)', margin: 0 }}>{formatDeliveryDate(order.delivery_date)}</h3>
+                  <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: order.status === 'cancelled' ? 'var(--a-bad-ink)' : 'var(--a-gold)', fontWeight: '600' }}>{customerStatusLabel(order.status)}</span>
                 </div>
                 {order.items.map((item, idx) => (
-                  <p key={idx} style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>
+                  <p key={idx} style={{ margin: '6px 0', color: 'var(--a-muted)', fontSize: '14px' }}>
                     {item.quantity}x {item.item_name}
                   </p>
                 ))}
                 {formatWindows(order.delivery_time_slot) && (
-                  <p style={{ margin: '12px 0 0 0', color: '#666', fontSize: '14px' }}><strong>Delivery windows:</strong> {formatWindows(order.delivery_time_slot)}</p>
+                  <p style={{ margin: '12px 0 0 0', color: 'var(--a-muted)', fontSize: '14px' }}><strong>Delivery windows:</strong> {formatWindows(order.delivery_time_slot)}</p>
                 )}
                 {order.status === 'delivered' && (
                   <button
                     onClick={() => { setReheatDate(order.delivery_date); setScreen('reheat') }}
-                    style={{ marginTop: '12px', padding: '8px 16px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
+                    style={{ marginTop: '12px', padding: '8px 16px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
                   >
                     View Reheat Guide
                   </button>
@@ -654,24 +654,24 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   if (screen === 'review') {
     return page(
         <>
-          <h1 style={{ color: '#083525', marginTop: '0' }}>Review Your Order</h1>
+          <h1 style={{ color: 'var(--a-green)', marginTop: '0' }}>Review Your Order</h1>
 
-          <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0dbd1', marginBottom: '20px' }}>
-            <h3 style={{ color: '#083525', marginTop: '0' }}>Entrées</h3>
+          <div style={{ background: 'var(--a-surface)', padding: '20px', borderRadius: '8px', border: '1px solid var(--a-border)', marginBottom: '20px' }}>
+            <h3 style={{ color: 'var(--a-green)', marginTop: '0' }}>Entrées</h3>
             {Object.entries(selectedEntrees).map(([itemId, qty]) => {
               const item = menuItems.entrees.find(e => e.id === itemId)
               return item ? (
-                <p key={itemId} style={{ margin: '8px 0', color: '#666' }}>
+                <p key={itemId} style={{ margin: '8px 0', color: 'var(--a-muted)' }}>
                   {qty}x {item.name}
                 </p>
               ) : null
             })}
 
-            <h3 style={{ color: '#083525', marginTop: '16px' }}>Sides</h3>
+            <h3 style={{ color: 'var(--a-green)', marginTop: '16px' }}>Sides</h3>
             {Object.entries(selectedSalads).map(([itemId, qty]) => {
               const item = menuItems.salads.find(s => s.id === itemId)
               return item ? (
-                <p key={itemId} style={{ margin: '8px 0', color: '#666' }}>
+                <p key={itemId} style={{ margin: '8px 0', color: 'var(--a-muted)' }}>
                   {qty}x {item.name}
                 </p>
               ) : null
@@ -679,11 +679,11 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
 
             {Object.keys(selectedAddOns).length > 0 && (
               <>
-                <h3 style={{ color: '#083525', marginTop: '16px' }}>Add-ons</h3>
+                <h3 style={{ color: 'var(--a-green)', marginTop: '16px' }}>Add-ons</h3>
                 {Object.entries(selectedAddOns).map(([itemId, qty]) => {
                   const item = menuItems.addOns.find(a => a.id === itemId)
                   return item ? (
-                    <p key={itemId} style={{ margin: '8px 0', color: '#666' }}>
+                    <p key={itemId} style={{ margin: '8px 0', color: 'var(--a-muted)' }}>
                       {qty}x {item.name} — ${(((item.price + (item.deposit || 0)) / 100) * qty).toFixed(2)}{item.deposit > 0 && ` (includes $${((item.deposit / 100) * qty).toFixed(2)} jar deposit)`}
                     </p>
                   ) : null
@@ -691,23 +691,23 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               </>
             )}
 
-            <p style={{ color: '#666', margin: '16px 0 8px 0' }}>
+            <p style={{ color: 'var(--a-muted)', margin: '16px 0 8px 0' }}>
               <strong>Preferred Delivery Windows:</strong> {formatWindows(deliveryTimeSlot)}
             </p>
             {specialNotes && (
-              <p style={{ color: '#666', margin: '8px 0' }}>
+              <p style={{ color: 'var(--a-muted)', margin: '8px 0' }}>
                 <strong>For the kitchen:</strong> {specialNotes}
               </p>
             )}
             {deliveryNotes && (
-              <p style={{ color: '#666', margin: '8px 0' }}>
+              <p style={{ color: 'var(--a-muted)', margin: '8px 0' }}>
                 <strong>Delivery notes:</strong> {deliveryNotes}
               </p>
             )}
           </div>
 
-          <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-            <h3 style={{ color: '#083525', marginTop: '0', marginBottom: '16px' }}>Order Total</h3>
+          <div style={{ background: 'var(--a-cream)', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+            <h3 style={{ color: 'var(--a-green)', marginTop: '0', marginBottom: '16px' }}>Order Total</h3>
             {(!pendingDiscount.hasCode || checkoutCodeNote) && (
               <div style={{ margin: '0 0 16px' }}>
                 {!pendingDiscount.hasCode && (
@@ -720,20 +720,20 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                       autoCapitalize="characters"
                       autoCorrect="off"
                       spellCheck={false}
-                      style={{ flex: 1, minWidth: 0, padding: '10px 12px', border: '1px solid #e0dbd1', borderRadius: '6px', fontSize: '14px', textTransform: 'uppercase', boxSizing: 'border-box' }}
+                      style={{ flex: 1, minWidth: 0, padding: '10px 12px', border: '1px solid var(--a-border)', borderRadius: '6px', fontSize: '14px', textTransform: 'uppercase', boxSizing: 'border-box' }}
                     />
                     <button
                       type="button"
                       onClick={applyCheckoutCode}
                       disabled={applyingCode || !normalizeCode(checkoutCode)}
-                      style={{ padding: '10px 18px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: applyingCode ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', opacity: applyingCode || !normalizeCode(checkoutCode) ? 0.6 : 1 }}
+                      style={{ padding: '10px 18px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', borderRadius: '6px', cursor: applyingCode ? 'wait' : 'pointer', fontSize: '14px', fontWeight: '600', opacity: applyingCode || !normalizeCode(checkoutCode) ? 0.6 : 1 }}
                     >
                       {applyingCode ? 'Checking...' : 'Apply'}
                     </button>
                   </div>
                 )}
                 {checkoutCodeNote && (
-                  <p style={{ margin: '8px 0 0', fontSize: '13px', color: checkoutCodeNote.ok ? '#083525' : '#c62828' }}>{checkoutCodeNote.text}</p>
+                  <p style={{ margin: '8px 0 0', fontSize: '13px', color: checkoutCodeNote.ok ? 'var(--a-green)' : 'var(--a-bad-ink)' }}>{checkoutCodeNote.text}</p>
                 )}
               </div>
             )}
@@ -743,13 +743,13 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={() => setScreen('menu')}
-              style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+              style={{ flex: 1, padding: '12px', background: 'var(--a-gold)', color: 'var(--a-cream)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
             >
               Back
             </button>
             <button
               onClick={handleConfirmOrder}
-              style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+              style={{ flex: 1, padding: '12px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
             >
               Confirm Order
             </button>
@@ -762,28 +762,28 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
   return page(
       <>
         {loading && <p>Loading menu...</p>}
-        {error && <p style={{ color: '#c62828', padding: '12px', background: '#ffebee', borderRadius: '6px', marginBottom: '20px' }}>{error}</p>}
+        {error && <p style={{ color: 'var(--a-bad-ink)', padding: '12px', background: 'var(--a-bad-bg)', borderRadius: '6px', marginBottom: '20px' }}>{error}</p>}
 
         {!loading && !error && placedOrder && (
           <>
             {deliveryBanner}
-            <div style={{ background: 'white', padding: '32px', border: '1px solid #e0dbd1', marginBottom: '20px' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Order placed</p>
-              <h2 style={{ color: '#083525', margin: '0 0 16px 0' }}>You're all set for this week</h2>
+            <div style={{ background: 'var(--a-surface)', padding: '32px', border: '1px solid var(--a-border)', marginBottom: '20px' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>Order placed</p>
+              <h2 style={{ color: 'var(--a-green)', margin: '0 0 16px 0' }}>You're all set for this week</h2>
               {placedOrder.items.map((item, idx) => (
-                <p key={idx} style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>{item.quantity}x {item.item_name}</p>
+                <p key={idx} style={{ margin: '6px 0', color: 'var(--a-muted)', fontSize: '14px' }}>{item.quantity}x {item.item_name}</p>
               ))}
-              <p style={{ margin: '16px 0 0 0', color: '#666', fontSize: '14px' }}><strong>Delivery windows:</strong> {formatWindows(placedOrder.delivery_time_slot)}</p>
-              <p style={{ margin: '24px 0 0 0', color: '#999', fontSize: '13px', lineHeight: '1.6' }}>Orders are locked once placed. Need to make a change? Send us a message and we'll cancel it so you can reorder.</p>
+              <p style={{ margin: '16px 0 0 0', color: 'var(--a-muted)', fontSize: '14px' }}><strong>Delivery windows:</strong> {formatWindows(placedOrder.delivery_time_slot)}</p>
+              <p style={{ margin: '24px 0 0 0', color: 'var(--a-faint)', fontSize: '13px', lineHeight: '1.6' }}>Orders are locked once placed. Need to make a change? Send us a message and we'll cancel it so you can reorder.</p>
             </div>
           </>
         )}
 
         {!loading && !error && !placedOrder && menuClosed && (
-          <div style={{ background: 'white', padding: '56px 40px', border: '1px solid #e0dbd1', textAlign: 'center' }}>
-            <p style={{ margin: '0 0 12px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{betweenMenus ? 'Coming soon' : 'Ordering closed'}</p>
-            <h2 style={{ color: '#083525', margin: '0 0 16px 0', fontSize: '26px' }}>{betweenMenus ? "Next week's menu is on its way" : "This week's menu is closed"}</h2>
-            <p style={{ color: '#666', margin: '0 auto 32px', maxWidth: '460px', lineHeight: '1.7', fontSize: '15px' }}>
+          <div style={{ background: 'var(--a-surface)', padding: '56px 40px', border: '1px solid var(--a-border)', textAlign: 'center' }}>
+            <p style={{ margin: '0 0 12px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>{betweenMenus ? 'Coming soon' : 'Ordering closed'}</p>
+            <h2 style={{ color: 'var(--a-green)', margin: '0 0 16px 0', fontSize: '26px' }}>{betweenMenus ? "Next week's menu is on its way" : "This week's menu is closed"}</h2>
+            <p style={{ color: 'var(--a-muted)', margin: '0 auto 32px', maxWidth: '460px', lineHeight: '1.7', fontSize: '15px' }}>
               {betweenMenus
                 ? "We're putting the finishing touches on it. Stay tuned."
                 : `Ordering for ${formatDeliveryDate(deliveryDate)} closed ${formatCloseDatetime(orderCloseDatetime)}. Need to squeeze one in? Message us and we'll see what we can do.`}
@@ -792,7 +792,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               href={INSTAGRAM_DM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: 'inline-block', padding: '14px 28px', background: '#083525', color: '#faf8f3', textDecoration: 'none', fontSize: '14px', fontWeight: '600', letterSpacing: '0.04em' }}
+              style={{ display: 'inline-block', padding: '14px 28px', background: 'var(--a-green)', color: 'var(--a-cream)', textDecoration: 'none', fontSize: '14px', fontWeight: '600', letterSpacing: '0.04em' }}
             >
               Message @dinnerwithcharles on Instagram
             </a>
@@ -800,22 +800,22 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
         )}
 
         {!loading && !error && !placedOrder && !menuClosed && menuEmpty && (
-          <div style={{ background: 'white', padding: '56px 40px', border: '1px solid #e0dbd1', textAlign: 'center' }}>
-            <h2 style={{ color: '#083525', margin: 0, fontSize: '26px' }}>Menu coming soon.</h2>
+          <div style={{ background: 'var(--a-surface)', padding: '56px 40px', border: '1px solid var(--a-border)', textAlign: 'center' }}>
+            <h2 style={{ color: 'var(--a-green)', margin: 0, fontSize: '26px' }}>Menu coming soon.</h2>
           </div>
         )}
 
         {!loading && !error && !placedOrder && !menuClosed && !menuEmpty && (
           <>
             <div style={{ margin: '0 0 20px 0' }}>
-              <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: '#083525', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
-              <p style={{ margin: '4px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>from our kitchen to your table</p>
+              <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'var(--a-green)', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>Weekly Kitchen</h1>
+              <p style={{ margin: '4px 0 0 0', fontSize: '15px', fontStyle: 'italic', color: 'var(--a-muted)', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>from our kitchen to your table</p>
             </div>
 
             {deliveryBanner}
 
             {menuItems.intro?.map((text, idx) => (
-              <p key={idx} style={{ color: '#444', fontSize: '15px', lineHeight: '1.7', margin: '0 0 16px 0', whiteSpace: 'pre-line' }}>{text}</p>
+              <p key={idx} style={{ color: 'var(--a-ink-2)', fontSize: '15px', lineHeight: '1.7', margin: '0 0 16px 0', whiteSpace: 'pre-line' }}>{text}</p>
             ))}
 
             <button
@@ -829,79 +829,79 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                 setDownloadingMenu(false)
               }}
               disabled={downloadingMenu}
-              style={{ margin: '0 0 24px 0', padding: '8px 14px', background: 'transparent', color: '#083525', border: '1px solid #083525', cursor: downloadingMenu ? 'wait' : 'pointer', fontSize: '12px', fontWeight: '600', letterSpacing: '0.06em', fontFamily: 'inherit' }}
+              style={{ margin: '0 0 24px 0', padding: '8px 14px', background: 'transparent', color: 'var(--a-green)', border: '1px solid var(--a-green)', cursor: downloadingMenu ? 'wait' : 'pointer', fontSize: '12px', fontWeight: '600', letterSpacing: '0.06em', fontFamily: 'inherit' }}
             >
               {downloadingMenu ? 'Preparing PDF…' : 'Download menu PDF'}
             </button>
 
             {survey?.question && (
-              <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-                <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#083525' }}>Quick Feedback</p>
-                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666' }}>{survey.question}</p>
+              <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: 'var(--a-green)' }}>Quick Feedback</p>
+                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--a-muted)' }}>{survey.question}</p>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input
                     type="text"
                     value={surveyResponse}
                     onChange={(e) => setSurveyResponse(e.target.value)}
                     placeholder="Your response..."
-                    style={{ flex: 1, padding: '8px 12px', border: '1px solid #e0dbd1', fontSize: '13px' }}
+                    style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--a-border)', fontSize: '13px' }}
                   />
                   <button
                     onClick={handleSurveySubmit}
                     disabled={!surveyResponse.trim()}
-                    style={{ padding: '8px 16px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+                    style={{ padding: '8px 16px', background: 'var(--a-gold)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
                   >
                     Send
                   </button>
                 </div>
                 {surveyError && (
-                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#c62828' }}>{surveyError}</p>
+                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: 'var(--a-bad-ink)' }}>{surveyError}</p>
                 )}
                 {surveySubmitted && (
-                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#083525', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
+                  <p style={{ margin: '12px 0 0 0', fontSize: '13px', color: 'var(--a-green)', fontWeight: '500' }}>✓ Thanks for your feedback!</p>
                 )}
               </div>
             )}
 
             {/* Fallback guidance for a sheet without section rows */}
             {!menuItems.sections?.some(s => s.note) && (
-              <p style={{ color: '#666', marginBottom: '20px' }}>Pick 3 entrées + 2 sides. Add-ons are optional.</p>
+              <p style={{ color: 'var(--a-muted)', marginBottom: '20px' }}>Pick 3 entrées + 2 sides. Add-ons are optional.</p>
             )}
 
             {menuItems.sections?.map((section, sectionIdx) => {
               const selected = { entree: selectedEntrees, salad: selectedSalads, addon: selectedAddOns }[section.type] || {}
               return (
-                <div key={sectionIdx} style={{ background: 'white', padding: '24px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px', borderBottom: '2px solid #083525' }}>
-                    <h2 style={{ color: '#083525', margin: 0, fontSize: '24px', fontWeight: '700', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.title}</h2>
+                <div key={sectionIdx} style={{ background: 'var(--a-surface)', padding: '24px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px', borderBottom: '2px solid var(--a-green)' }}>
+                    <h2 style={{ color: 'var(--a-green)', margin: 0, fontSize: '24px', fontWeight: '700', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.title}</h2>
                     {section.note && (
                       section.type === 'addon'
-                        ? <span style={{ fontSize: '13px', fontStyle: 'italic', color: '#666', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.note}</span>
-                        : <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#faf8f3', background: '#083525', padding: '5px 10px', fontFamily: "'Courier New', Courier, monospace" }}>{section.note}</span>
+                        ? <span style={{ fontSize: '13px', fontStyle: 'italic', color: 'var(--a-muted)', fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>{section.note}</span>
+                        : <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--a-cream)', background: 'var(--a-green)', padding: '5px 10px', fontFamily: "'Courier New', Courier, monospace" }}>{section.note}</span>
                     )}
                   </div>
                   {section.items.map((item, itemIdx) => (
-                    <div key={item.id} style={{ padding: '18px 0', borderTop: itemIdx === 0 ? 'none' : '1px dashed #d9d1bd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                    <div key={item.id} style={{ padding: '18px 0', borderTop: itemIdx === 0 ? 'none' : '1px dashed var(--a-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                       <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', minWidth: 0 }}>
                         {section.type !== 'addon' && (
-                          <span style={{ flex: '0 0 auto', width: '30px', height: '30px', border: '1px solid #cfc6ad', color: '#8a8470', fontSize: '11px', fontFamily: "'Courier New', Courier, monospace", display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', marginTop: '1px' }}>
+                          <span style={{ flex: '0 0 auto', width: '30px', height: '30px', border: '1px solid var(--a-border)', color: 'var(--a-quiet)', fontSize: '11px', fontFamily: "'Courier New', Courier, monospace", display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', marginTop: '1px' }}>
                             {String(itemIdx + 1).padStart(2, '0')}
                           </span>
                         )}
                         <div style={{ minWidth: 0 }}>
-                          <p style={{ margin: '0', fontSize: '18px', fontWeight: '700', fontStyle: 'italic', color: '#083525', lineHeight: 1.3, fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>
-                            {item.name}{section.type === 'addon' && <span style={{ color: '#b8923f', fontStyle: 'normal', marginLeft: '10px' }}>${(item.price / 100).toFixed(0)}</span>}
+                          <p style={{ margin: '0', fontSize: '18px', fontWeight: '700', fontStyle: 'italic', color: 'var(--a-green)', lineHeight: 1.3, fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>
+                            {item.name}{section.type === 'addon' && <span style={{ color: 'var(--a-gold-ink)', fontStyle: 'normal', marginLeft: '10px' }}>${(item.price / 100).toFixed(0)}</span>}
                           </p>
-                          {item.sides && <p style={{ margin: '5px 0 0 0', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8a8470', fontFamily: "'Courier New', Courier, monospace" }}>{item.sides}</p>}
-                          {section.type === 'addon' && item.note && <p style={{ margin: '5px 0 0 0', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#b8923f', fontFamily: "'Courier New', Courier, monospace" }}>{item.note}</p>}
-                          {item.description && <p style={{ margin: '8px 0 0 0', fontSize: '14px', lineHeight: 1.6, color: '#444' }}>{item.description}</p>}
+                          {item.sides && <p style={{ margin: '5px 0 0 0', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--a-quiet)', fontFamily: "'Courier New', Courier, monospace" }}>{item.sides}</p>}
+                          {section.type === 'addon' && item.note && <p style={{ margin: '5px 0 0 0', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--a-gold-ink)', fontFamily: "'Courier New', Courier, monospace" }}>{item.note}</p>}
+                          {item.description && <p style={{ margin: '8px 0 0 0', fontSize: '14px', lineHeight: 1.6, color: 'var(--a-ink-2)' }}>{item.description}</p>}
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         {selected[item.id] && (
                           <button
                             onClick={() => handleRemoveFromCart(item.id, section.type)}
-                            style={{ width: '32px', height: '32px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontFamily: 'inherit' }}
+                            style={{ width: '32px', height: '32px', background: 'var(--a-gold)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '16px', fontFamily: 'inherit' }}
                           >
                             −
                           </button>
@@ -909,7 +909,7 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
                         {selected[item.id] && <span style={{ fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{selected[item.id]}</span>}
                         <button
                           onClick={() => handleAddToCart(item.id, section.type)}
-                          style={{ width: '32px', height: '32px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '16px', fontFamily: 'inherit' }}
+                          style={{ width: '32px', height: '32px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '16px', fontFamily: 'inherit' }}
                         >
                           +
                         </button>
@@ -920,8 +920,8 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               )
             })}
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#083525', marginTop: '0', marginBottom: '12px' }}>Please select delivery windows that work for your family *</h3>
+            <div style={{ background: 'var(--a-surface)', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <h3 style={{ color: 'var(--a-green)', marginTop: '0', marginBottom: '12px' }}>Please select delivery windows that work for your family *</h3>
               {TIME_SLOTS.map(slot => (
                 <label key={slot} style={{ display: 'block', marginBottom: '10px', cursor: 'pointer' }}>
                   <input
@@ -941,27 +941,27 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               ))}
             </div>
 
-            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#083525', marginTop: '0', marginBottom: '4px' }}>Special notes for the kitchen</h3>
-              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Anything the kitchen should know for this week's cooking.</p>
+            <div style={{ background: 'var(--a-surface)', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <h3 style={{ color: 'var(--a-green)', marginTop: '0', marginBottom: '4px' }}>Special notes for the kitchen</h3>
+              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: 1.5 }}>Anything the kitchen should know for this week's cooking.</p>
               <textarea
                 value={specialNotes}
                 onChange={(e) => setSpecialNotes(e.target.value)}
                 placeholder="e.g. No cilantro on the salmon this week"
-                style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '70px', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }}
+                style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)', minHeight: '70px', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }}
               />
-              <h3 style={{ color: '#083525', margin: '18px 0 4px 0' }}>Special notes for delivery</h3>
-              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>Anything that helps us get it to your door this week: a different address, the doorman, a buzzer, or any other request.</p>
+              <h3 style={{ color: 'var(--a-green)', margin: '18px 0 4px 0' }}>Special notes for delivery</h3>
+              <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: 1.5 }}>Anything that helps us get it to your door this week: a different address, the doorman, a buzzer, or any other request.</p>
               <textarea
                 value={deliveryNotes}
                 onChange={(e) => setDeliveryNotes(e.target.value)}
                 placeholder="e.g. Leave with the doorman after 10"
-                style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '60px', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }}
+                style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)', minHeight: '60px', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }}
               />
             </div>
 
-            <div style={{ background: '#faf8f3', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <h3 style={{ color: '#083525', marginTop: '0', marginBottom: '16px' }}>Order Summary</h3>
+            <div style={{ background: 'var(--a-cream)', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <h3 style={{ color: 'var(--a-green)', marginTop: '0', marginBottom: '16px' }}>Order Summary</h3>
               {renderOrderTotals()}
             </div>
 
@@ -969,18 +969,18 @@ export default function GuestApp({ user, onLogout, onAdmin }) {
               const covering = awayRanges.filter(r => isAwayOn([r], deliveryDate))
               const longer = covering.find(r => r.starts_on !== r.ends_on)
               return (
-                <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+                <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: 1.6 }}>
                   {longer
                     ? <>✓ You've told us you're away {formatRange(longer)}, so we'll plan around you. Plans changed? Update your dates in Settings.</>
                     : covering.length
-                      ? <>✓ Noted, thank you. That helps us plan. Changed your mind? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>The menu is still open.</button></>
-                      : <>Not ordering this week? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Let us know</button>, so we can plan the kitchen and keep your favorites in rotation for when you're back. Away longer? Add your dates in Settings.</>}
+                      ? <>✓ Noted, thank you. That helps us plan. Changed your mind? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--a-green)', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>The menu is still open.</button></>
+                      : <>Not ordering this week? <button type="button" onClick={toggleSkipWeek} disabled={skipBusy} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--a-green)', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Let us know</button>, so we can plan the kitchen and keep your favorites in rotation for when you're back. Away longer? Add your dates in Settings.</>}
                 </p>
               )
             })()}
             <button
               onClick={handleCheckout}
-              style={{ width: '100%', padding: '16px', background: '#083525', color: '#faf8f3', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
+              style={{ width: '100%', padding: '16px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}
             >
               Review & Checkout
             </button>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { supabase } from '../lib/supabase'
 
-const inputStyle = { width: '100%', padding: '12px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }
+const inputStyle = { width: '100%', padding: '12px', border: '1px solid var(--a-border)', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }
 
 // Sets a new password for the signed-in user: from Settings, or after opening a reset link
 export default function PasswordForm({ title, intro, submitLabel = 'Update Password', onDone }) {
@@ -40,9 +40,9 @@ export default function PasswordForm({ title, intro, submitLabel = 'Update Passw
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>{title}</h3>
-      {intro && <p style={{ fontSize: '13px', color: '#666', margin: '0 0 20px 0' }}>{intro}</p>}
+    <form onSubmit={handleSubmit} style={{ background: 'var(--a-surface)', padding: '24px', border: '1px solid var(--a-border)' }}>
+      <h3 style={{ color: 'var(--a-green)', margin: '0 0 6px 0' }}>{title}</h3>
+      {intro && <p style={{ fontSize: '13px', color: 'var(--a-muted)', margin: '0 0 20px 0' }}>{intro}</p>}
 
       <div style={{ position: 'relative', marginBottom: '12px' }}>
         <input
@@ -57,7 +57,7 @@ export default function PasswordForm({ title, intro, submitLabel = 'Update Passw
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#666', fontSize: '12px', fontFamily: 'inherit' }}
+          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--a-muted)', fontSize: '12px', fontFamily: 'inherit' }}
         >
           {showPassword ? 'Hide' : 'Show'}
         </button>
@@ -72,17 +72,17 @@ export default function PasswordForm({ title, intro, submitLabel = 'Update Passw
         required
       />
 
-      {error && <p style={{ color: '#c62828', fontSize: '13px', margin: '0 0 16px 0' }}>{error}</p>}
+      {error && <p style={{ color: 'var(--a-bad-ink)', fontSize: '13px', margin: '0 0 16px 0' }}>{error}</p>}
 
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
         <button
           type="submit"
           disabled={saving}
-          style={{ padding: '12px 24px', background: '#083525', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
+          style={{ padding: '12px 24px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
         >
           {saving ? 'Saving...' : submitLabel}
         </button>
-        {saved && <span style={{ color: '#083525', fontSize: '13px', fontWeight: '500' }}>✓ Password updated</span>}
+        {saved && <span style={{ color: 'var(--a-green)', fontSize: '13px', fontWeight: '500' }}>✓ Password updated</span>}
       </div>
     </form>
   )

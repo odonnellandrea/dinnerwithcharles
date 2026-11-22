@@ -4,8 +4,8 @@ import { normalizeUsPhone, formatUsPhone } from '../lib/notificationConsent'
 import { nameColumns, namesFrom, joinName, isMissingNameColumns, withoutNameColumns } from '../lib/customerName'
 import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions } from '../lib/deliveryOptions'
 
-const inputStyle = { width: '100%', padding: '12px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }
-const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#083525', margin: '0 0 6px 0' }
+const inputStyle = { width: '100%', padding: '12px', border: '1px solid var(--a-border)', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }
+const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--a-green)', margin: '0 0 6px 0' }
 
 // Name, delivery address, phone and delivery preferences, editable by the customer.
 // (The messenger fee itself stays admin-controlled.) onSaved gets the new name
@@ -85,15 +85,15 @@ export default function ProfileDetails({ user, onSaved }) {
   const edit = (setter) => (e) => { setter(e.target.value); setSaved(false); setError('') }
 
   return (
-    <form onSubmit={handleSave} style={{ background: 'white', padding: '24px', border: '1px solid #e0dbd1' }}>
-      <h3 style={{ color: '#083525', margin: '0 0 6px 0' }}>Your Details</h3>
-      <p style={{ fontSize: '13px', color: '#666', margin: '0 0 20px 0' }}>
+    <form onSubmit={handleSave} style={{ background: 'var(--a-surface)', padding: '24px', border: '1px solid var(--a-border)' }}>
+      <h3 style={{ color: 'var(--a-green)', margin: '0 0 6px 0' }}>Your Details</h3>
+      <p style={{ fontSize: '13px', color: 'var(--a-muted)', margin: '0 0 20px 0' }}>
         We use these for your deliveries.
       </p>
 
       {savedAs && (
-        <p style={{ fontSize: '13px', color: '#666', margin: '0 0 12px 0' }}>
-          We have your name as <strong style={{ color: '#083525' }}>{savedAs}</strong>. Please enter it as first and last name below.
+        <p style={{ fontSize: '13px', color: 'var(--a-muted)', margin: '0 0 12px 0' }}>
+          We have your name as <strong style={{ color: 'var(--a-green)' }}>{savedAs}</strong>. Please enter it as first and last name below.
         </p>
       )}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -118,36 +118,36 @@ export default function ProfileDetails({ user, onSaved }) {
 
       {hasDeliveryColumn && (
         <div style={{ marginBottom: '16px' }}>
-          <label style={labelStyle}>How would you like to get your order? <span style={{ fontWeight: '400', color: '#999' }}>Tick all that work for you.</span></label>
+          <label style={labelStyle}>How would you like to get your order? <span style={{ fontWeight: '400', color: 'var(--a-faint)' }}>Tick all that work for you.</span></label>
           {DELIVERY_OPTIONS.map(o => {
             const chosen = parseDeliveryOptions(deliveryOption)
             const checked = chosen.includes(o.value)
             return (
-              <label key={o.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '6px 0', fontSize: '14px', color: '#333', cursor: 'pointer' }}>
+              <label key={o.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '6px 0', fontSize: '14px', color: 'var(--a-ink)', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={checked}
                   onChange={() => { setDeliveryOption(joinDeliveryOptions(checked ? chosen.filter(v => v !== o.value) : [...chosen, o.value])); setSaved(false); setError('') }}
                   style={{ marginTop: '3px', cursor: 'pointer' }}
                 />
-                <span>{o.label}{o.hint ? <span style={{ color: '#999' }}> ({o.hint})</span> : null}</span>
+                <span>{o.label}{o.hint ? <span style={{ color: 'var(--a-faint)' }}> ({o.hint})</span> : null}</span>
               </label>
             )
           })}
         </div>
       )}
 
-      {error && <p style={{ color: '#c62828', fontSize: '13px', margin: '0 0 16px 0' }}>{error}</p>}
+      {error && <p style={{ color: 'var(--a-bad-ink)', fontSize: '13px', margin: '0 0 16px 0' }}>{error}</p>}
 
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
         <button
           type="submit"
           disabled={saving}
-          style={{ padding: '12px 24px', background: '#083525', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
+          style={{ padding: '12px 24px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
         >
           {saving ? 'Saving...' : 'Save Details'}
         </button>
-        {saved && <span style={{ color: '#083525', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>}
+        {saved && <span style={{ color: 'var(--a-green)', fontSize: '13px', fontWeight: '500' }}>✓ Saved</span>}
       </div>
     </form>
   )
