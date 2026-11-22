@@ -1,16 +1,45 @@
+/* Admin palette. Light values are the brand colours the admin has always used; dark mode, which
+   follows the phone's setting, swaps them for a deep forest page with cream type. Every admin
+   component colours itself from these tokens. */
+.admin-page {
+  --a-green: #083525; --a-cream: #faf8f3; --a-surface: #ffffff; --a-surface-2: #fffdf9;
+  --a-border: #e0dbd1; --a-hair: #f0ece3;
+  --a-ink: #333; --a-ink-2: #555; --a-muted: #666; --a-muted-2: #777; --a-faint: #999; --a-faintest: #bbb; --a-quiet: #8a8378;
+  --a-gold: #D4A373; --a-gold-ink: #b8923f;
+  --a-warn-ink: #9a6b14; --a-warn-bg: #fff6e5; --a-warn-border: #f0dcb0;
+  --a-good-bg: #e6efe9;
+  --a-bad-ink: #c62828; --a-bad-bg: #ffebee; --a-bad-border: #ffcdd2;
+  --a-bar: #083525; --a-bar-text: #faf8f3;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  .admin-page {
+    --a-green: #dfe9e2; --a-cream: #0b2d22; --a-surface: #10392b; --a-surface-2: #143f31;
+    --a-border: rgba(250, 248, 243, 0.16); --a-hair: rgba(250, 248, 243, 0.10);
+    --a-ink: #efe9dd; --a-ink-2: #d8d1c3; --a-muted: #bfb7a7; --a-muted-2: #aaa295; --a-faint: #8f897d; --a-faintest: #6f6a60; --a-quiet: #a69e8e;
+    --a-gold: #D4A373; --a-gold-ink: #e3b96f;
+    --a-warn-ink: #f0c876; --a-warn-bg: #4a3a14; --a-warn-border: #6b5420;
+    --a-good-bg: #1b4634;
+    --a-bad-ink: #ff8a80; --a-bad-bg: #4a1f1f; --a-bad-border: #7a3333;
+    --a-bar: #06211a; --a-bar-text: #faf8f3;
+    color-scheme: dark;
+  }
+  .admin-page input, .admin-page select, .admin-page textarea { background: var(--a-surface); color: var(--a-ink); border-color: var(--a-border); }
+}
+
 /* Admin layout. Inline styles can't do media queries, so the responsive bits live here. */
 
 .admin-page {
   min-height: 100vh;
   min-height: 100dvh; /* tracks iOS Safari's collapsing toolbar */
   width: 100%;
-  background: #faf8f3;
+  background: var(--a-cream);
   padding: 0 20px 20px;
 }
 
 /* Dark green bar across the top, bleeding past the page padding, logo in gold */
 .admin-bar {
-  background: #083525;
+  background: var(--a-bar);
   margin: 0 -20px 24px;
   padding: 14px 20px;
 }
@@ -33,7 +62,7 @@
   padding: 12px 8px;
   text-align: center;
   white-space: nowrap;
-  background: #D4A373;
+  background: var(--a-gold);
   color: #faf8f3;
   border: none;
   border-radius: 0;
@@ -50,9 +79,9 @@
 
 /* Approval cards: text left, buttons right; stacks when narrow */
 .admin-card {
-  background: white;
+  background: var(--a-surface);
   padding: 20px;
-  border: 1px solid #e0dbd1;
+  border: 1px solid var(--a-border);
 }
 
 .admin-card-row {
@@ -81,7 +110,7 @@
   font-size: 14px;
   font-weight: 500;
   font-family: inherit;
-  color: #faf8f3;
+  color: var(--a-cream);
 }
 
 .admin-orders-table td {
@@ -89,9 +118,9 @@
 }
 
 .admin-card-actions .admin-button-outline {
-  background: white;
-  color: #083525;
-  border: 1px solid #083525;
+  background: var(--a-surface);
+  color: var(--a-green);
+  border: 1px solid var(--a-green);
 }
 
 /* Request-to-join answers */
@@ -101,7 +130,7 @@
   gap: 14px 24px;
   margin: 20px 0 0 0;
   padding-top: 20px;
-  border-top: 1px solid #e0dbd1;
+  border-top: 1px solid var(--a-border);
 }
 
 .admin-answers dt {
@@ -109,7 +138,7 @@
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #D4A373;
+  color: var(--a-gold);
   font-weight: 600;
 }
 
@@ -117,7 +146,7 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
-  color: #333;
+  color: var(--a-ink);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
@@ -129,12 +158,12 @@
   min-width: 0;
   max-width: 100%;
   padding: 10px;
-  border: 1px solid #e0dbd1;
+  border: 1px solid var(--a-border);
   border-radius: 0;
-  background: white;
+  background: var(--a-surface);
   font-family: inherit;
   font-size: 14px;
-  color: #333;
+  color: var(--a-ink);
   -webkit-appearance: none;
   appearance: none;
 }
@@ -157,8 +186,8 @@
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
-  background: white;
-  border: 1px solid #e0dbd1;
+  background: var(--a-surface);
+  border: 1px solid var(--a-border);
   padding: 16px;
   margin-bottom: 12px;
 }
@@ -173,13 +202,13 @@
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #D4A373;
+  color: var(--a-gold);
   font-weight: 600;
 }
 
 .admin-filter select.admin-input {
   cursor: pointer;
-  background-image: linear-gradient(45deg, transparent 50%, #083525 50%), linear-gradient(135deg, #083525 50%, transparent 50%);
+  background-image: linear-gradient(45deg, transparent 50%, var(--a-green) 50%), linear-gradient(135deg, var(--a-green) 50%, transparent 50%);
   background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
   background-size: 5px 5px;
   background-repeat: no-repeat;
@@ -257,8 +286,8 @@
   }
 
   .admin-orders-table tr {
-    background: white;
-    border: 1px solid #e0dbd1 !important;
+    background: var(--a-surface);
+    border: 1px solid var(--a-border) !important;
     margin-bottom: 12px;
     padding: 8px 16px;
   }
@@ -274,7 +303,7 @@
     font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #D4A373;
+    color: var(--a-gold);
     font-weight: 600;
   }
 

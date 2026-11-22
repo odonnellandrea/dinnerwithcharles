@@ -33,7 +33,7 @@ export default function CustomerPricing({ customer, onSaved }) {
 
   return (
     <div style={{ margin: '8px 0 0 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px 12px', fontSize: '12px', color: '#083525', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px 12px', fontSize: '12px', color: 'var(--a-green)', flexWrap: 'wrap' }}>
         <label htmlFor={`price-${customer.id}`}>Base package $</label>
         <input
           id={`price-${customer.id}`}
@@ -45,7 +45,7 @@ export default function CustomerPricing({ customer, onSaved }) {
           disabled={complimentary}
           onChange={(e) => { setValue(e.target.value); setNote(null) }}
           onKeyDown={(e) => { if (e.key === 'Enter') save() }}
-          style={{ width: '70px', padding: '4px 6px', border: '1px solid #e0dbd1', fontFamily: 'inherit', fontSize: '12px', opacity: complimentary ? 0.5 : 1 }}
+          style={{ width: '70px', padding: '4px 6px', border: '1px solid var(--a-border)', fontFamily: 'inherit', fontSize: '12px', opacity: complimentary ? 0.5 : 1 }}
         />
         <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
           <input type="checkbox" checked={complimentary} onChange={(e) => { setComplimentary(e.target.checked); setNote(null) }} />
@@ -55,12 +55,12 @@ export default function CustomerPricing({ customer, onSaved }) {
           type="button"
           onClick={save}
           disabled={!dirty || saving}
-          style={{ padding: '4px 12px', background: dirty ? '#083525' : 'white', color: dirty ? '#faf8f3' : '#999', border: '1px solid ' + (dirty ? '#083525' : '#e0dbd1'), cursor: dirty && !saving ? 'pointer' : 'default', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit' }}
+          style={{ padding: '4px 12px', background: dirty ? 'var(--a-green)' : 'var(--a-surface)', color: dirty ? 'var(--a-cream)' : 'var(--a-faint)', border: '1px solid ' + (dirty ? 'var(--a-green)' : 'var(--a-border)'), cursor: dirty && !saving ? 'pointer' : 'default', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit' }}
         >
           {saving ? 'Saving...' : 'Save'}
         </button>
       </div>
-      {note && <p style={{ margin: '6px 0 0', fontSize: '12px', color: note.ok ? '#083525' : '#c62828' }}>{note.text}</p>}
+      {note && <p style={{ margin: '6px 0 0', fontSize: '12px', color: note.ok ? 'var(--a-green)' : 'var(--a-bad-ink)' }}>{note.text}</p>}
     </div>
   )
 }

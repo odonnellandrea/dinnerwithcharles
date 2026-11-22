@@ -31,18 +31,18 @@ const SORTS = [['lastOrdered', 'Last ordered'], ['name', 'Name A–Z'], ['newest
 
 const pillStyle = (tone) => ({
   fontSize: '10px', fontWeight: '600', padding: '2px 7px', whiteSpace: 'nowrap',
-  background: tone === 'good' ? '#e6efe9' : tone === 'warn' ? '#fff6e5' : tone === 'bad' ? '#ffebee' : '#f0ece3',
-  color: tone === 'good' ? '#083525' : tone === 'warn' ? '#9a6b14' : tone === 'bad' ? '#c62828' : '#666'
+  background: tone === 'good' ? 'var(--a-good-bg)' : tone === 'warn' ? 'var(--a-warn-bg)' : tone === 'bad' ? 'var(--a-bad-bg)' : 'var(--a-hair)',
+  color: tone === 'good' ? 'var(--a-green)' : tone === 'warn' ? 'var(--a-warn-ink)' : tone === 'bad' ? 'var(--a-bad-ink)' : 'var(--a-muted)'
 })
 const btn = (kind) => ({
   padding: '7px 12px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
-  background: kind === 'primary' ? '#083525' : kind === 'gold' ? '#D4A373' : 'white',
-  color: kind === 'primary' || kind === 'gold' ? '#faf8f3' : kind === 'quiet' ? '#555' : '#083525',
-  border: kind === 'quiet' ? '1px solid #e0dbd1' : kind === 'primary' ? '1px solid #083525' : kind === 'gold' ? '1px solid #D4A373' : '1px solid #083525'
+  background: kind === 'primary' ? 'var(--a-green)' : kind === 'gold' ? 'var(--a-gold)' : 'var(--a-surface)',
+  color: kind === 'primary' || kind === 'gold' ? 'var(--a-cream)' : kind === 'quiet' ? 'var(--a-ink-2)' : 'var(--a-green)',
+  border: kind === 'quiet' ? '1px solid var(--a-border)' : kind === 'primary' ? '1px solid var(--a-green)' : kind === 'gold' ? '1px solid var(--a-gold)' : '1px solid var(--a-green)'
 })
 const chipStyle = (on, small) => ({
-  flex: '0 0 auto', padding: small ? '4px 9px' : '6px 11px', border: `1px solid ${on ? (small ? '#e6efe9' : '#083525') : '#e0dbd1'}`,
-  background: on ? (small ? '#e6efe9' : '#083525') : 'white', color: on ? (small ? '#083525' : '#faf8f3') : (small ? '#555' : '#083525'),
+  flex: '0 0 auto', padding: small ? '4px 9px' : '6px 11px', border: `1px solid ${on ? (small ? 'var(--a-good-bg)' : 'var(--a-green)') : 'var(--a-border)'}`,
+  background: on ? (small ? 'var(--a-good-bg)' : 'var(--a-green)') : 'var(--a-surface)', color: on ? (small ? 'var(--a-green)' : 'var(--a-cream)') : (small ? 'var(--a-ink-2)' : 'var(--a-green)'),
   fontSize: small ? '11px' : '12px', fontWeight: '600', whiteSpace: 'nowrap', cursor: 'pointer', fontFamily: 'inherit'
 })
 
@@ -195,10 +195,10 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
 
   const detail = (c) => {
     const login = loginStats[c.id]
-    const kv = (label, value) => value ? <span><strong style={{ color: '#083525', fontWeight: '600' }}>{label}</strong> {value}</span> : null
+    const kv = (label, value) => value ? <span><strong style={{ color: 'var(--a-green)', fontWeight: '600' }}>{label}</strong> {value}</span> : null
     const line = (items) => { const shown = items.filter(Boolean); return shown.length ? <p style={{ margin: 0 }}>{shown.map((it, i) => <React.Fragment key={i}>{i > 0 && ' · '}{it}</React.Fragment>)}</p> : null }
     return (
-      <div style={{ fontSize: '12px', color: '#555', lineHeight: 1.7, marginTop: '4px' }}>
+      <div style={{ fontSize: '12px', color: 'var(--a-ink-2)', lineHeight: 1.7, marginTop: '4px' }}>
         {line([kv('Email', c.email), kv('Phone', formatUsPhone(c.phone_number || c.delivery_phone || '') || null)])}
         {line([kv('Address', [c.delivery_address, c.apartment && `Apt ${c.apartment}`].filter(Boolean).join(', ') || null), kv('Delivery', c.delivery_option ? deliveryOptionLabel(c.delivery_option) : null), kv('Instructions', c.delivery_instructions)])}
         {line([kv('Allergies', c.allergies), kv('Health', c.health_restrictions), kv('Preferences', c.preference_restrictions)])}
@@ -207,13 +207,13 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
         {line([kv('Email updates', optInLabel(c, 'email_opt_in')), kv('Order texts', optInLabel(c, 'sms_opt_in')), kv('Offers texts', c.sms_marketing_opt_in === true ? 'Yes' : 'No')])}
         {(() => {
           const sent = (emailsByAddress[String(c.email).toLowerCase()] || []).slice(0, 4)
-          if (!sent.length) return <p style={{ margin: 0, color: '#999' }}>No emails on record yet (logging started Nov 13).</p>
+          if (!sent.length) return <p style={{ margin: 0, color: 'var(--a-faint)' }}>No emails on record yet (logging started Nov 13).</p>
           const label = (e) => ({ menu_live: `Menu${e.delivery_date ? ' for ' + shortDate(e.delivery_date) : ''}`, approved: 'Welcome', order_confirmation: 'Order confirmation', reheat_link: 'Reheat guide', order_notice: 'Order notice' }[e.kind] || e.kind)
-          return <p style={{ margin: 0 }}><strong style={{ color: '#083525', fontWeight: '600' }}>Emails</strong> {sent.map((e, i) => <span key={i}>{i > 0 && ' · '}{label(e)} {shortDate(e.created_at)}{e.status === 'failed' ? <span style={{ color: '#c62828' }}> failed</span> : ''}</span>)}</p>
+          return <p style={{ margin: 0 }}><strong style={{ color: 'var(--a-green)', fontWeight: '600' }}>Emails</strong> {sent.map((e, i) => <span key={i}>{i > 0 && ' · '}{label(e)} {shortDate(e.created_at)}{e.status === 'failed' ? <span style={{ color: 'var(--a-bad-ink)' }}> failed</span> : ''}</span>)}</p>
         })()}
-        {c.resubmitted_at && <p style={{ margin: '4px 0 0 0', color: '#083525', fontWeight: '600' }}>Resubmitted {shortDate(c.resubmitted_at)}</p>}
+        {c.resubmitted_at && <p style={{ margin: '4px 0 0 0', color: 'var(--a-green)', fontWeight: '600' }}>Resubmitted {shortDate(c.resubmitted_at)}</p>}
 
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '10px 0 0 0', color: '#083525', cursor: 'pointer' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '10px 0 0 0', color: 'var(--a-green)', cursor: 'pointer' }}>
           <input
             type="checkbox"
             checked={c.messenger_delivery === true}
@@ -247,22 +247,22 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
     )
   }
 
-  const rowStyle = (isOpen) => ({ background: 'white', border: '1px solid #e0dbd1', borderTop: 'none', padding: '11px 14px', cursor: 'pointer', ...(isOpen ? { background: '#fffdf9' } : {}) })
+  const rowStyle = (isOpen) => ({ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderTop: 'none', padding: '11px 14px', cursor: 'pointer', ...(isOpen ? { background: 'var(--a-surface-2)' } : {}) })
   const row = (c, extra) => {
     const isOpen = !!open[c.id]
     return (
       <div key={c.id}>
         <div style={rowStyle(isOpen)} onClick={() => toggle(setOpen)(c.id)} role="button" aria-expanded={isOpen}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontWeight: '600', color: '#083525', fontSize: '14px', overflowWrap: 'anywhere' }}>{displayName(c)}</span>
-            <span style={{ color: '#bbb', fontSize: '12px', flexShrink: 0 }}>{isOpen ? '▲' : '▼'}</span>
+            <span style={{ fontWeight: '600', color: 'var(--a-green)', fontSize: '14px', overflowWrap: 'anywhere' }}>{displayName(c)}</span>
+            <span style={{ color: 'var(--a-faintest)', fontSize: '12px', flexShrink: 0 }}>{isOpen ? '▲' : '▼'}</span>
           </div>
-          <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#777' }}>{extra || summary(c)}</p>
+          <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--a-muted-2)' }}>{extra || summary(c)}</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
             {pills(c).map(([text, tone]) => <span key={text} style={pillStyle(tone)}>{text}</span>)}
           </div>
         </div>
-        {isOpen && <div style={{ background: '#fffdf9', border: '1px solid #e0dbd1', borderTop: 'none', padding: '0 14px 14px' }}>{detail(c)}</div>}
+        {isOpen && <div style={{ background: 'var(--a-surface-2)', border: '1px solid var(--a-border)', borderTop: 'none', padding: '0 14px 14px' }}>{detail(c)}</div>}
       </div>
     )
   }
@@ -272,12 +272,12 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
 
   return (
     <div>
-      <h2 style={{ color: '#083525', margin: '0 0 4px 0' }}>Customers</h2>
-      <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666' }}>{loading ? 'Loading…' : headline}</p>
+      <h2 style={{ color: 'var(--a-green)', margin: '0 0 4px 0' }}>Customers</h2>
+      <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: 'var(--a-muted)' }}>{loading ? 'Loading…' : headline}</p>
 
       <input
         type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email or phone" aria-label="Search customers"
-        style={{ width: '100%', boxSizing: 'border-box', padding: '11px 12px', border: '1px solid #e0dbd1', fontSize: '16px', background: 'white', fontFamily: 'inherit', borderRadius: 0, WebkitAppearance: 'none', appearance: 'none' }}
+        style={{ width: '100%', boxSizing: 'border-box', padding: '11px 12px', border: '1px solid var(--a-border)', fontSize: '16px', background: 'var(--a-surface)', fontFamily: 'inherit', borderRadius: 0, WebkitAppearance: 'none', appearance: 'none' }}
       />
       <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', padding: '12px 0 4px', scrollbarWidth: 'none' }}>
         {STATUS.map(([key, label]) => (
@@ -291,23 +291,23 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
           <button key={key} onClick={() => setExtras(prev => ({ ...prev, [key]: !prev[key] }))} style={chipStyle(!!extras[key], true)}>{label}</button>
         ))}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#777', margin: '6px 0 8px', gap: '12px' }}>
-        <span>Showing {rows.length + pending.length}{activeExtras.length || status !== 'all' || q ? <> · <button onClick={() => { setSearch(''); setStatus('all'); setExtras({}) }} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Clear filters</button></> : null}</span>
-        <label>Sort <select value={sort} onChange={(e) => setSort(e.target.value)} style={{ border: 'none', background: 'none', font: 'inherit', color: '#083525', fontWeight: '600' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--a-muted-2)', margin: '6px 0 8px', gap: '12px' }}>
+        <span>Showing {rows.length + pending.length}{activeExtras.length || status !== 'all' || q ? <> · <button onClick={() => { setSearch(''); setStatus('all'); setExtras({}) }} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--a-green)', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Clear filters</button></> : null}</span>
+        <label>Sort <select value={sort} onChange={(e) => setSort(e.target.value)} style={{ border: 'none', background: 'none', font: 'inherit', color: 'var(--a-green)', fontWeight: '600' }}>
           {SORTS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
         </select></label>
       </div>
 
       {pending.length > 0 && (
-        <div style={{ background: '#fff6e5', border: '1px solid #f0dcb0', padding: '12px 14px', marginBottom: '12px' }}>
-          <h3 style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#9a6b14', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Needs approval</h3>
+        <div style={{ background: 'var(--a-warn-bg)', border: '1px solid var(--a-warn-border)', padding: '12px 14px', marginBottom: '12px' }}>
+          <h3 style={{ margin: '0 0 6px 0', fontSize: '12px', color: 'var(--a-warn-ink)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Needs approval</h3>
           {pending.map(c => (
-            <div key={c.id} style={{ padding: '6px 0', borderTop: '1px solid #f0dcb0' }}>
+            <div key={c.id} style={{ padding: '6px 0', borderTop: '1px solid var(--a-warn-border)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'baseline' }}>
-                <span style={{ fontWeight: '600', color: '#083525', fontSize: '14px' }}>{displayName(c)}</span>
+                <span style={{ fontWeight: '600', color: 'var(--a-green)', fontSize: '14px' }}>{displayName(c)}</span>
                 <span style={pillStyle('warn')}>Pending</span>
               </div>
-              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#777' }}>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--a-muted-2)' }}>
                 Joined {shortDate(c.created_at)}{c.heard_about ? ` · heard about us: ${[c.heard_about, c.heard_about_detail].filter(Boolean).join(', ')}` : ''}{c.delivery_address ? ` · ${[c.delivery_address, c.apartment && `Apt ${c.apartment}`].filter(Boolean).join(', ')}` : ''}{c.resubmitted_at ? ` · resubmitted ${shortDate(c.resubmitted_at)}` : ''}
               </p>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
@@ -323,10 +323,10 @@ export default function Customers({ customers, loading, loginStats, awayByUser, 
       )}
 
       {!loading && rows.length === 0 && pending.length === 0 && (
-        <p style={{ color: '#666', fontSize: '14px' }}>{customers.length ? 'Nobody matches those filters.' : 'No customers yet.'}</p>
+        <p style={{ color: 'var(--a-muted)', fontSize: '14px' }}>{customers.length ? 'Nobody matches those filters.' : 'No customers yet.'}</p>
       )}
       {rows.length > 0 && (
-        <div style={{ borderTop: '1px solid #e0dbd1' }}>
+        <div style={{ borderTop: '1px solid var(--a-border)' }}>
           {rows.map(c => row(c))}
         </div>
       )}

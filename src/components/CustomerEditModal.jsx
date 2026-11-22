@@ -5,8 +5,8 @@ import { DELIVERY_OPTIONS, parseDeliveryOptions, joinDeliveryOptions, hasDeliver
 
 const PAYMENT_METHODS = ['Venmo', 'Zelle', 'Cash']
 
-const inputStyle = { width: '100%', padding: '10px 12px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }
-const labelStyle = { display: 'block', fontSize: '12px', fontWeight: '600', color: '#083525', margin: '0 0 6px 0' }
+const inputStyle = { width: '100%', padding: '10px 12px', border: '1px solid var(--a-border)', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px' }
+const labelStyle = { display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--a-green)', margin: '0 0 6px 0' }
 
 // Admin editor for everything on a customer's card: name plus every request-to-join answer.
 // fields: [[label, column], ...] in the order the form asks them.
@@ -49,13 +49,13 @@ export default function CustomerEditModal({ customer, fields, onClose, onSaved }
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
-      <form onSubmit={handleSave} style={{ background: 'white', padding: '28px', maxWidth: '640px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxSizing: 'border-box' }}>
-        <h2 style={{ color: '#083525', margin: '0 0 4px 0' }}>Edit Customer</h2>
-        <p style={{ margin: '0 0 20px 0', color: '#666', fontSize: '13px' }}>{customer.email}</p>
+      <form onSubmit={handleSave} style={{ background: 'var(--a-surface)', padding: '28px', maxWidth: '640px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxSizing: 'border-box' }}>
+        <h2 style={{ color: 'var(--a-green)', margin: '0 0 4px 0' }}>Edit Customer</h2>
+        <p style={{ margin: '0 0 20px 0', color: 'var(--a-muted)', fontSize: '13px' }}>{customer.email}</p>
 
         {names.savedAs && (
-          <p style={{ fontSize: '13px', color: '#666', margin: '0 0 12px 0' }}>
-            Name on file: <strong style={{ color: '#083525' }}>{names.savedAs}</strong>. Enter it as first and last name.
+          <p style={{ fontSize: '13px', color: 'var(--a-muted)', margin: '0 0 12px 0' }}>
+            Name on file: <strong style={{ color: 'var(--a-green)' }}>{names.savedAs}</strong>. Enter it as first and last name.
           </p>
         )}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
@@ -99,21 +99,21 @@ export default function CustomerEditModal({ customer, fields, onClose, onSaved }
           </div>
         ))}
 
-        {error && <p style={{ color: '#c62828', fontSize: '13px', margin: '0 0 16px 0' }}>{error}</p>}
+        {error && <p style={{ color: 'var(--a-bad-ink)', fontSize: '13px', margin: '0 0 16px 0' }}>{error}</p>}
 
         <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
           <button
             type="button"
             onClick={onClose}
             disabled={saving}
-            style={{ flex: 1, padding: '12px', background: '#D4A373', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}
+            style={{ flex: 1, padding: '12px', background: 'var(--a-gold)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            style={{ flex: 1, padding: '12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
+            style={{ flex: 1, padding: '12px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>

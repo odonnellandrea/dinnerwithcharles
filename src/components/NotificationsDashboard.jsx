@@ -113,21 +113,21 @@ export default function NotificationsDashboard() {
 
   return (
     <div>
-      <h2 style={{ color: '#083525', marginBottom: '20px' }}>Menu Notifications</h2>
+      <h2 style={{ color: 'var(--a-green)', marginBottom: '20px' }}>Menu Notifications</h2>
 
       <AdminEmailCheck />
 
-      <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#083525' }}>
+      <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+        <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: 'var(--a-green)' }}>
           Select Delivery Date
         </label>
         <input
           type="date"
           value={deliveryDate}
           onChange={(e) => setDeliveryDate(e.target.value)}
-          style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px', marginBottom: '12px', fontSize: '14px' }}
+          style={{ padding: '8px 12px', border: '1px solid var(--a-border)', width: '100%', maxWidth: '300px', marginBottom: '12px', fontSize: '14px' }}
         />
-        <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>
+        <p style={{ margin: '0', fontSize: '13px', color: 'var(--a-muted)' }}>
           <strong>{getDeliveryDateDisplay()}</strong>
         </p>
       </div>
@@ -135,22 +135,22 @@ export default function NotificationsDashboard() {
       {loading ? (
         <p>Loading notification preferences...</p>
       ) : (
-        <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-          <h3 style={{ color: '#083525', marginTop: '0' }}>Opt-In Summary</h3>
+        <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+          <h3 style={{ color: 'var(--a-green)', marginTop: '0' }}>Opt-In Summary</h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            <div style={{ padding: '12px', background: '#faf8f3' }}>
-              <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#083525', fontSize: '16px' }}>
+            <div style={{ padding: '12px', background: 'var(--a-cream)' }}>
+              <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: 'var(--a-green)', fontSize: '16px' }}>
                 {emailCount}
               </p>
-              <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>Customers opted in to email</p>
+              <p style={{ margin: '0', fontSize: '13px', color: 'var(--a-muted)' }}>Customers opted in to email</p>
             </div>
 
-            <div style={{ padding: '12px', background: '#faf8f3' }}>
-              <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#083525', fontSize: '16px' }}>
+            <div style={{ padding: '12px', background: 'var(--a-cream)' }}>
+              <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: 'var(--a-green)', fontSize: '16px' }}>
                 {smsCount}
               </p>
-              <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>Customers opted in to SMS</p>
+              <p style={{ margin: '0', fontSize: '13px', color: 'var(--a-muted)' }}>Customers opted in to SMS</p>
             </div>
           </div>
 
@@ -160,9 +160,9 @@ export default function NotificationsDashboard() {
                 padding: '12px',
                 marginBottom: '16px',
                 fontSize: '13px',
-                background: message.startsWith('✓') ? '#faf8f3' : '#ffebee',
-                color: message.startsWith('✓') ? '#083525' : '#c62828',
-                border: `1px solid ${message.startsWith('✓') ? '#e0dbd1' : '#ffcdd2'}`
+                background: message.startsWith('✓') ? 'var(--a-cream)' : 'var(--a-bad-bg)',
+                color: message.startsWith('✓') ? 'var(--a-green)' : 'var(--a-bad-ink)',
+                border: `1px solid ${message.startsWith('✓') ? 'var(--a-border)' : 'var(--a-bad-border)'}`
               }}
             >
               {message}
@@ -174,8 +174,8 @@ export default function NotificationsDashboard() {
             disabled={sending || emailCount === 0 && smsCount === 0}
             style={{
               padding: '12px 24px',
-              background: '#083525',
-              color: '#faf8f3',
+              background: 'var(--a-green)',
+              color: 'var(--a-cream)',
               border: 'none',
               cursor: sending || (emailCount === 0 && smsCount === 0) ? 'not-allowed' : 'pointer',
               fontSize: '14px',
@@ -187,16 +187,16 @@ export default function NotificationsDashboard() {
           </button>
 
           {emailCount === 0 && smsCount === 0 && (
-            <p style={{ margin: '12px 0 0 0', fontSize: '12px', color: '#999' }}>
+            <p style={{ margin: '12px 0 0 0', fontSize: '12px', color: 'var(--a-faint)' }}>
               No customers have opted in to notifications yet.
             </p>
           )}
         </div>
       )}
 
-      <div style={{ background: '#faf8f3', padding: '16px', border: '1px solid #D4A373' }}>
-        <h4 style={{ margin: '0 0 8px 0', color: '#083525', fontSize: '14px' }}>Implementation Note</h4>
-        <p style={{ margin: '0', fontSize: '13px', color: '#083525', lineHeight: '1.5' }}>
+      <div style={{ background: 'var(--a-cream)', padding: '16px', border: '1px solid var(--a-gold)' }}>
+        <h4 style={{ margin: '0 0 8px 0', color: 'var(--a-green)', fontSize: '14px' }}>Implementation Note</h4>
+        <p style={{ margin: '0', fontSize: '13px', color: 'var(--a-green)', lineHeight: '1.5' }}>
           Email notifications currently use <strong>SendGrid</strong> (100 emails/day free tier).
           SMS uses <strong>Twilio</strong>. You'll need to configure API keys in .env to actually send messages.
           For now, the system just tracks counts and shows readiness.

@@ -33,32 +33,32 @@ export default function SurveyResponses({ deliveryDate: currentDate, refreshKey 
   useEffect(() => { load() }, [load, refreshKey])
 
   return (
-    <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e0dbd1' }}>
+    <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--a-border)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-        <h4 style={{ margin: 0, color: '#083525', fontSize: '14px' }}>
+        <h4 style={{ margin: 0, color: 'var(--a-green)', fontSize: '14px' }}>
           Responses{!status && ` (${responses.length})`}
         </h4>
         <button
           onClick={load}
-          style={{ padding: '4px 12px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}
+          style={{ padding: '4px 12px', background: 'var(--a-surface)', color: 'var(--a-green)', border: '1px solid var(--a-green)', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}
         >
           Refresh
         </button>
       </div>
-      <label style={{ display: 'block', margin: '0 0 6px 0', fontSize: '12px', fontWeight: '600', color: '#083525' }}>Delivery date</label>
+      <label style={{ display: 'block', margin: '0 0 6px 0', fontSize: '12px', fontWeight: '600', color: 'var(--a-green)' }}>Delivery date</label>
       <input
         type="date"
         value={deliveryDate}
         onChange={(e) => setDeliveryDate(e.target.value)}
-        style={{ padding: '6px 10px', border: '1px solid #e0dbd1', marginBottom: '12px', fontFamily: 'inherit' }}
+        style={{ padding: '6px 10px', border: '1px solid var(--a-border)', marginBottom: '12px', fontFamily: 'inherit' }}
       />
-      {status && <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>{status}</p>}
-      {!status && question && <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666', fontStyle: 'italic' }}>"{question}"</p>}
-      {!status && responses.length === 0 && <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>No responses yet.</p>}
+      {status && <p style={{ margin: 0, fontSize: '13px', color: 'var(--a-muted)' }}>{status}</p>}
+      {!status && question && <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--a-muted)', fontStyle: 'italic' }}>"{question}"</p>}
+      {!status && responses.length === 0 && <p style={{ margin: 0, fontSize: '13px', color: 'var(--a-muted)' }}>No responses yet.</p>}
       {responses.map(r => (
-        <div key={r.id ?? `${r.user_email}-${r.created_at}`} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
-          <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#333', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{r.response}</p>
-          <p style={{ margin: 0, fontSize: '12px', color: '#999' }}>
+        <div key={r.id ?? `${r.user_email}-${r.created_at}`} style={{ padding: '10px 0', borderTop: '1px solid var(--a-hair)' }}>
+          <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: 'var(--a-ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{r.response}</p>
+          <p style={{ margin: 0, fontSize: '12px', color: 'var(--a-faint)' }}>
             {r.who || r.user_email}{r.who && ` · ${r.user_email}`}
             {r.created_at && ` · ${new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
           </p>

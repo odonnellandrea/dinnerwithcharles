@@ -107,11 +107,11 @@ export default function ThisWeek({ onOpenOrders }) {
     setLoading(false)
   }
 
-  const card = { background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }
+  const card = { background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }
   const chip = (label, value, strong) => (
-    <div style={{ flex: '1 1 110px', padding: '14px 16px', background: strong ? '#083525' : '#faf8f3', border: '1px solid #e0dbd1' }}>
-      <p style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: strong ? '#faf8f3' : '#083525', lineHeight: 1 }}>{value}</p>
-      <p style={{ margin: '6px 0 0 0', fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', color: strong ? '#D4A373' : '#666' }}>{label}</p>
+    <div style={{ flex: '1 1 110px', padding: '14px 16px', background: strong ? 'var(--a-green)' : 'var(--a-cream)', border: '1px solid var(--a-border)' }}>
+      <p style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: strong ? 'var(--a-cream)' : 'var(--a-green)', lineHeight: 1 }}>{value}</p>
+      <p style={{ margin: '6px 0 0 0', fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', color: strong ? 'var(--a-gold)' : 'var(--a-muted)' }}>{label}</p>
     </div>
   )
   // Paid / unpaid / free: the saved row, else free for a complimentary customer, else unpaid
@@ -154,13 +154,13 @@ export default function ThisWeek({ onOpenOrders }) {
   // One thin bar per dish, all on the same scale, the count at the end, names on hover
   const barList = (title, items) => items.length > 0 && (
     <div style={{ marginBottom: '18px' }}>
-      <p style={{ margin: '0 0 8px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{title}</p>
+      <p style={{ margin: '0 0 8px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>{title}</p>
       {items.map(d => (
         <div key={d.name} title={d.who.join(', ')} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 46%) 1fr', gap: '10px', alignItems: 'center', padding: '5px 0' }}>
-          <span style={{ fontSize: '13px', color: '#333', lineHeight: 1.3 }}>{d.name}</span>
+          <span style={{ fontSize: '13px', color: 'var(--a-ink)', lineHeight: 1.3 }}>{d.name}</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span role="img" aria-label={`${d.count} order${d.count === 1 ? '' : 's'}`} style={{ display: 'block', height: '10px', width: `${(d.count / maxCount) * 100}%`, minWidth: '4px', background: '#083525' }} />
-            <span style={{ fontSize: '12px', color: '#666', fontVariantNumeric: 'tabular-nums' }}>{d.count}</span>
+            <span role="img" aria-label={`${d.count} order${d.count === 1 ? '' : 's'}`} style={{ display: 'block', height: '10px', width: `${(d.count / maxCount) * 100}%`, minWidth: '4px', background: 'var(--a-green)' }} />
+            <span style={{ fontSize: '12px', color: 'var(--a-muted)', fontVariantNumeric: 'tabular-nums' }}>{d.count}</span>
           </span>
         </div>
       ))}
@@ -171,19 +171,19 @@ export default function ThisWeek({ onOpenOrders }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ color: '#083525', margin: '0 0 4px 0' }}>This Week</h2>
-          <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
+          <h2 style={{ color: 'var(--a-green)', margin: '0 0 4px 0' }}>This Week</h2>
+          <p style={{ margin: 0, fontSize: '13px', color: 'var(--a-muted)' }}>
             Delivery {deliveryDate ? niceDate(deliveryDate) : '…'}{live ? (live.is_live ? ' · ordering is open' : '') : ' · no menu is live yet'}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <label htmlFor="weekDate" style={{ fontSize: '12px', color: '#666' }}>Other week</label>
-          <input id="weekDate" type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} style={{ padding: '6px 10px', border: '1px solid #e0dbd1', fontFamily: 'inherit' }} />
-          <button onClick={load} style={{ padding: '6px 12px', background: 'white', color: '#083525', border: '1px solid #083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
+          <label htmlFor="weekDate" style={{ fontSize: '12px', color: 'var(--a-muted)' }}>Other week</label>
+          <input id="weekDate" type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} style={{ padding: '6px 10px', border: '1px solid var(--a-border)', fontFamily: 'inherit' }} />
+          <button onClick={load} style={{ padding: '6px 12px', background: 'var(--a-surface)', color: 'var(--a-green)', border: '1px solid var(--a-green)', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
         </div>
       </div>
 
-      {error && <p style={{ color: '#c62828', background: '#ffebee', border: '1px solid #ffcdd2', padding: '12px 16px', fontSize: '13px' }}>Couldn't load this week: {error}</p>}
+      {error && <p style={{ color: 'var(--a-bad-ink)', background: 'var(--a-bad-bg)', border: '1px solid var(--a-bad-border)', padding: '12px 16px', fontSize: '13px' }}>Couldn't load this week: {error}</p>}
       {loading ? <p>Loading...</p> : (
         <>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '20px' }}>
@@ -196,8 +196,8 @@ export default function ThisWeek({ onOpenOrders }) {
 
           {ordered.length > 0 && (
             <div style={card}>
-              <h3 style={{ color: '#083525', margin: '0 0 4px 0', fontSize: '16px' }}>What's been ordered</h3>
-              <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#999' }}>Orders per dish. Hover or hold a bar to see who.</p>
+              <h3 style={{ color: 'var(--a-green)', margin: '0 0 4px 0', fontSize: '16px' }}>What's been ordered</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: 'var(--a-faint)' }}>Orders per dish. Hover or hold a bar to see who.</p>
               {barList('Entrées', dishes.entree)}
               {barList('Sides', dishes.salad)}
               {barList('Add-ons', dishes.addon)}
@@ -208,27 +208,27 @@ export default function ThisWeek({ onOpenOrders }) {
             const flagged = ordered.filter(o => o.special_notes || o.allergies || o.health || o.preferences)
             const clip = (text, n = 48) => text.length > n ? text.slice(0, n - 1).trimEnd() + '…' : text
             return (
-              <div style={{ ...card, borderLeft: '4px solid #D4A373' }}>
+              <div style={{ ...card, borderLeft: '4px solid var(--a-gold)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
-                  <h3 style={{ color: '#083525', margin: '0 0 10px 0', fontSize: '16px' }}>Notes for the kitchen ({flagged.length})</h3>
-                  <button onClick={() => setFullNotes(v => !v)} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>{fullNotes ? 'Short version' : 'Full notes'}</button>
+                  <h3 style={{ color: 'var(--a-green)', margin: '0 0 10px 0', fontSize: '16px' }}>Notes for the kitchen ({flagged.length})</h3>
+                  <button onClick={() => setFullNotes(v => !v)} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--a-green)', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>{fullNotes ? 'Short version' : 'Full notes'}</button>
                 </div>
                 {flagged.map(o => fullNotes ? (
-                  <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3' }}>
-                    <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '600', color: '#333' }}>{o.name}</p>
-                    {o.allergies && <p style={{ margin: '2px 0', fontSize: '13px', color: '#c62828' }}><strong>Allergies:</strong> {o.allergies}</p>}
-                    {o.health && <p style={{ margin: '2px 0', fontSize: '13px', color: '#333' }}><strong>Health:</strong> {o.health}</p>}
-                    {o.preferences && <p style={{ margin: '2px 0', fontSize: '13px', color: '#333' }}><strong>Preferences:</strong> {o.preferences}</p>}
-                    {o.special_notes && <p style={{ margin: '2px 0', fontSize: '13px', color: '#b8923f' }}><strong>This order:</strong> {o.special_notes}</p>}
+                  <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid var(--a-hair)' }}>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '600', color: 'var(--a-ink)' }}>{o.name}</p>
+                    {o.allergies && <p style={{ margin: '2px 0', fontSize: '13px', color: 'var(--a-bad-ink)' }}><strong>Allergies:</strong> {o.allergies}</p>}
+                    {o.health && <p style={{ margin: '2px 0', fontSize: '13px', color: 'var(--a-ink)' }}><strong>Health:</strong> {o.health}</p>}
+                    {o.preferences && <p style={{ margin: '2px 0', fontSize: '13px', color: 'var(--a-ink)' }}><strong>Preferences:</strong> {o.preferences}</p>}
+                    {o.special_notes && <p style={{ margin: '2px 0', fontSize: '13px', color: 'var(--a-gold-ink)' }}><strong>This order:</strong> {o.special_notes}</p>}
                   </div>
                 ) : (
-                  <p key={o.order_id} style={{ margin: 0, padding: '5px 0', borderTop: '1px solid #f0ece3', fontSize: '13px', color: '#333', lineHeight: 1.5 }}>
+                  <p key={o.order_id} style={{ margin: 0, padding: '5px 0', borderTop: '1px solid var(--a-hair)', fontSize: '13px', color: 'var(--a-ink)', lineHeight: 1.5 }}>
                     <strong>{o.name.split(' ')[0]}:</strong>{' '}
-                    {o.allergies && <span style={{ color: '#c62828' }}>{clip(o.allergies)}</span>}
+                    {o.allergies && <span style={{ color: 'var(--a-bad-ink)' }}>{clip(o.allergies)}</span>}
                     {o.allergies && (o.health || o.preferences || o.special_notes) ? ' · ' : ''}
                     {[o.health, o.preferences].filter(Boolean).map(t => clip(t)).join(' · ')}
                     {(o.health || o.preferences) && o.special_notes ? ' · ' : ''}
-                    {o.special_notes && <span style={{ color: '#b8923f' }}>{clip(o.special_notes)}</span>}
+                    {o.special_notes && <span style={{ color: 'var(--a-gold-ink)' }}>{clip(o.special_notes)}</span>}
                   </p>
                 ))}
               </div>
@@ -237,9 +237,9 @@ export default function ThisWeek({ onOpenOrders }) {
 
           <div style={card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px', marginBottom: '12px' }}>
-              <h3 style={{ color: '#083525', margin: 0, fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
+              <h3 style={{ color: 'var(--a-green)', margin: 0, fontSize: '16px' }}>Not yet ordered ({waiting.length})</h3>
               {waiting.length > 0 && (
-                <button onClick={() => setShowNudge(v => !v)} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>
+                <button onClick={() => setShowNudge(v => !v)} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--a-green)', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>
                   {showNudge ? 'Hide the text' : 'Edit the text'}
                 </button>
               )}
@@ -247,55 +247,55 @@ export default function ThisWeek({ onOpenOrders }) {
             {showNudge && (
               <div style={{ marginBottom: '12px' }}>
                 <textarea value={nudgeText} onChange={(e) => saveNudge(e.target.value)} rows={4}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: '1px solid #e0dbd1', fontFamily: 'inherit', fontSize: '14px', lineHeight: 1.5, resize: 'vertical' }} />
-                <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: '#999' }}>
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: '1px solid var(--a-border)', fontFamily: 'inherit', fontSize: '14px', lineHeight: 1.5, resize: 'vertical' }} />
+                <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: 'var(--a-faint)' }}>
                   {'{first}'}, {'{date}'} and {'{close}'} fill in per person. The Text buttons open Messages with this ready to send.
-                  {' '}<button onClick={() => saveNudge(DEFAULT_NUDGE)} style={{ background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Reset</button>
+                  {' '}<button onClick={() => saveNudge(DEFAULT_NUDGE)} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--a-green)', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Reset</button>
                 </p>
-                {waiting[0] && <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#666', fontStyle: 'italic' }}>For {displayName(waiting[0])}: “{personalNudge(waiting[0])}”</p>}
+                {waiting[0] && <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: 'var(--a-muted)', fontStyle: 'italic' }}>For {displayName(waiting[0])}: “{personalNudge(waiting[0])}”</p>}
               </div>
             )}
-            {waiting.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>Everyone who's home has ordered.</p>}
+            {waiting.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: 'var(--a-muted)' }}>Everyone who's home has ordered.</p>}
             {waiting.map(p => {
               const phone = p.phone_number || p.delivery_phone
               return (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '8px 0', borderTop: '1px solid #f0ece3' }}>
-                  <span style={{ fontSize: '14px', color: '#333' }}>{displayName(p)}<span style={{ color: '#999', fontSize: '12px' }}> · {p.email}</span></span>
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '8px 0', borderTop: '1px solid var(--a-hair)' }}>
+                  <span style={{ fontSize: '14px', color: 'var(--a-ink)' }}>{displayName(p)}<span style={{ color: 'var(--a-faint)', fontSize: '12px' }}> · {p.email}</span></span>
                   <span style={{ display: 'flex', gap: '8px', fontSize: '12px' }}>
-                    {p.sms_opt_in === true && phone && <a href={nudgeLink(p, phone)} style={{ color: '#083525', fontWeight: '600', textDecoration: 'none', border: '1px solid #083525', padding: '3px 10px' }}>Text</a>}
-                    <a href={`mailto:${p.email}`} style={{ color: '#083525', fontWeight: '600', textDecoration: 'none', border: '1px solid #e0dbd1', padding: '3px 10px' }}>Email</a>
+                    {p.sms_opt_in === true && phone && <a href={nudgeLink(p, phone)} style={{ color: 'var(--a-green)', fontWeight: '600', textDecoration: 'none', border: '1px solid var(--a-green)', padding: '3px 10px' }}>Text</a>}
+                    <a href={`mailto:${p.email}`} style={{ color: 'var(--a-green)', fontWeight: '600', textDecoration: 'none', border: '1px solid var(--a-border)', padding: '3px 10px' }}>Email</a>
                   </span>
                 </div>
               )
             })}
             {inactive.length > 0 && (
-              <p style={{ margin: '12px 0 0 0', fontSize: '12px', color: '#999' }} title={inactive.map(p => displayName(p)).join(', ')}>
+              <p style={{ margin: '12px 0 0 0', fontSize: '12px', color: 'var(--a-faint)' }} title={inactive.map(p => displayName(p)).join(', ')}>
                 Not counted: {inactive.length} inactive customer{inactive.length === 1 ? '' : 's'} ({inactive.map(p => displayName(p)).join(', ')}).
               </p>
             )}
           </div>
 
           <div style={card}>
-            <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Ordered ({customerOrders.length}{ordered.length > customerOrders.length ? ` + ${ordered.length - customerOrders.length} household` : ''})</h3>
-            {ordered.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>No orders yet for this date.</p>}
+            <h3 style={{ color: 'var(--a-green)', margin: '0 0 12px 0', fontSize: '16px' }}>Ordered ({customerOrders.length}{ordered.length > customerOrders.length ? ` + ${ordered.length - customerOrders.length} household` : ''})</h3>
+            {ordered.length === 0 && <p style={{ margin: 0, fontSize: '14px', color: 'var(--a-muted)' }}>No orders yet for this date.</p>}
             {ordered.map(o => {
               const pay = payOf(o)
               const delivered = o.status === 'delivered'
               const done = delivered && pay !== 'unpaid'
               const pill = (text, tone) => (
                 <span style={{ padding: '2px 8px', fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap',
-                  background: tone === 'done' ? '#e6efe9' : tone === 'warn' ? '#ffebee' : '#fff6e5',
-                  color: tone === 'done' ? '#083525' : tone === 'warn' ? '#c62828' : '#9a6b14' }}>{text}</span>
+                  background: tone === 'done' ? 'var(--a-good-bg)' : tone === 'warn' ? 'var(--a-bad-bg)' : 'var(--a-warn-bg)',
+                  color: tone === 'done' ? 'var(--a-green)' : tone === 'warn' ? 'var(--a-bad-ink)' : 'var(--a-warn-ink)' }}>{text}</span>
               )
-              const quiet = { background: 'none', border: 'none', padding: 0, color: '#8a8378', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }
-              const primary = { padding: '5px 12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit' }
+              const quiet = { background: 'none', border: 'none', padding: 0, color: 'var(--a-quiet)', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }
+              const primary = { padding: '5px 12px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit' }
               return (
-                <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid #f0ece3', opacity: done ? 0.62 : 1 }}>
+                <div key={o.order_id} style={{ padding: '10px 0', borderTop: '1px solid var(--a-hair)', opacity: done ? 0.62 : 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: '14px', color: '#333', fontWeight: '600' }}>{done ? '✓ ' : ''}{o.name}{o.household && <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '10px', fontWeight: '600', background: '#f0ece3', color: '#666', verticalAlign: 'middle' }}>Household</span>}</span>
-                    <span style={{ fontSize: '13px', color: '#083525', fontWeight: '600' }}>{o.complimentary ? 'Complimentary' : `$${o.total.toFixed(2)}`}</span>
+                    <span style={{ fontSize: '14px', color: 'var(--a-ink)', fontWeight: '600' }}>{done ? '✓ ' : ''}{o.name}{o.household && <span style={{ marginLeft: '8px', padding: '1px 7px', fontSize: '10px', fontWeight: '600', background: 'var(--a-hair)', color: 'var(--a-muted)', verticalAlign: 'middle' }}>Household</span>}</span>
+                    <span style={{ fontSize: '13px', color: 'var(--a-green)', fontWeight: '600' }}>{o.complimentary ? 'Complimentary' : `$${o.total.toFixed(2)}`}</span>
                   </div>
-                  <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#666' }}>
+                  <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: 'var(--a-muted)' }}>
                     {o.entrees} entrée{o.entrees === 1 ? '' : 's'} · {o.sides} side{o.sides === 1 ? '' : 's'}{o.addons ? ` · ${o.addons} add-on${o.addons === 1 ? '' : 's'}` : ''}
                   </p>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '7px', alignItems: 'center' }}>
@@ -316,17 +316,17 @@ export default function ThisWeek({ onOpenOrders }) {
               )
             })}
             {ordered.length > 0 && onOpenOrders && (
-              <button onClick={onOpenOrders} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Open the full Orders tab</button>
+              <button onClick={onOpenOrders} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: 'var(--a-green)', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>Open the full Orders tab</button>
             )}
           </div>
 
           {ordered.length > 0 && (
             <div style={card}>
-              <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Delivery windows</h3>
+              <h3 style={{ color: 'var(--a-green)', margin: '0 0 12px 0', fontSize: '16px' }}>Delivery windows</h3>
               {ordered.map(o => (
-                <div key={o.order_id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', padding: '6px 0', borderTop: '1px solid #f0ece3', fontSize: '13px' }}>
-                  <span style={{ color: '#333' }}>{o.name}{o.delivery_notes && <span style={{ display: 'block', color: '#b8923f', fontSize: '12px' }}>{o.delivery_notes}</span>}</span>
-                  <span style={{ color: '#083525', fontWeight: '600', textAlign: 'right', lineHeight: 1.4 }}>{summarizeWindows(o.delivery_time_slot) || '—'}</span>
+                <div key={o.order_id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', padding: '6px 0', borderTop: '1px solid var(--a-hair)', fontSize: '13px' }}>
+                  <span style={{ color: 'var(--a-ink)' }}>{o.name}{o.delivery_notes && <span style={{ display: 'block', color: 'var(--a-gold-ink)', fontSize: '12px' }}>{o.delivery_notes}</span>}</span>
+                  <span style={{ color: 'var(--a-green)', fontWeight: '600', textAlign: 'right', lineHeight: 1.4 }}>{summarizeWindows(o.delivery_time_slot) || '—'}</span>
                 </div>
               ))}
             </div>
@@ -334,10 +334,10 @@ export default function ThisWeek({ onOpenOrders }) {
 
           {away.length > 0 && (
             <div style={card}>
-              <h3 style={{ color: '#083525', margin: '0 0 12px 0', fontSize: '16px' }}>Away this week ({away.length})</h3>
+              <h3 style={{ color: 'var(--a-green)', margin: '0 0 12px 0', fontSize: '16px' }}>Away this week ({away.length})</h3>
               {away.map(p => (
-                <div key={p.id} style={{ padding: '8px 0', borderTop: '1px solid #f0ece3', fontSize: '14px', color: '#333' }}>
-                  {displayName(p)} <span style={{ color: '#b8923f', fontSize: '12px' }}>· ✈ {p.awayText}</span>
+                <div key={p.id} style={{ padding: '8px 0', borderTop: '1px solid var(--a-hair)', fontSize: '14px', color: 'var(--a-ink)' }}>
+                  {displayName(p)} <span style={{ color: 'var(--a-gold-ink)', fontSize: '12px' }}>· ✈ {p.awayText}</span>
                 </div>
               ))}
             </div>

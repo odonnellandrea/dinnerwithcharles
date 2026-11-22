@@ -559,14 +559,14 @@ export default function AdminApp({ onLogout, onOrder }) {
             {onOrder && (
               <button
                 onClick={onOrder}
-                style={{ padding: '9px 14px', minWidth: '104px', background: '#faf8f3', color: '#083525', border: '1px solid #faf8f3', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
+                style={{ padding: '9px 14px', minWidth: '104px', background: 'var(--a-cream)', color: 'var(--a-green)', border: '1px solid var(--a-cream)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
               >
                 Order food
               </button>
             )}
             <button
               onClick={onLogout}
-              style={{ padding: '9px 14px', minWidth: '104px', background: '#faf8f3', color: '#083525', border: '1px solid #faf8f3', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
+              style={{ padding: '9px 14px', minWidth: '104px', background: 'var(--a-cream)', color: 'var(--a-green)', border: '1px solid var(--a-cream)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600' }}
             >
               Logout
             </button>
@@ -592,7 +592,7 @@ export default function AdminApp({ onLogout, onOrder }) {
             >
               {label}
               {key === 'approvals' && waitingCount > 0 && (
-                <span style={{ marginLeft: '8px', background: '#c62828', color: 'white', borderRadius: '10px', padding: '1px 7px', fontSize: '11px', fontWeight: '700' }}>{waitingCount}</span>
+                <span style={{ marginLeft: '8px', background: 'var(--a-bad-ink)', color: 'var(--a-surface)', borderRadius: '10px', padding: '1px 7px', fontSize: '11px', fontWeight: '700' }}>{waitingCount}</span>
               )}
             </button>
           ))}
@@ -623,98 +623,98 @@ export default function AdminApp({ onLogout, onOrder }) {
 
         {screen === 'menu' && (
           <div>
-            <h2 style={{ color: '#083525', marginBottom: '6px' }}>This Week</h2>
-            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#666' }}>Edit the menu in the sheet, then work down this page.</p>
+            <h2 style={{ color: 'var(--a-green)', marginBottom: '6px' }}>This Week</h2>
+            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: 'var(--a-muted)' }}>Edit the menu in the sheet, then work down this page.</p>
             
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 1 · Check the sheet</p>
+            <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>Step 1 · Check the sheet</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px 16px', marginBottom: '6px' }}>
-                <h3 style={{ color: '#083525', margin: 0 }}>This Week's Menu</h3>
+                <h3 style={{ color: 'var(--a-green)', margin: 0 }}>This Week's Menu</h3>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <a href={MENU_SHEET_EDIT_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#083525', fontWeight: '600' }}>Open the menu sheet ↗</a>
-                  <button onClick={loadSheetMenu} style={{ padding: '6px 12px', background: 'none', border: '1px solid #e0dbd1', color: '#083525', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
+                  <a href={MENU_SHEET_EDIT_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: 'var(--a-green)', fontWeight: '600' }}>Open the menu sheet ↗</a>
+                  <button onClick={loadSheetMenu} style={{ padding: '6px 12px', background: 'none', border: '1px solid var(--a-border)', color: 'var(--a-green)', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>Refresh</button>
                 </div>
               </div>
-              <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+              <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: 1.6 }}>
                 Exactly what customers see: every row in the sheet with visible set to TRUE. Edit the sheet, then refresh here to check it.
               </p>
-              {sheetError && <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>{sheetError}</p>}
-              {!sheetError && !sheetMenu && <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Loading the sheet...</p>}
+              {sheetError && <p style={{ color: 'var(--a-bad-ink)', fontSize: '13px', margin: 0 }}>{sheetError}</p>}
+              {!sheetError && !sheetMenu && <p style={{ color: 'var(--a-faint)', fontSize: '13px', margin: 0 }}>Loading the sheet...</p>}
               {sheetMenu && sheetMenu.weeks.length > 1 && (
-                <p style={{ margin: '0 0 14px 0', padding: '12px 14px', background: '#fdf3f2', border: '1px solid #e8b4ae', color: '#c62828', fontSize: '13px', lineHeight: 1.6 }}>
+                <p style={{ margin: '0 0 14px 0', padding: '12px 14px', background: 'var(--a-bad-bg)', border: '1px solid var(--a-bad-border)', color: 'var(--a-bad-ink)', fontSize: '13px', lineHeight: 1.6 }}>
                   <strong>Rows from weeks {sheetMenu.weeks.join(' and ')} are all visible.</strong> Customers would see both menus. In the sheet, set last week's rows to FALSE, then refresh.
                 </p>
               )}
               {sheetMenu && sheetMenu.weeks.length === 1 && (
-                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#083525' }}>Showing week {sheetMenu.weeks[0]}{sheetMenu.weekOf ? `, week of ${sheetMenu.weekOf}` : ''}.</p>
+                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--a-green)' }}>Showing week {sheetMenu.weeks[0]}{sheetMenu.weekOf ? `, week of ${sheetMenu.weekOf}` : ''}.</p>
               )}
               {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).length === 0 && (
-                <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>Nothing is visible in the sheet right now, so customers see "Menu coming soon".</p>
+                <p style={{ color: 'var(--a-bad-ink)', fontSize: '13px', margin: 0 }}>Nothing is visible in the sheet right now, so customers see "Menu coming soon".</p>
               )}
               {sheetMenu && sheetMenu.intro.map((text, i) => (
-                <p key={i} style={{ margin: '0 0 14px 0', fontSize: '14px', color: '#555', lineHeight: 1.6, fontStyle: 'italic' }}>{text}</p>
+                <p key={i} style={{ margin: '0 0 14px 0', fontSize: '14px', color: 'var(--a-ink-2)', lineHeight: 1.6, fontStyle: 'italic' }}>{text}</p>
               ))}
               {sheetMenu && sheetMenu.intro.length === 0 && sheetMenu.sections.some(sec => sec.items.length) && (
-                <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#c62828' }}>No intro text this week. Add an "intro" row to the sheet if you want the welcome paragraph.</p>
+                <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: 'var(--a-bad-ink)' }}>No intro text this week. Add an "intro" row to the sheet if you want the welcome paragraph.</p>
               )}
               {sheetMenu && sheetMenu.sections.filter(sec => sec.items.length).map(sec => (
                 <div key={sec.title} style={{ marginBottom: '14px' }}>
-                  <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>{sec.title}{sec.note ? ` · ${sec.note}` : ''}</p>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>{sec.title}{sec.note ? ` · ${sec.note}` : ''}</p>
                   {sec.items.map(item => (
                     <div key={item.id} style={{ margin: '0 0 10px 0' }}>
-                      <p style={{ margin: 0, fontSize: '14px', color: '#333' }}>
-                        <strong style={{ color: '#083525' }}>{item.name}</strong>
-                        {item.sides ? <span style={{ color: '#999' }}> · {item.sides}</span> : null}
-                        {sec.type === 'addon' && Number.isFinite(item.price) ? <span style={{ color: '#999' }}> · ${(item.price / 100).toFixed(2)}</span> : null}
-                        {item.note ? <span style={{ color: '#999' }}> · {item.note}</span> : null}
+                      <p style={{ margin: 0, fontSize: '14px', color: 'var(--a-ink)' }}>
+                        <strong style={{ color: 'var(--a-green)' }}>{item.name}</strong>
+                        {item.sides ? <span style={{ color: 'var(--a-faint)' }}> · {item.sides}</span> : null}
+                        {sec.type === 'addon' && Number.isFinite(item.price) ? <span style={{ color: 'var(--a-faint)' }}> · ${(item.price / 100).toFixed(2)}</span> : null}
+                        {item.note ? <span style={{ color: 'var(--a-faint)' }}> · {item.note}</span> : null}
                       </p>
                       {item.description
-                        ? <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#666', lineHeight: 1.5 }}>{item.description}</p>
-                        : <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#c62828' }}>No description in the sheet</p>}
+                        ? <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: 1.5 }}>{item.description}</p>
+                        : <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--a-bad-ink)' }}>No description in the sheet</p>}
                     </div>
                   ))}
                 </div>
               ))}
             </div>
 
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 2 · Set the dates</p>
-              <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#083525' }}>Delivery Date</label>
+            <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>Step 2 · Set the dates</p>
+              <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: 'var(--a-green)' }}>Delivery Date</label>
               <input
                 type="date"
                 value={deliveryDate}
                 onChange={handleDeliveryDateChange}
-                style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px' }}
+                style={{ padding: '8px 12px', border: '1px solid var(--a-border)', width: '100%', maxWidth: '300px' }}
               />
 
-              <label style={{ display: 'block', margin: '20px 0 10px', fontWeight: '600', color: '#083525' }}>Orders Close</label>
+              <label style={{ display: 'block', margin: '20px 0 10px', fontWeight: '600', color: 'var(--a-green)' }}>Orders Close</label>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <input
                   type="datetime-local"
                   value={orderCloseLocal}
                   onChange={(e) => setOrderCloseLocal(e.target.value)}
-                  style={{ padding: '8px 12px', border: '1px solid #e0dbd1', width: '100%', maxWidth: '300px', fontFamily: 'inherit' }}
+                  style={{ padding: '8px 12px', border: '1px solid var(--a-border)', width: '100%', maxWidth: '300px', fontFamily: 'inherit' }}
                 />
                 <button
                   onClick={saveOrderClose}
-                  style={{ padding: '8px 20px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px' }}
+                  style={{ padding: '8px 20px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '14px' }}
                 >
                   Save Close Time
                 </button>
               </div>
-              <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#999' }}>Customers can't order after this time, even while the menu is live. Starts at 11:00 PM on the Thursday before delivery until you save a different time.</p>
+              <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: 'var(--a-faint)' }}>Customers can't order after this time, even while the menu is live. Starts at 11:00 PM on the Thursday before delivery until you save a different time.</p>
             </div>
 
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 3 · Ask a question</p>
-              <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '12px' }}>Customer Survey Question</h3>
+            <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>Step 3 · Ask a question</p>
+              <h3 style={{ color: 'var(--a-green)', marginTop: 0, marginBottom: '12px' }}>Customer Survey Question</h3>
               <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: '#083525' }}>Question</label>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600', color: 'var(--a-green)' }}>Question</label>
                 <textarea
                   value={surveyQuestion}
                   onChange={(e) => setSurveyQuestion(e.target.value)}
                   placeholder="Ask customers something about this week's menu..."
-                  style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', minHeight: '60px', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)', minHeight: '60px', boxSizing: 'border-box', fontFamily: 'inherit' }}
                 />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
@@ -725,7 +725,7 @@ export default function AdminApp({ onLogout, onOrder }) {
                   onChange={(e) => setIsSurveyActive(e.target.checked)}
                   style={{ cursor: 'pointer' }}
                 />
-                <label htmlFor="surveyActive" style={{ fontSize: '13px', color: '#083525', fontWeight: '500', cursor: 'pointer' }}>
+                <label htmlFor="surveyActive" style={{ fontSize: '13px', color: 'var(--a-green)', fontWeight: '500', cursor: 'pointer' }}>
                   Active (show to customers)
                 </label>
               </div>
@@ -747,37 +747,37 @@ export default function AdminApp({ onLogout, onOrder }) {
                     alert('✓ Survey question saved!')
                   }
                 }}
-                style={{ width: '100%', padding: '10px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                style={{ width: '100%', padding: '10px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
               >
                 Save Survey Question
               </button>
               <SurveyResponses deliveryDate={deliveryDate} refreshKey={surveySavedAt} />
             </div>
 
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 4 · Go live</p>
-              <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '8px' }}>Ordering</h3>
-              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+            <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>Step 4 · Go live</p>
+              <h3 style={{ color: 'var(--a-green)', marginTop: 0, marginBottom: '8px' }}>Ordering</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: 1.6 }}>
                 {menuLive
-                  ? <>Ordering is <strong style={{ color: '#083525' }}>open</strong> for delivery on {deliveryDate}. Customers see the sheet menu above.</>
-                  : <>Ordering is <strong style={{ color: '#083525' }}>closed</strong> for {deliveryDate}. Check the sheet above and the close time, then go live.</>}
+                  ? <>Ordering is <strong style={{ color: 'var(--a-green)' }}>open</strong> for delivery on {deliveryDate}. Customers see the sheet menu above.</>
+                  : <>Ordering is <strong style={{ color: 'var(--a-green)' }}>closed</strong> for {deliveryDate}. Check the sheet above and the close time, then go live.</>}
               </p>
               <button
                 onClick={() => {
                   const warn = !menuLive && sheetMenu?.weeks.length > 1 ? `Weeks ${sheetMenu.weeks.join(' and ')} are both visible in the sheet. Hide last week first?\n\nPress OK to go live anyway, or Cancel to fix the sheet.\n\n` : ''
                   if (window.confirm(warn + (menuLive ? 'Take ordering offline for ' + deliveryDate + '?' : 'Open ordering for delivery on ' + deliveryDate + '?'))) toggleMenuLive()
                 }}
-                style={{ padding: '12px 24px', background: menuLive ? '#D4A373' : '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}
+                style={{ padding: '12px 24px', background: menuLive ? 'var(--a-gold)' : 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}
               >
                 {menuLive ? 'Take Offline' : 'Go Live'}
               </button>
             </div>
 
 
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 5 · Tell customers</p>
-              <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '8px' }}>Menu Email</h3>
-              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+            <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>Step 5 · Tell customers</p>
+              <h3 style={{ color: 'var(--a-green)', marginTop: 0, marginBottom: '8px' }}>Menu Email</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: 1.6 }}>
                 Tells every approved customer who opted in to menu emails that the menu is up, with the delivery date and close time, and sends them to the site
                 {emailCount != null && <> ({emailCount} right now{awayNames.length ? `, with ${awayNames.length} away this week left out` : ''})</>}.
                 {' '}{menuLive ? '' : 'Go live first, then send.'}
@@ -786,73 +786,73 @@ export default function AdminApp({ onLogout, onOrder }) {
                 <button
                   onClick={sendMenuEmail}
                   disabled={!menuLive || sendingMenuEmail}
-                  style={{ padding: '8px 20px', background: menuEmailSentAt ? '#D4A373' : '#083525', color: '#faf8f3', border: 'none', cursor: !menuLive || sendingMenuEmail ? 'not-allowed' : 'pointer', fontSize: '14px', fontFamily: 'inherit', opacity: !menuLive || sendingMenuEmail ? 0.6 : 1 }}
+                  style={{ padding: '8px 20px', background: menuEmailSentAt ? 'var(--a-gold)' : 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: !menuLive || sendingMenuEmail ? 'not-allowed' : 'pointer', fontSize: '14px', fontFamily: 'inherit', opacity: !menuLive || sendingMenuEmail ? 0.6 : 1 }}
                 >
                   {sendingMenuEmail ? 'Sending...' : menuEmailSentAt ? 'Resend Menu Email' : 'Send Menu Email'}
                 </button>
-                {menuEmailSentAt && <span style={{ fontSize: '13px', color: '#083525' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
+                {menuEmailSentAt && <span style={{ fontSize: '13px', color: 'var(--a-green)' }}>✓ Sent {new Date(menuEmailSentAt).toLocaleString()}</span>}
               </div>
-              <button onClick={() => setShowEmailList(v => !v)} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: '#083525', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>
+              <button onClick={() => setShowEmailList(v => !v)} style={{ marginTop: '14px', background: 'none', border: 'none', padding: 0, color: 'var(--a-green)', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>
                 {showEmailList ? 'Hide' : 'Show'} who gets the email ({emailList.length})
               </button>
               {showEmailList && (
-                <ul style={{ margin: '10px 0 0 0', paddingLeft: '20px', fontSize: '13px', color: '#333', lineHeight: 1.8 }}>
-                  {emailList.length === 0 && <li style={{ listStyle: 'none', marginLeft: '-20px', color: '#666' }}>Nobody has opted in to menu emails yet.</li>}
-                  {emailList.map(p => <li key={p.id}>{p.name} <span style={{ color: '#999' }}>· {p.email}</span></li>)}
-                  {awayNames.length > 0 && <li style={{ listStyle: 'none', marginLeft: '-20px', color: '#b8923f', marginTop: '6px' }}>✈ Away this week, not emailed: {awayNames.join(', ')}</li>}
+                <ul style={{ margin: '10px 0 0 0', paddingLeft: '20px', fontSize: '13px', color: 'var(--a-ink)', lineHeight: 1.8 }}>
+                  {emailList.length === 0 && <li style={{ listStyle: 'none', marginLeft: '-20px', color: 'var(--a-muted)' }}>Nobody has opted in to menu emails yet.</li>}
+                  {emailList.map(p => <li key={p.id}>{p.name} <span style={{ color: 'var(--a-faint)' }}>· {p.email}</span></li>)}
+                  {awayNames.length > 0 && <li style={{ listStyle: 'none', marginLeft: '-20px', color: 'var(--a-gold-ink)', marginTop: '6px' }}>✈ Away this week, not emailed: {awayNames.join(', ')}</li>}
                 </ul>
               )}
             </div>
 
-            <div style={{ background: 'white', padding: '20px', marginBottom: '20px', border: '1px solid #e0dbd1' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#D4A373', fontWeight: '600' }}>Step 6 · Text customers</p>
-              <h3 style={{ color: '#083525', marginTop: 0, marginBottom: '8px' }}>Menu Text</h3>
-              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#666', lineHeight: 1.6 }}>
+            <div style={{ background: 'var(--a-surface)', padding: '20px', marginBottom: '20px', border: '1px solid var(--a-border)' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--a-gold)', fontWeight: '600' }}>Step 6 · Text customers</p>
+              <h3 style={{ color: 'var(--a-green)', marginTop: 0, marginBottom: '8px' }}>Menu Text</h3>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: 'var(--a-muted)', lineHeight: 1.6 }}>
                 Nothing is sent automatically. Write the message once, add this week's menu image, then tap Text next to each person: your phone's Messages app opens with the message filled in.
               </p>
-              <label htmlFor="menuText" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#083525' }}>Message</label>
+              <label htmlFor="menuText" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: 'var(--a-green)' }}>Message</label>
               <textarea
                 id="menuText"
                 value={menuText}
                 onChange={(e) => saveMenuText(e.target.value)}
                 rows={4}
-                style={{ width: '100%', padding: '10px', border: '1px solid #e0dbd1', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px', lineHeight: 1.5 }}
+                style={{ width: '100%', padding: '10px', border: '1px solid var(--a-border)', boxSizing: 'border-box', fontFamily: 'inherit', fontSize: '14px', lineHeight: 1.5 }}
               />
-              <p style={{ margin: '6px 0 14px 0', fontSize: '12px', color: '#999', lineHeight: 1.6 }}>
+              <p style={{ margin: '6px 0 14px 0', fontSize: '12px', color: 'var(--a-faint)', lineHeight: 1.6 }}>
                 {'{first}'} becomes their first name, {'{date}'} the delivery date and {'{close}'} the order close time. Preview: <em>{personalMenuText('Jiaqi Chen')}</em>
               </p>
-              <label htmlFor="menuImage" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: '#083525' }}>Menu image (optional)</label>
+              <label htmlFor="menuImage" style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '600', color: 'var(--a-green)' }}>Menu image (optional)</label>
               <input id="menuImage" type="file" accept="image/*" onChange={(e) => setMenuImage(e.target.files?.[0] || null)} style={{ fontSize: '13px', marginBottom: '4px' }} />
-              <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#999', lineHeight: 1.6 }}>
+              <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: 'var(--a-faint)', lineHeight: 1.6 }}>
                 {menuImage ? (canShareImage() ? `✓ ${menuImage.name} goes with each text through your phone's share sheet.` : `${menuImage.name} is picked, but this browser can't share images. Use the Text link and attach it by hand.`) : 'Pick this week\'s menu JPEG from your photos. On an iPhone it goes with the message through the share sheet.'}
               </p>
-              <button onClick={() => setShowSmsList(v => !v)} style={{ padding: '8px 20px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>
+              <button onClick={() => setShowSmsList(v => !v)} style={{ padding: '8px 20px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }}>
                 {showSmsList ? 'Hide the list' : `Who to text (${smsList.length})`}
               </button>
-              {shareNote && <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#083525' }}>{shareNote}</p>}
+              {shareNote && <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: 'var(--a-green)' }}>{shareNote}</p>}
               {showSmsList && (
-                <div style={{ marginTop: '12px', fontSize: '13px', color: '#333', lineHeight: 1.8 }}>
-                  {smsList.length === 0 && <p style={{ margin: 0, color: '#666' }}>Nobody has opted in to texts yet.</p>}
+                <div style={{ marginTop: '12px', fontSize: '13px', color: 'var(--a-ink)', lineHeight: 1.8 }}>
+                  {smsList.length === 0 && <p style={{ margin: 0, color: 'var(--a-muted)' }}>Nobody has opted in to texts yet.</p>}
                   {smsList.map(p => (
-                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', borderTop: '1px solid #f0ece3', padding: '6px 0' }}>
-                      <span>{p.name} <span style={{ color: '#999' }}>· {p.phone}</span></span>
+                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', borderTop: '1px solid var(--a-hair)', padding: '6px 0' }}>
+                      <span>{p.name} <span style={{ color: 'var(--a-faint)' }}>· {p.phone}</span></span>
                       <span style={{ display: 'flex', gap: '6px' }}>
                         {canShareImage() && (
-                          <button onClick={() => shareWithImage(p)} style={{ padding: '4px 12px', background: '#083525', color: '#faf8f3', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                          <button onClick={() => shareWithImage(p)} style={{ padding: '4px 12px', background: 'var(--a-green)', color: 'var(--a-cream)', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                             Text with image
                           </button>
                         )}
-                        <a href={smsLink(p)} style={{ padding: '4px 12px', background: 'white', color: '#083525', border: '1px solid #083525', fontSize: '12px', fontWeight: '600', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                        <a href={smsLink(p)} style={{ padding: '4px 12px', background: 'var(--a-surface)', color: 'var(--a-green)', border: '1px solid var(--a-green)', fontSize: '12px', fontWeight: '600', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                           Text
                         </a>
                       </span>
                     </div>
                   ))}
                   {awayNames.length > 0 && (
-                    <p style={{ margin: '10px 0 0 0', color: '#b8923f' }}>✈ Away this week, not on the list: {awayNames.join(', ')}</p>
+                    <p style={{ margin: '10px 0 0 0', color: 'var(--a-gold-ink)' }}>✈ Away this week, not on the list: {awayNames.join(', ')}</p>
                   )}
                   {notifyLists.smsNoNumber.length > 0 && (
-                    <p style={{ margin: '10px 0 0 0', color: '#c62828' }}>Opted in but no number on file: {notifyLists.smsNoNumber.map(p => p.name).join(', ')}</p>
+                    <p style={{ margin: '10px 0 0 0', color: 'var(--a-bad-ink)' }}>Opted in but no number on file: {notifyLists.smsNoNumber.map(p => p.name).join(', ')}</p>
                   )}
                 </div>
               )}
