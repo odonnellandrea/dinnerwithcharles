@@ -5,8 +5,12 @@ import { supabase } from '../lib/supabase'
 // dinnerwithcharles.com/menu: this week's menu, read live from the sheet, with no sign-in and no
 // link from the homepage. Laid out like the printed menu PDF: tan page, cream card, Times and
 // Courier, numbered dishes, gold add-on prices, and the badge in the footer box.
-const PAGE = '#f6f1e4', EDGE = '#d9cdb2', BOX = '#e4dbc2', GREEN = '#083525', SOFT = '#1f4a38', GOLD = '#a8813f'
-const INK = '#2a2620', MUTED = '#7d7a69', DARK = '#1a1610', RULE = '#cfc8b4', DASH = '#b3a988'
+// Light: the printed menu's tan and cream. Dark (the phone's setting): deep forest card on a darker page,
+// cream type, brass stays. Picked once per visit from prefers-color-scheme.
+const LIGHT = { PAGE: '#f6f1e4', EDGE: '#d9cdb2', BOX: '#e4dbc2', GREEN: '#083525', SOFT: '#1f4a38', GOLD: '#a8813f', INK: '#2a2620', MUTED: '#7d7a69', DARK: '#1a1610', RULE: '#cfc8b4', DASH: '#b3a988' }
+const DARKMODE = { PAGE: '#0f3a2b', EDGE: '#06211a', BOX: '#0b2d22', GREEN: '#f3efe6', SOFT: 'rgba(243,239,230,0.8)', GOLD: '#d4a373', INK: '#e8e2d6', MUTED: 'rgba(243,239,230,0.6)', DARK: '#d4a373', RULE: 'rgba(250,248,243,0.16)', DASH: 'rgba(250,248,243,0.22)' }
+const prefersDark = () => typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+const { PAGE, EDGE, BOX, GREEN, SOFT, GOLD, INK, MUTED, DARK, RULE, DASH } = prefersDark() ? DARKMODE : LIGHT
 const serif = "'Times New Roman', Times, Georgia, serif"
 const mono = "'Courier New', Courier, monospace"
 const sans = "Helvetica, Arial, sans-serif"
@@ -84,7 +88,7 @@ export default function PublicMenu() {
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                   <h2 style={{ margin: 0, fontFamily: serif, fontWeight: '700', fontSize: '22px', color: GREEN }}>{section.title}</h2>
-                  {section.note && <span style={{ background: GREEN, color: PAGE, fontFamily: mono, fontSize: '10.5px', letterSpacing: '0.06em', padding: '5px 10px', whiteSpace: 'nowrap', textTransform: 'uppercase' }}>{section.note}</span>}
+                  {section.note && <span style={{ background: prefersDark() ? GOLD : GREEN, color: prefersDark() ? '#083525' : PAGE, fontFamily: mono, fontSize: '10.5px', letterSpacing: '0.06em', padding: '5px 10px', whiteSpace: 'nowrap', textTransform: 'uppercase' }}>{section.note}</span>}
                 </div>
                 <div style={{ marginTop: '18px' }}>
                   {section.items.map((item, i) => (
@@ -121,7 +125,7 @@ export default function PublicMenu() {
         <p style={{ margin: 0, fontFamily: serif, fontStyle: 'italic', fontSize: '14px', color: SOFT, textAlign: 'center' }}>from our kitchen to your table</p>
         {open && (
           <div style={{ textAlign: 'center', margin: '18px 0 0' }}>
-            <span style={{ display: 'inline-block', background: GREEN, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '7px 14px' }}>
+            <span style={{ display: 'inline-block', background: prefersDark() ? GOLD : GREEN, color: prefersDark() ? '#083525' : PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '7px 14px' }}>
               {`WEEK OF ${shortDate(status.delivery_date || menu?.weekOf)}`}
             </span>
           </div>
@@ -167,7 +171,7 @@ export default function PublicMenu() {
               $160 for 3 entrées and 2 sides, delivered Monday. Each dish feeds 2–3 people. Our kitchen is at capacity for now, and we’re expanding soon. Join the waitlist and we’ll be in touch as spots open.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px', maxWidth: '340px', margin: '0 auto' }}>
-              <a href="/?join=1" style={{ display: 'block', background: GREEN, border: `1px solid ${GREEN}`, color: PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Join the waitlist</a>
+              <a href="/?join=1" style={{ display: 'block', background: prefersDark() ? GOLD : GREEN, border: `1px solid ${prefersDark() ? GOLD : GREEN}`, color: prefersDark() ? '#083525' : PAGE, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Join the waitlist</a>
               <a href="/" style={{ display: 'block', border: `1px solid ${GREEN}`, color: GREEN, fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', padding: '11px 8px', textDecoration: 'none', textTransform: 'uppercase', textAlign: 'center', whiteSpace: 'nowrap' }}>Sign in to order</a>
             </div>
           </div>

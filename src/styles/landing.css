@@ -308,3 +308,29 @@
 @media (max-width: 900px) {
   .landing-about img.landing-about-img--pastry { object-position: center 92%; }
 }
+
+/* Dark mode: follows the phone's setting. Deep forest page, a slightly lighter surface for the
+   white blocks, cream type, gold for the buttons. The photo band and the green bars stay as they are. */
+@media (prefers-color-scheme: dark) {
+  .landing {
+    --bg: #0b2d22;
+    --surface: #10392b;
+    --bar: #06211a;
+    --fg: #f3efe6;
+    --muted: rgba(243, 239, 230, 0.72);
+    --border: rgba(250, 248, 243, 0.14);
+    color-scheme: dark;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .landing h1, .landing h2, .landing h3 { color: var(--fg); }
+  .landing-header, .landing-footer { background: var(--bar); }
+  .landing-section--white, .landing-join, .landing-price-card { background: var(--surface); }
+  .landing-join h2, .landing-price, .landing-price-card p.landing-price-serves, .landing-price-list span:last-child { color: var(--fg); }
+  .landing-link { color: var(--fg); }
+  .landing-btn { background: var(--gold); border-color: var(--gold); color: #083525; }
+  .landing-btn:hover { background: var(--fg); border-color: var(--fg); color: #083525; }
+  .landing-btn--outline { background: transparent; border-color: var(--fg); color: var(--fg); }
+  .landing-btn--outline:hover { background: var(--fg); color: #083525; }
+  .landing-header .landing-btn { background: var(--gold); border-color: var(--gold); color: #083525; }
+}
